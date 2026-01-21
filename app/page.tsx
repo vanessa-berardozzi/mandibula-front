@@ -1,8 +1,9 @@
+"use client";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans text-blue-500">
-      <h1>Hello World</h1>
-    </div>
+    <main >
+     
+    </main>
   );
 }
