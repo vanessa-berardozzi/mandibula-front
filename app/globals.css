@@ -1,29 +1,26 @@
+/* ============================================
+   MANDIBULA SHOP - STYLES GLOBAUX
+   ============================================ */
 
-.neon-glow {
-  text-shadow: 0 0 8px #39ff14, 0 0 16px #39ff14, 0 0 32px #39ff14;
-}
-
-@media (max-width: 600px) {
-  .glass-banner-bg {
-    max-width: 98vw;
-    font-size: 0.95rem;
-    padding: 0.75rem 1rem;
-  }
-}
 @import "tailwindcss";
 
-
-
-
+/* ============================================
+   VARIABLES CSS
+   ============================================ */
 :root {
+  /* Layout */
   --radius: 0.625rem;
   --background: transparent;
-  --foreground: oklch(98.511% 0.00011 271.152);
+  --foreground: oklch(92.675% 0.0119 145.891);
+
+  /* Cards & Popovers */
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+
+  /* Thème */
+  --primary: rgb(216, 249, 153);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -32,26 +29,52 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+
+  /* Borders & Inputs */
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --input: ;
   --ring: oklch(0.556 0 0);
+
+  /* Sidebar */
   --sidebar: rgba(245, 234, 234, 0.041);
-  --sidebar-foreground: #b5cccb;
+  --sidebar-foreground: oklch(92.675% 0.0119 145.891);
   --sidebar-primary: oklch(63.635% 0.20093 338.708 / 0.623);
-  --sidebar-primary-foreground: oklch(66.987% 0.20089 144.837);
-  --sidebar-accent: oklch(69.376% 0.14892 160.686); 
-  --sidebar-accent-foreground: oklch(75.46% 0.17043 159.133);
+  --sidebar-primary-foreground: rgb(216, 249, 153);
+  --sidebar-accent: oklch(78.934% 0.17186 160.341);
+  --sidebar-accent-foreground: oklch(67.475% 0.21742 143.669);
   --sidebar-border: rgba(11, 44, 30, 0.212);
   --sidebar-ring: oklch(65.645% 0.21343 142.434 / 0.014);
 }
 
 
-@layer base {
-
+/* ============================================
+   COULEUR DES ICONES SVG
+   ============================================ */
+.icon-foreground {
+  color: var(--foreground);
 }
 
+/* ============================================
+   EFFETS NÉON
+   ============================================ */
 
+/* Effet néon pour texte au hover */
+.hover\:neon-glow:hover {
+  text-shadow: 0 0 25px #39ff14, 0 0 8px #39ff14, 0 0 10px #39ff14 !important;
+}
 
+/* Effet néon pour icônes SVG au hover */
+.icon-neon-hover {
+  transition: filter 0.3s ease;
+}
+
+.icon-neon-hover:hover {
+  filter: drop-shadow(0 0 8px #39ff14) drop-shadow(0 0 12px #39ff14) drop-shadow(0 0 16px #39ff14);
+}
+
+/* ============================================
+   THÈME TAILWIND
+   ============================================ */
 @theme inline {
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);

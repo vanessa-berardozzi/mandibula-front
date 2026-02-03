@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/layout/Sidebar/sidebar";
+import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/layout/Header/Sidebar/sidebar";
 import { useState } from "react";
 
 // Configuration des catégories avec couleurs personnalisées

@@ -1,4 +1,4 @@
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/layout/Sidebar/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/layout/Header/Sidebar/sidebar";
 
 // Ce composant affichera dynamiquement les catégories et sous-catégories depuis une API plus tard
 export function SidebarCategories({ categories = [] }) {

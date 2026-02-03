@@ -1,5 +1,5 @@
 
-export { Banner } from './banner';
+export { Banner } from '../layout/Header/banner';
 export { Button, buttonVariants } from './button';
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
 export {

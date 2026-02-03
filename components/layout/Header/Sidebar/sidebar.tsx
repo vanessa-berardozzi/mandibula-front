@@ -1,5 +1,6 @@
 "use client"
 
+// === IMPORTS ===
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { MenuIcon } from "lucide-react"
@@ -25,25 +26,31 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state"
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "14rem"
-const SIDEBAR_WIDTH_MOBILE = "5rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
-const SIDEBAR_KEYBOARD_SHORTCUT = "b" // Cmd/Ctrl + B
+// === CONSTANTES DE CONFIGURATION ===
+const SIDEBAR_COOKIE_NAME = "sidebar_state" // Nom du cookie pour sauvegarder l'état ouvert/fermé
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // Durée du cookie : 7 jours
+const SIDEBAR_WIDTH = "14rem" // Largeur de la sidebar en mode desktop
+const SIDEBAR_WIDTH_MOBILE = "5rem" // Largeur de la sidebar sur mobile
+const SIDEBAR_WIDTH_ICON = "3rem" // Largeur de la sidebar en mode icône seulement
+const SIDEBAR_KEYBOARD_SHORTCUT = "b" // Raccourci clavier : Cmd/Ctrl + B
 
+// === CONTEXTE SIDEBAR ===
+// Type définissant toutes les propriétés disponibles dans le contexte de la sidebar
 type SidebarContextProps = {
-  state: "expanded" | "collapsed"
-  open: boolean
-  setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
-  isMobile: boolean
-  toggleSidebar: () => void
+  state: "expanded" | "collapsed" // État visuel : ouverte ou fermée
+  open: boolean // État d'ouverture sur desktop
+  setOpen: (open: boolean) => void // Fonction pour ouvrir/fermer sur desktop
+  openMobile: boolean // État d'ouverture sur mobile
+  setOpenMobile: (open: boolean) => void // Fonction pour ouvrir/fermer sur mobile
+  isMobile: boolean // Détecte si on est sur mobile
+  toggleSidebar: () => void // Fonction pour basculer l'état ouvert/fermé
 }
 
+// Création du contexte React pour partager l'état de la sidebar dans tout l'arbre de composants
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
+// === HOOK PERSONNALISÉ ===
+// Hook pour accéder facilement au contexte de la sidebar depuis n'importe quel composant enfant
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
@@ -53,10 +60,12 @@ function useSidebar() {
   return context
 }
 
+// === PROVIDER DE LA SIDEBAR ===
+// Composant principal qui enveloppe toute l'application et gère l'état global de la sidebar
 function SidebarProvider({
-  defaultOpen = true,
-  open: openProp,
-  onOpenChange: setOpenProp,
+  defaultOpen = true, // Par défaut, la sidebar est ouverte
+  open: openProp, // Permet de contrôler l'état depuis l'extérieur
+  onOpenChange: setOpenProp, // Callback appelé quand l'état change
   className,
   style,
   children,
@@ -66,11 +75,11 @@ function SidebarProvider({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
-  const isMobile = useIsMobile()
-  const [openMobile, setOpenMobile] = React.useState(false)
+  const isMobile = useIsMobile() // Détecte si on est sur mobile
+  const [openMobile, setOpenMobile] = React.useState(false) // État séparé pour le mobile
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
+  // État interne de la sidebar (ouvert/fermé)
+  // Si openProp est fourni, on l'utilise (mode contrôlé), sinon on utilise l'état interne
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
@@ -82,18 +91,18 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // This sets the cookie to keep the sidebar state.
+      // Sauvegarde l'état dans un cookie pour le garder entre les sessions
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
 
-  // Helper to toggle the sidebar.
+  // Fonction pour basculer l'état de la sidebar (ouvrir si fermée, fermer si ouverte)
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
-  // Adds a keyboard shortcut to toggle the sidebar.
+  // Ajoute un raccourci clavier (Cmd/Ctrl + B) pour ouvrir/fermer la sidebar
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -139,7 +148,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full ",
             className
           )}
           {...props}
@@ -151,10 +160,12 @@ function SidebarProvider({
   )
 }
 
+// === COMPOSANT SIDEBAR PRINCIPAL ===
+// Gère l'affichage de la sidebar selon le contexte (mobile, desktop, collapsed...)
 function Sidebar({
-  side = "left",
-  variant = "sidebar",
-  collapsible = "offcanvas",
+  side = "left", // Côté d'affichage : gauche ou droite
+  variant = "sidebar", // Style visuel : normal, flottant ou inset
+  collapsible = "offcanvas", // Type de collapse : offcanvas (sort de l'écran) ou icon (réduit en icône)
   className,
   children,
   ...props
@@ -165,12 +176,13 @@ function Sidebar({
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
+  // Si la sidebar n'est pas collapsible, affichage simple et permanent
   if (collapsible === "none") {
     return (
       <div
         data-slot="sidebar"
         className={cn(
-          "bg-sidebar backdrop-blur-xl   text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col",
+          "bg-sidebar backdrop-blur-xl text-sidebar-foreground  flex h-full w-(--sidebar-width) flex-col  ",
           className
         )}
         {...props}
@@ -180,21 +192,22 @@ function Sidebar({
     )
   }
 
+  // Version mobile : utilise un Sheet (panneau coulissant) qui se superpose au contenu
   if (isMobile) {
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-        <SheetContent
-          data-sidebar="sidebar"
-          data-slot="sidebar"
-          data-mobile="true"
-          className="bg-sidebar backdrop-blur-xl text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-          side={side}
-        >
+          <SheetContent
+            data-sidebar="sidebar"
+            data-slot="sidebar"
+            data-mobile="true"
+            className="bg-sidebar backdrop-blur-xl text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              } as React.CSSProperties
+            }
+            side={side}
+          >
           <SheetHeader className="sr-only">
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
@@ -205,9 +218,11 @@ function Sidebar({
     )
   }
 
+  // Version desktop : sidebar fixe avec animations de slide
+
   return (
     <div
-      className="group peer text-sidebar-foreground hidden md:block"
+      className="group peer text-sidebar-foreground  hidden md:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
@@ -253,6 +268,8 @@ function Sidebar({
   )
 }
 
+// === BOUTON POUR OUVRIR/FERMER LA SIDEBAR ===
+// Composant bouton avec l'icône hamburger pour toggler la sidebar
 function SidebarTrigger({
   className,
   onClick,
@@ -318,6 +335,9 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   )
 }
 
+// === COMPOSANTS DE STRUCTURE ===
+
+// Input pour la recherche dans la sidebar
 function SidebarInput({
   className,
   ...props
@@ -332,6 +352,7 @@ function SidebarInput({
   )
 }
 
+// Header en haut de la sidebar (logo, titre, etc.)
 function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -343,6 +364,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// Footer en bas de la sidebar (infos utilisateur, déconnexion, etc.)
 function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -368,6 +390,7 @@ function SidebarSeparator({
   )
 }
 
+// Contenu principal de la sidebar (zone scrollable avec les catégories)
 function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -382,6 +405,9 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// === COMPOSANTS DE GROUPEMENT ===
+
+// Groupe de menu (pour organiser les catégories ensemble)
 function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -405,7 +431,7 @@ function SidebarGroupLabel({
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        "text-sidebar-foreground/80 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-sidebar-foreground/80  flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className
       )}
@@ -426,7 +452,7 @@ function SidebarGroupAction({
       data-slot="sidebar-group-action"
       data-sidebar="group-action"
       className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-sidebar-foreground  ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 md:after:hidden",
         "group-data-[collapsible=icon]:hidden",
@@ -451,6 +477,9 @@ function SidebarGroupContent({
   )
 }
 
+// === COMPOSANTS DE MENU (CATÉGORIES) ===
+
+// Liste de menu (ul) pour contenir tous les items de catégories
 function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
@@ -462,6 +491,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
   )
 }
 
+// Item de menu (li) - représente une catégorie
 function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
@@ -473,19 +503,22 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
   )
 }
 
+// === STYLES DES BOUTONS DE CATÉGORIES ===
+// Définit les classes CSS pour les boutons de catégories avec variants de taille
+// Classes importantes :
+// - color-[var(--foreground)] : utilise la couleur de texte globale du projet
+// - hover:neon-glow : applique l'effet néon au survol (défini dans globals.css)
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-1 overflow-hidden rounded-none py-3 px-4 text-left text-sm outline- ring-sidebar-ring transition-all border- shadow-xl hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "flex w-full items-center gap-2 py-3 px-4 text-left text-sm rounded-md transition-all cursor-pointer border border-transparent color-[var(--foreground)] hover:neon-glow group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-2 [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-        outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+        default: "", // Variant par défaut (simplifié)
       },
       size: {
-        default: "text-sm",
-        sm: "text-xs py-2 px-3",
-        lg: "text-md py-4 px-5 group-data-[collapsible=icon]:p-0!",
+        default: "text-sm py-3 px-4", // Taille normale
+        sm: "text-xs py-2 px-3", // Petite taille
+        lg: "text-base py-4 px-5", // Grande taille
       },
     },
     defaultVariants: {
@@ -495,6 +528,8 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
+// Bouton de catégorie principale (ex: Isopodes, Blattes, Accessoires)
+// Le background est défini dans SidebarContent.tsx avec les couleurs personnalisées
 function SidebarMenuButton({
   asChild = false,
   isActive = false,
@@ -607,9 +642,7 @@ function SidebarMenuSkeleton({
   showIcon?: boolean
 }) {
   // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
-  }, [])
+  const [width] = React.useState(() => `${Math.floor(Math.random() * 40) + 50}%`)
 
   return (
     <div
@@ -637,14 +670,17 @@ function SidebarMenuSkeleton({
   )
 }
 
+// === COMPOSANTS DE SOUS-MENU (SOUS-CATÉGORIES) ===
+
+// Liste des sous-catégories (ul)
 function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        
-        "group-data-[collapsible=icon]:hidden",
+        "flex flex-col gap-1 mt-1", // Espacement entre les items
+        "group-data-[collapsible=icon]:hidden", // Caché en mode icône
         className
       )}
       {...props}
@@ -652,6 +688,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
   )
 }
 
+// Item de sous-catégorie (li)
 function SidebarMenuSubItem({
   className,
   ...props
@@ -666,6 +703,9 @@ function SidebarMenuSubItem({
   )
 }
 
+// Bouton de sous-catégorie (ex: Débutant, Intermédiaire, Expert)
+// Styles simplifiés avec effet néon au hover
+// Le background est défini dans SidebarContent.tsx avec les couleurs personnalisées
 function SidebarMenuSubButton({
   asChild = false,
   size = "md",
@@ -686,11 +726,11 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded py-2 px-3 border outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 transition-all",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        "flex items-center gap-2 py-2 px-3 rounded-md border border-transparent cursor-pointer transition-all color-[var(--foreground)] hover:neon-glow",
         size === "sm" && "text-xs py-1 px-2",
-        size === "md" && "text-sm",
+        size === "md" && "text-sm py-2 px-3",
         "group-data-[collapsible=icon]:hidden",
+        "[&>svg]:size-4 [&>svg]:shrink-0",
         className
       )}
       {...props}

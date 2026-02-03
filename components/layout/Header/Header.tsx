@@ -1,7 +1,7 @@
 'use client';
 
 import { Banner } from '@/components/ui';
-import { Navbar } from './Navbar/navbar';
+import { Navbar } from './navbar';
 
 export default function Header() {
 	return (
