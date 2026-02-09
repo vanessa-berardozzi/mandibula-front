@@ -1,17 +1,17 @@
 "use client";
 
-import { LoginFormSheet } from "@/components/auth/LoginFormSheet";
+import { SignupFormSheet } from "@/components/auth/SignupFormSheet";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
 
   return (
     <div className="min-h-screen bg-sidebar backdrop-blur-xl flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <LoginFormSheet
+        <SignupFormSheet
           onSuccess={() => router.push("/")}
-          onSwitchToSignup={() => router.push("/signup")}
+          onSwitchToLogin={() => router.push("/login")}
         />
       </div>
     </div>

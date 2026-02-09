@@ -26,7 +26,7 @@ export default function RootLayout({children}: Readonly<{
 						src='/fond_jungle.png'
 						alt='Jungle futuriste'
 						fill
-						className='object-cover opacity-100'
+						className='object-cover '
 						draggable={false}
 						priority
 					/>
