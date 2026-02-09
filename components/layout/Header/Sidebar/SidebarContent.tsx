@@ -20,7 +20,7 @@ const categories = [
   {
     id: "accessoires",
     name: "Accessoires",
-    color: "#658e7d", 
+    color: "#00d492", 
     subcategories: ["Terrariums", "Substrats", "Décoration", "Nourriture"]
   }
 ];
@@ -41,11 +41,11 @@ export function SidebarContent() {
               <SidebarMenuButton 
                 onClick={() => toggleCategory(category.id)}
                 style={{
-                  background: `linear-gradient(to right, ${category.color}66, ${category.color}33)`,
-                  borderColor: `${category.color}33`,
+                  background: `linear-gradient(to right, ${category.color}70, ${category.color}33)`,
+                  borderColor: `${category.color}30`,
                   boxShadow: `0 10px 15px -3px ${category.color}66`
                 }}
-                className="hover:opacity-90 transition-opacity"
+                className="hover-bg-opacity transition-all"
               >
                 {category.name}
               </SidebarMenuButton>
@@ -58,7 +58,7 @@ export function SidebarContent() {
                           background: `linear-gradient(to right, ${category.color}4D, ${category.color}26)`,
                           borderColor: `${category.color}4D`
                         }}
-                        className="hover:opacity-90 transition-opacity"
+                        className="hover-bg-opacity transition-all"
                       >
                         {subcat}
                       </SidebarMenuSubButton>

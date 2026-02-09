@@ -1,13 +1,31 @@
 'use client';
 
+import AuthSheet from "@/components/auth/AuthSheet";
+import { Input } from "@/components/ui";
 import { Search, ShoppingCart, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  // --- AuthSheet ouvert/fermé, persistant sur refresh ---
+  const [authOpen, setAuthOpen] = useState(() => {
+    // On lit la valeur du localStorage au premier rendu (coté client)
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("authSheetOpen") === "true";
+    }
+    return false;
+  });
+
+  // À chaque changement d'ouverture, on sauvegarde dans localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("authSheetOpen", authOpen ? "true" : "false");
+    }
+  }, [authOpen]);
+  // ------------------------------------------------------
 
   return (
     <nav aria-label="Navigation principale">
@@ -36,14 +54,14 @@ export function Navbar() {
           {/* Champ de recherche */}
           {isSearchOpen ? (
             <div className="flex items-center gap-2 animate-in slide-in-from-right duration-200">
-              <input
+              <Input
                 type="text"
                 value={searchValue}
                 onChange={e => setSearchValue(e.target.value)}
                 placeholder={searchValue.length === 0 ? "Rechercher..." : ""}
                 autoFocus
-                style={{ color: 'var(--foreground)' }}
-                className="w-50 px-4 py-2 rounded-md bg-emerald-100/20 border border-emerald-500/20 placeholder-(--foreground) focus:outline-none focus:border-primary transition"
+              
+                className="w-50 px-4 py-2 rounded-md border-neon-glow"
               />
               <button 
                 onClick={() => setIsSearchOpen(false)}
@@ -64,11 +82,17 @@ export function Navbar() {
           <Link href="/cart">
             <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
           </Link>
-          <Link href="/profile">
+          <button onClick={() => setAuthOpen(true)} aria-label="Profil / Auth">
             <User className="w-6 h-6 icon-foreground icon-neon-hover" />
-          </Link>
+          </button>
         </div>
       </div>
+      {/*
+        AuthSheet :
+        - open = état d'ouverture (persisté)
+        - onOpenChange = met à jour l'état et donc le localStorage
+      */}
+      <AuthSheet open={authOpen} onOpenChange={setAuthOpen} mode="login" />
     </nav>
   );
 }

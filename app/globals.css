@@ -8,42 +8,152 @@
    VARIABLES CSS
    ============================================ */
 :root {
-  /* Layout */
+  /* ============================================
+     LAYOUT & ESPACEMENT
+     ============================================ */
+  /* Rayon de bordure par défaut pour tous les éléments arrondis */
   --radius: 0.625rem;
+  
+  /* Fond transparent pour laisser voir le background du parent/page */
   --background: transparent;
-  --foreground: oklch(92.675% 0.0119 145.891);
+  
+  /* Couleur du texte générique (pour les paragraphes, descriptions, etc.) */
+  --foreground: rgb(28, 207, 207);
 
-  /* Cards & Popovers */
+  /* ============================================
+     CARTES & POP-OVERS
+     ============================================ */
+  /* Fond des cartes (boîtes avec contenu) - très foncé pour contraste */
   --card: oklch(0.205 0 0);
+  /* Texte sur les cartes - blanc cassé pour lisibilité */
   --card-foreground: oklch(0.985 0 0);
+  
+  /* Fond des pop-overs (menus flottants) - même que les cartes */
   --popover: oklch(0.205 0 0);
+  /* Texte dans les pop-overs */
   --popover-foreground: oklch(0.985 0 0);
 
-  /* Thème */
-  --primary: rgb(216, 249, 153);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  /* ============================================
+     THÈME PRINCIPAL
+     ============================================ */
+  /* Couleur primaire = bouton principal, appels à l'action (CTA)
+     Vert-lime vif pour attirer l'attention */
+  --primary: oklch(79.243% 0.17951 159.024 / 0.842);
+  
+  /* Texte SUR la couleur primaire (bouton primaire)
+     Doit avoir assez de contraste avec le fond primaire */
+  --primary-foreground: oklch(91% 0.096 180.426);
+  
+  /* Couleur secondaire = boutons secondaires, éléments moins importants
+     Bleu pour offrir une alternative au vert primaire */
+  --secondary: oklch(72.423% 0.12079 213.212);
+  /* Texte sur fond secondaire */
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  
+  /* Couleur muted = pour les éléments désactivés, non-interactifs
+     Gris neutre et discret */
+  --muted: oklch(91.765% 0.0109 16.83 / 0.781);
+  /* Texte sur fond muted */
   --muted-foreground: oklch(0.708 0 0);
+  
+  /* Couleur accent = pour mettre en évidence, hover effects, sélections
+     C'est un "coup de projecteur" sur certains éléments */
   --accent: oklch(0.269 0 0);
+  /* Texte sur fond accent */
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  
+  /* Couleur destructive = pour les actions dangereuses (supprimer, confirmer, etc.)
+     Rouge alerte pour signaler le danger */
+  --destructive: oklch(58.787% 0.23114 27.936);
 
-  /* Borders & Inputs */
-  --border: oklch(1 0 0 / 10%);
-  --input: ;
-  --ring: oklch(0.556 0 0);
+  /* ============================================
+     BORDURES & INPUTS
+     ============================================ */
+  /* Couleur des bordures (lignes fine autour des éléments)
+     Très subtile, semi-transparent pour un look moderne */
+  --border: #175a4067; /* Gris moderne, neutre */
+  
+  /* Fond des champs de saisie (input, textarea, select)
+     Visible mais pas agressif */
+  --input: oklch(87.76% 0.05615 152.357 / 0.26);
+  
+  /* Couleur de la "bague" autour des éléments au focus (accessibilité)
+     Aide à voir quel élément est actuellement sélectionné */
+  --ring: oklch(54.307% 0.13235 153.987);
 
-  /* Sidebar */
+  /* ============================================
+     BARRE LATÉRALE (SIDEBAR)
+     ============================================ */
+  /* Fond de la sidebar - très subtil, presque transparent */
   --sidebar: rgba(245, 234, 234, 0.041);
+  
+  /* Texte générique dans la sidebar */
   --sidebar-foreground: oklch(92.675% 0.0119 145.891);
+  
+  /* Couleur primaire pour les items actifs/sélectionnés dans la sidebar */
   --sidebar-primary: oklch(63.635% 0.20093 338.708 / 0.623);
-  --sidebar-primary-foreground: rgb(216, 249, 153);
+  
+  /* Texte sur l'élément primaire sélectionné dans la sidebar
+     Vert-lime = même que primaire pour cohérence */
+  --sidebar-primary-foreground: oklch(91% 0.096 180.426);
+  
+  /* Accent pour les hovers, highlights dans la sidebar */
   --sidebar-accent: oklch(78.934% 0.17186 160.341);
-  --sidebar-accent-foreground: oklch(67.475% 0.21742 143.669);
+  
+  /* Texte sur accent de sidebar */
+  --sidebar-accent-foreground: oklch(80.549% 0.0502 148.837);
+  
+  /* Ligne de séparation dans la sidebar */
   --sidebar-border: rgba(11, 44, 30, 0.212);
+  
+  /* Ring/focus indicator pour les éléments focusés dans la sidebar */
   --sidebar-ring: oklch(65.645% 0.21343 142.434 / 0.014);
+  
+  /* ============================================
+     PALETTE JUNGLE NÉON FUTURISTE
+     ============================================ */
+  /* --- GÉNÉRAL --- */
+  --radius: 0.625rem; /* Rayon de bordure par défaut */
+  --background: transparent; /* Fond global transparent */
+  --foreground: #e4f7de; /* Texte générique (blanc cassé) */
+  
+  /* --- COULEURS PRINCIPALES --- */
+  --primary: #cae2c5; /* Vert néon (boutons, accents, highlights) */
+  --primary-foreground: #1a1a1a; /* Texte sur vert néon */
+  
+  --secondary: #00eaff; /* Bleu cyan (boutons secondaires, liens) */
+  --secondary-foreground: #1a1a1a; /* Texte sur bleu cyan */
+  
+  --accent: #0a2e19; /* Vert foncé (sidebar, fonds, hover) */
+  --accent-foreground: #39ff14; /* Texte sur vert foncé */
+  
+  --muted: #1a1a1a; /* Gris anthracite (fonds, éléments désactivés) */
+  --muted-foreground: #f5f5f5; /* Texte sur muted */
+  
+  --destructive: #ff3b3b; /* Rouge alerte (danger) */
+  --destructive-foreground: #f5f5f5; /* Texte sur rouge */
+  
+  /* --- CARTES & POPOVERS --- */
+  --card: #1a1a1a; /* Fond des cartes/popovers */
+  --card-foreground: #f5f5f5; /* Texte sur cartes/popovers */
+  
+  --popover: #1a1a1a; /* Fond des popovers */
+  --popover-foreground: #f5f5f5; /* Texte sur popovers */
+  
+  /* --- BORDURES & INPUTS --- */
+  --border: #19291f; /* Bordures (vert foncé, subtil) */
+  --input: #163c2a; /* Fond des inputs (vert très foncé) */
+  --ring: #1220100c; /* Glow vert néon pour focus */
+  
+  /* --- SIDEBAR --- */
+  --sidebar: rgba(230, 235, 232, 0.007); /* Fond sidebar (vert très transparent) */
+  --sidebar-foreground: #f5f5f5; /* Texte sidebar */
+  --sidebar-primary: #39ff14; /* Item actif sidebar (vert néon) */
+  --sidebar-primary-foreground: #1a1a1a; /* Texte sur item actif */
+  --sidebar-accent: #00eaff; /* Hover sidebar (bleu cyan) */
+  --sidebar-accent-foreground: #1a1a1a; /* Texte sur accent */
+  --sidebar-border: #91d3aa0c; /* Bordure sidebar */
+  --sidebar-ring: #39ff14; /* Glow focus sidebar */
 }
 
 
@@ -60,22 +170,75 @@
 
 /* Effet néon pour texte au hover */
 .hover\:neon-glow:hover {
-  text-shadow: 0 0 25px #39ff14, 0 0 8px #39ff14, 0 0 10px #39ff14 !important;
+  text-shadow: 0 0 5px #92cc0a, 0 0 10px #92cc0ad3, 0 0 15px rgba(35, 179, 9, 0.856) ;
 }
 
 /* Effet néon pour icônes SVG au hover */
 .icon-neon-hover {
-  transition: filter 0.3s ease;
+  transition: filter 0.2s ease;
 }
 
 .icon-neon-hover:hover {
-  filter: drop-shadow(0 0 8px #39ff14) drop-shadow(0 0 12px #39ff14) drop-shadow(0 0 16px #39ff14);
+  filter: drop-shadow(0 0 5px #92cc0a) drop-shadow(0 0 15px #7deb6a80) drop-shadow(0 0 10px #92cc0ad5) ;
+}
+
+/* Effet néon pour bordures au hover */
+.hover\:border-neon-glow:hover {
+  box-shadow: 0 0 8px rgba(125, 235, 106, 0.7), 0 0 12px rgba(125, 235, 106, 0.4), inset 0 0 5px rgba(125, 235, 106, 0.25);
+  border-color: #92cc0a;
+}
+
+/* ============================================
+   SIDEBAR - EFFET HOVER BACKGROUND
+   ============================================ */
+/* Hover qui réduit l'opacité du background sans affecter le texte */
+.hover-bg-opacity {
+  position: relative;
+}
+
+.hover-bg-opacity::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hover-bg-opacity:hover::before {
+  opacity: 0.3;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================
    THÈME TAILWIND
    ============================================ */
 @theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

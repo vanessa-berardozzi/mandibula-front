@@ -182,7 +182,7 @@ function Sidebar({
       <div
         data-slot="sidebar"
         className={cn(
-          "bg-sidebar backdrop-blur-xl text-sidebar-foreground  flex h-full w-(--sidebar-width) flex-col  ",
+          "bg-sidebar backdrop-blur-xl text-foreground  flex h-full w-(--sidebar-width) flex-col  ",
           className
         )}
         {...props}
@@ -200,7 +200,7 @@ function Sidebar({
             data-sidebar="sidebar"
             data-slot="sidebar"
             data-mobile="true"
-            className="bg-sidebar backdrop-blur-xl text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+            className="bg-sidebar backdrop-blur-xl text-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -222,7 +222,7 @@ function Sidebar({
 
   return (
     <div
-      className="group peer text-sidebar-foreground  hidden md:block"
+      className="group peer text-foreground  hidden md:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
@@ -509,7 +509,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 // - color-[var(--foreground)] : utilise la couleur de texte globale du projet
 // - hover:neon-glow : applique l'effet néon au survol (défini dans globals.css)
 const sidebarMenuButtonVariants = cva(
-  "flex w-full items-center gap-2 py-3 px-4 text-left text-sm rounded-md transition-all cursor-pointer border border-transparent color-[var(--foreground)] hover:neon-glow group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-2 [&>svg]:size-4 [&>svg]:shrink-0",
+  "flex w-full items-center gap-2 py-3 px-4 text-left text-sm rounded-md transition-all cursor-pointer border border-transparent text-foreground hover:neon-glow group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-2 [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
