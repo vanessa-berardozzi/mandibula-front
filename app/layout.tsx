@@ -2,6 +2,7 @@ import { Sidebar, SidebarProvider } from "@/components/layout/Header/Sidebar/sid
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Header } from '../components/layout';
+import { BottomNav } from '../components/layout/Header/Mobile/BottomNav';
 import { SidebarContent } from '../components/layout/Header/Sidebar/SidebarContent';
 import './globals.css';
 
@@ -34,10 +35,20 @@ export default function RootLayout({children}: Readonly<{
 				</div>
 				<SidebarProvider>
 					<Header />
-					<Sidebar>
-						<SidebarContent />
-					</Sidebar>
-					{children}
+					{/* Sidebar visible uniquement sur desktop */}
+					<div className="hidden md:block">
+						<Sidebar>
+							<SidebarContent />
+						</Sidebar>
+					</div>
+					{/* Contenu principal avec padding bottom sur mobile pour le BottomNav */}
+					<div className="pb-20 md:pb-0">
+						{children}
+					</div>
+					{/* BottomNav visible uniquement sur mobile */}
+					<div className="md:hidden">
+						<BottomNav />
+					</div>
 				</SidebarProvider>
       </body>
 	</html>

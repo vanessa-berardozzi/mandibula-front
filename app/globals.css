@@ -173,6 +173,11 @@
   text-shadow: 0 0 5px #92cc0a, 0 0 10px #92cc0ad3, 0 0 15px rgba(35, 179, 9, 0.856) ;
 }
 
+/* Effet néon pour group hover */
+.group:hover .group-hover\:neon-glow {
+  text-shadow: 0 0 5px #92cc0a, 0 0 10px #92cc0ad3, 0 0 15px rgba(35, 179, 9, 0.856) ;
+}
+
 /* Effet néon pour icônes SVG au hover */
 .icon-neon-hover {
   transition: filter 0.2s ease;
@@ -189,28 +194,226 @@
 }
 
 /* ============================================
-   SIDEBAR - EFFET HOVER BACKGROUND
+   EFFETS GAMING MOBILE UI
    ============================================ */
-/* Hover qui réduit l'opacité du background sans affecter le texte */
-.hover-bg-opacity {
-  position: relative;
+
+/* Scrollbar personnalisée (style discret gaming) */
+/* Pour Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.hover-bg-opacity::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: inherit;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(146, 204, 10, 0.3), rgba(146, 204, 10, 0.15));
+  border-radius: 10px;
+  border: 1px solid rgba(146, 204, 10, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(146, 204, 10, 0.5), rgba(146, 204, 10, 0.25));
+  border-color: rgba(146, 204, 10, 0.3);
+  box-shadow: 0 0 10px rgba(146, 204, 10, 0.3);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, rgba(146, 204, 10, 0.6), rgba(146, 204, 10, 0.35));
+}
+
+/* Pour Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(146, 204, 10, 0.3) transparent;
+}
+
+/* Animation de pulsation lente pour glow */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animation glow pour le logo */
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px #92cc0a60);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px #92cc0a) drop-shadow(0 0 30px #92cc0a80);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Bounce subtil pour les badges */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* Badge gaming style */
+.gaming-badge {
+  box-shadow: 0 0 10px rgba(146, 204, 10, 0.6), 
+              0 0 20px rgba(146, 204, 10, 0.3);
+}
+
+/* Bordure hologramme */
+.hologram-border {
+  box-shadow: 
+    inset 0 0 20px rgba(146, 204, 10, 0.1),
+    0 0 20px rgba(146, 204, 10, 0.2),
+    0 0 40px rgba(146, 204, 10, 0.1);
+}
+
+/* Scan lines effect pour le menu */
+.scan-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(146, 204, 10, 0.03) 0px,
+    rgba(146, 204, 10, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
   pointer-events: none;
-  z-index: -1;
 }
 
-.hover-bg-opacity:hover::before {
-  opacity: 0.3;
-  background: rgba(0, 0, 0, 0.3);
+/* Effet glitch sur le texte */
+.glitch-text {
+  position: relative;
+  animation: glitch-skew 5s infinite;
+}
+
+@keyframes glitch-skew {
+  0%, 90%, 100% {
+    transform: skew(0deg);
+  }
+  91% {
+    transform: skew(-2deg);
+  }
+  92% {
+    transform: skew(2deg);
+  }
+  93% {
+    transform: skew(-2deg);
+  }
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+/* Animation d'entrée pour les items de menu gaming */
+@keyframes gaming-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.gaming-menu-item {
+  animation: gaming-slide-in 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+/* Ligne de scan animée */
+@keyframes scan-line {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 3s ease-in-out infinite;
+}
+
+/* Bottom nav gaming */
+.gaming-bottom-nav {
+  box-shadow: 
+    0 -4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(146, 204, 10, 0.2);
+}
+
+/* Item de navigation gaming */
+@keyframes nav-item-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gaming-nav-item {
+  animation: nav-item-appear 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Drop shadow néon */
+.drop-shadow-neon {
+  filter: drop-shadow(0 0 8px #92cc0a) 
+          drop-shadow(0 0 12px #92cc0a80);
+}
+
+/* Text shadow néon */
+.text-shadow-neon {
+  text-shadow: 0 0 10px #92cc0a, 
+               0 0 20px #92cc0a80, 
+               0 0 30px #92cc0a40;
+}
+
+/* Shadow néon glow */
+.shadow-neon-glow {
+  box-shadow: 0 0 10px #92cc0a, 
+              0 0 20px #92cc0a80, 
+              0 0 30px #92cc0a40;
 }
 
 /* ============================================
