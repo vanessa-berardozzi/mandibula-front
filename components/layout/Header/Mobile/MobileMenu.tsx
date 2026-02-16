@@ -56,11 +56,11 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
           <div key={section.title} className="space-y-2">
             {/* Titre de section avec style terminal */}
             <div className="flex items-center gap-2 mb-3">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
               <h3 className="text-xs font-mono text-primary/80 tracking-widest px-2">
                 {section.title}
               </h3>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+              <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
             </div>
 
             {/* Items du menu */}
