@@ -27,14 +27,14 @@ export function HologramDisplay({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="relative w-full max-w-lg mx-auto h-[600px] flex items-center justify-center">
+    <div className="relative w-full max-w-lg mx-auto h-150 flex items-center justify-center">
       
       {/* Socle holographique - base */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-80">
         {/* Plateforme principale */}
-        <div className="relative h-16 rounded-full bg-gradient-to-b from-gray-800 via-gray-900 to-black border-t-2 border-gray-700 shadow-[0_-5px_30px_rgba(0,0,0,0.8)]">
+        <div className="relative h-16 rounded-full bg-linear-to-b from-gray-800 via-gray-900 to-black border-t-2 border-gray-700 shadow-[0_-5px_30px_rgba(0,0,0,0.8)]">
           {/* Reflet métallique sur le dessus */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/10 to-transparent" />
+          <div className="absolute inset-0 rounded-full bg-linear-to-b from-white/10 to-transparent" />
           
           {/* Anneaux lumineux verts */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-1 rounded-full bg-primary shadow-[0_0_20px_rgba(202,226,197,0.8)] animate-pulse" />
@@ -50,14 +50,14 @@ export function HologramDisplay({
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-64 h-96 pointer-events-none">
         {/* Faisceau central */}
         <div 
-          className="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/20 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-primary/40 via-primary/20 to-transparent"
           style={{
             clipPath: 'polygon(40% 100%, 60% 100%, 50% 0%, 50% 0%)',
             filter: 'blur(8px)',
           }}
         />
         <div 
-          className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/30 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-primary/60 via-primary/30 to-transparent"
           style={{
             clipPath: 'polygon(45% 100%, 55% 100%, 50% 0%, 50% 0%)',
             filter: 'blur(4px)',
@@ -66,14 +66,14 @@ export function HologramDisplay({
         
         {/* Rayons latéraux */}
         <div 
-          className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/10 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-primary/20 via-primary/10 to-transparent"
           style={{
             clipPath: 'polygon(30% 100%, 35% 100%, 45% 30%, 42% 30%)',
             filter: 'blur(6px)',
           }}
         />
         <div 
-          className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/10 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-primary/20 via-primary/10 to-transparent"
           style={{
             clipPath: 'polygon(65% 100%, 70% 100%, 58% 30%, 55% 30%)',
             filter: 'blur(6px)',

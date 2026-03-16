@@ -98,6 +98,15 @@ export function InvertebreCard({
           </div>
         </div>
 
+
+ {/* NOM */}
+        <div className="text-center">
+          <div className="h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-1.5" />
+          <h3 className="text-[15px] font-black text-foreground uppercase tracking-[0.15em] leading-tight">
+            {name}
+          </h3>
+          <div className="h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mt-1.5" />
+        </div>
         {/* IMAGE */}
         <div className="relative flex items-center justify-center">
           <div className="relative w-full h-44">
@@ -112,14 +121,7 @@ export function InvertebreCard({
           </div>
         </div>
 
-        {/* NOM */}
-        <div className="text-center">
-          <div className="h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-1.5" />
-          <h3 className="text-[11px] font-black text-foreground uppercase tracking-[0.15em] leading-tight">
-            {name}
-          </h3>
-          <div className="h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mt-1.5" />
-        </div>
+       
 
         {/* CONDITIONS 2×2 */}
         <div className="grid grid-cols-2 gap-1">
