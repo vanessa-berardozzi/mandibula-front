@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import * as z from "zod";
+
 import {
   Field,
   FieldDescription,
@@ -8,13 +9,20 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
+
 import { AuthProviderButtons } from "./AuthProviderButtons";
-// Icônes SVG directement dans les boutons, car utilisées uniquement ici
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Icônes SVG directement dans les boutons, car utilisées uniquement ici
+
+
+
+
+
 
 const formSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -39,11 +47,18 @@ export function LoginFormSheet({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null)
     setIsLoading(true)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")
+
+    if (!apiUrl) {
+      setError("Configuration API manquante (NEXT_PUBLIC_API_URL)")
+      setIsLoading(false)
+      return
+    }
 
     try {
-      const res = await fetch(`${apiUrl}/localhost/auth/login/email`, {
+      const res = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       })
@@ -56,7 +71,7 @@ export function LoginFormSheet({
 
       // Connexion réussie
       onSuccess?.()
-    } catch (e) {
+    } catch {
       setError("Erreur réseau. Veuillez réessayer.")
     } finally {
       setIsLoading(false)
