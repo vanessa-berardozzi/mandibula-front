@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import * as z from "zod";
+
 import {
   Field,
   FieldDescription,
@@ -8,13 +9,21 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
-// Icônes SVG directement dans les boutons, car utilisées uniquement ici
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+
 import { AuthProviderButtons } from "./AuthProviderButtons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Icônes SVG directement dans les boutons, car utilisées uniquement ici
+
+
+
+
+
+
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom est requis"),
@@ -44,11 +53,18 @@ export function SignupFormSheet({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null)
     setIsLoading(true)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")
+
+    if (!apiUrl) {
+      setError("Configuration API manquante (NEXT_PUBLIC_API_URL)")
+      setIsLoading(false)
+      return
+    }
 
     try {
       const res = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name,
@@ -66,7 +82,7 @@ export function SignupFormSheet({
       // Inscription réussie
       form.reset()
       onSuccess?.()
-    } catch (e) {
+    } catch {
       setError("Erreur réseau. Veuillez réessayer.")
     } finally {
       setIsLoading(false)
