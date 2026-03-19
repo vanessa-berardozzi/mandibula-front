@@ -82,9 +82,10 @@ export function Navbar() {
           <Link href="/cart">
             <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
           </Link>
-          <button onClick={() => setAuthOpen(true)} aria-label="Profil / Auth">
+
+          <Link href="/profile">
             <User className="w-6 h-6 icon-foreground icon-neon-hover" />
-          </button>
+          </Link>
         </div>
       </div>
       {/*
