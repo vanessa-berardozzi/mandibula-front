@@ -62,7 +62,7 @@ export default function LandingPage() {
                 Mandibula <span className="text-primary drop-shadow-[0_0_10px_rgba(202,226,197,0.6)]">Shop</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl font-medium">
-                Boutique spécialisée en isopodes, blattes et invertébrés pour terrariums
+                Boutique spécialisée en isopodes, blattes et invertébrés pour terrariums !
               </p>
             </div>
           </div>

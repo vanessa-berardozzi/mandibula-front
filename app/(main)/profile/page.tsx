@@ -2,6 +2,9 @@
 
 import { AccountSettings, OrderHistory, SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { signOut, useSession } from "@/lib/auth.client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 // Types pour les données
 const MOCK_USER = {
@@ -147,11 +150,42 @@ const MOCK_SETTINGS = [
 ];
 
 export default function ProfilePage() {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/");
+  };
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.replace("/login");
+    }
+  }, [isPending, session, router]);
+
+  if (isPending || !session?.user) {
+    return (
+      <main className="min-h-screen pt-24 md:pt-32 pb-12">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          Chargement du profil...
+        </div>
+      </main>
+    );
+  }
+
+  const profileHeaderData = {
+    ...MOCK_USER,
+    userName: session.user.name || MOCK_USER.userName,
+    email: session.user.email,
+    avatarUrl: session.user.image || MOCK_USER.avatarUrl,
+  };
+
   return (
     <main className="min-h-screen pt-24 md:pt-32 pb-12">
       <div className="container mx-auto px-4">
         {/* En-tête du profil */}
-        <UserProfileHeader {...MOCK_USER} />
+        <UserProfileHeader {...profileHeaderData} onSignOut={handleSignOut} />
 
         {/* Statistiques utilisateur */}
         <UserStats stats={MOCK_STATS} />

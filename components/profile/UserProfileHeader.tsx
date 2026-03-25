@@ -10,6 +10,7 @@ interface UserProfileHeaderProps {
   memberSince: string;
   level: number;
   loyaltyPoints: number;
+  onSignOut?: () => void;
 }
 
 export function UserProfileHeader({
@@ -19,6 +20,7 @@ export function UserProfileHeader({
   memberSince,
   level,
   loyaltyPoints,
+  onSignOut,
 }: UserProfileHeaderProps) {
   return (
     <div className="relative mb-8">
@@ -36,8 +38,8 @@ export function UserProfileHeader({
         <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary" />
 
         {/* Ligne d'accent néon */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-80" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-80" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary to-transparent opacity-80" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary to-transparent opacity-80" />
 
         {/* Contenu */}
         <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
@@ -55,7 +57,7 @@ export function UserProfileHeader({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30">
+                  <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-primary/30 to-secondary/30">
                     <span className="text-3xl font-bold text-primary">{userName.charAt(0).toUpperCase()}</span>
                   </div>
                 )}
@@ -68,7 +70,7 @@ export function UserProfileHeader({
 
             {/* Infos texte */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-1 break-words">{userName}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-1 wrap-break-word">{userName}</h1>
               <p className="text-muted-foreground text-sm mb-3 break-all">{email}</p>
               <div className="flex flex-wrap gap-4 text-xs md:text-sm">
                 <div className="flex items-center gap-2">
@@ -77,7 +79,7 @@ export function UserProfileHeader({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Pts de fidélité:</span>
-                  <span className="text-accent-foreground font-bold text-primary">{loyaltyPoints.toLocaleString()}</span>
+                  <span className="text-accent-foreground font-bold">{loyaltyPoints.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -93,6 +95,7 @@ export function UserProfileHeader({
             <Button 
               variant="outline" 
               className="border-primary text-primary hover:bg-primary/10 rounded-sm font-semibold"
+              onClick={onSignOut}
             >
               Déconnexion
             </Button>

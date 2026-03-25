@@ -58,7 +58,7 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          " data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-1 shadow-lg transition ease-in-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-1 shadow-lg transition ease-in-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
           side === "right" &&
             "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
           side === "left" &&
@@ -72,7 +72,7 @@ function SheetContent({
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="  absolute  rounded-xs  disabled:pointer-events-none">
+        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-xs text-foreground/70 transition hover:text-foreground disabled:pointer-events-none">
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
@@ -128,7 +128,7 @@ function SheetDescription({
 }
 
 export {
-  Sheet, SheetClose,
-  SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger
+    Sheet, SheetClose,
+    SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger
 }
 

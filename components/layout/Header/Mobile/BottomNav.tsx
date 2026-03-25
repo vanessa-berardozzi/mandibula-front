@@ -1,6 +1,5 @@
 'use client';
-
-import AuthSheet from "@/components/auth/AuthSheet";
+import { useSession } from "@/lib/auth.client";
 import { Bug, Home, Search, ShoppingCart, User } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -8,10 +7,9 @@ import { useMemo, useState } from 'react';
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const [authOpen, setAuthOpen] = useState(false);
+  const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Déterminer l'onglet actif basé sur le pathname
   const activeTab = useMemo(() => {
     if (pathname === '/') return 'home';
     if (pathname.startsWith('/categories')) return 'categories';
@@ -22,48 +20,17 @@ export function BottomNav() {
   }, [pathname]);
 
   const navItems = [
-    { 
-      id: 'home', 
-      icon: Home, 
-      label: 'Accueil', 
-      href: '/',
-      action: 'link'
-    },
-    { 
-      id: 'categories', 
-      icon: Bug, 
-      label: 'Catégories', 
-      href: '/categories',
-      action: 'link'
-    },
-    { 
-      id: 'search', 
-      icon: Search, 
-      label: 'Recherche', 
-      action: 'modal',
-      handler: () => setSearchOpen(true)
-    },
-    { 
-      id: 'cart', 
-      icon: ShoppingCart, 
-      label: 'Panier', 
-      href: '/cart',
-      action: 'link',
-      badge: 3 // TODO: Remplacer par le vrai compteur
-    },
-    { 
-      id: 'profile', 
-      icon: User, 
-      label: 'Profil', 
-      action: 'modal',
-      handler: () => setAuthOpen(true)
-    },
+    { id: 'home',       icon: Home,         label: 'Accueil',    action: 'link'  as const, href: '/' },
+    { id: 'categories', icon: Bug,          label: 'Catégories', action: 'link'  as const, href: '/categories' },
+    { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const, handler: () => setSearchOpen(true) },
+    { id: 'cart',       icon: ShoppingCart, label: 'Panier',     action: 'link'  as const, href: '/cart', badge: 3 }, // TODO: vrai compteur panier
+    { id: 'profile',    icon: User,         label: 'Profil',     action: 'link'  as const, href: session?.user ? '/profile' : '/login' },
   ];
 
-  const handleClick = (item: typeof navItems[0]) => {
-    if (item.action === 'modal' && item.handler) {
+  const handleClick = (item: (typeof navItems)[number]) => {
+    if (item.action === 'modal' && 'handler' in item) {
       item.handler();
-    } else if (item.action === 'link' && item.href) {
+    } else if (item.action === 'link' && 'href' in item) {
       router.push(item.href);
     }
   };
@@ -150,9 +117,6 @@ export function BottomNav() {
         <div className="absolute top-1 left-1 w-2 h-2 border-l-2 border-t-2 border-primary/40" />
         <div className="absolute top-1 right-1 w-2 h-2 border-r-2 border-t-2 border-primary/40" />
       </nav>
-
-      {/* Modals */}
-      <AuthSheet open={authOpen} onOpenChange={setAuthOpen} mode="login" />
       
       {/* TODO: Ajouter SearchModal quand prêt */}
       {searchOpen && (

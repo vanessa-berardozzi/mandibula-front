@@ -7,13 +7,8 @@ export default function LoginPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-sidebar backdrop-blur-xl flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <LoginFormSheet
-          onSuccess={() => router.push("/")}
-          onSwitchToSignup={() => router.push("/signup")}
-        />
-      </div>
-    </div>
+    <LoginFormSheet
+      onSwitchToSignup={() => router.push("/signup")}
+    />
   );
 }

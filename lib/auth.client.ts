@@ -1,11 +1,15 @@
 import { createAuthClient } from "better-auth/react"
 
-const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3002"
+// Les requêtes auth passent par le proxy Next.js (/api/auth/*)
+// ce qui évite les problèmes de cookies cross-origin.
+const baseURL =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"
 
 export const authClient = createAuthClient({
-    /** The base URL of the server (optional if you're using the same domain) */
-        baseURL: apiBaseUrl
+  baseURL,
+  fetchOptions: { credentials: "include" },
 })
 
-export const {useSession, signIn, signUp, signOut } = authClient
+export const { useSession, signIn, signUp, signOut, getSession } = authClient

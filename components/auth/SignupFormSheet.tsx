@@ -1,189 +1,137 @@
-"use client";
+"use client"
 
-import * as z from "zod";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { signUp } from "@/lib/auth.client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { AuthProviderButtons } from "./AuthProviderButtons"
 
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field";
+const formSchema = z
+  .object({
+    name: z.string().min(2, "Le nom est requis"),
+    email: z.string().email("Email invalide"),
+    password: z.string().min(8, "8 caractères minimum"),
+    confirmPassword: z.string().min(8, "8 caractères minimum"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  })
 
-import { AuthProviderButtons } from "./AuthProviderButtons";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-// Icônes SVG directement dans les boutons, car utilisées uniquement ici
-
-
-
-
-
-
-
-const formSchema = z.object({
-  name: z.string().min(2, "Le nom est requis"),
-  email: z.string().email("Email invalide"),
-  password: z.string().min(8, "8 caractères minimum"),
-  confirmPassword: z.string().min(8, "8 caractères minimum"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword"],
-})
+type FormValues = z.infer<typeof formSchema>
 
 export function SignupFormSheet({
-  onSuccess,
   onSwitchToLogin,
 }: {
-  onSuccess?: () => void
   onSwitchToLogin?: () => void
 }) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     setError(null)
     setIsLoading(true)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")
-
-    if (!apiUrl) {
-      setError("Configuration API manquante (NEXT_PUBLIC_API_URL)")
-      setIsLoading(false)
-      return
-    }
-
     try {
-      const res = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name,
-          email: values.email,
-          password: values.password,
-        }),
+      const { error: authError } = await signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.name,
       })
-      
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data?.message || "Erreur lors de l'inscription")
+      if (authError) {
+        setError(authError.message ?? "Erreur lors de l'inscription")
         return
       }
-
-      // Inscription réussie
-      form.reset()
-      onSuccess?.()
+      window.location.href = "/"
     } catch {
-      setError("Erreur réseau. Veuillez réessayer.")
+      setError("Une erreur est survenue, veuillez réessayer")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="px-6">
-      <FieldGroup>
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold text-foreground ">Créer un compte</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Entrez vos informations pour créer votre compte
-          </p>
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4 px-1">
+
+      {/* Header */}
+      <div className="text-center space-y-2 pb-1">
+        <span className="text-[9px] font-mono tracking-[0.28em] text-primary/45 uppercase">// Nouvelle identité</span>
+        <h1 className="text-2xl font-semibold text-foreground tracking-tight">Créer un compte</h1>
+        <p className="text-muted-foreground text-sm">Rejoignez la colonie — inscription gratuite</p>
+      </div>
+
+      {/* Erreur */}
+      {error && (
+        <div className="border border-destructive/40 bg-destructive/10 text-destructive text-xs font-mono text-center px-3 py-2 rounded shadow-[0_0_12px_rgba(255,59,59,0.2)]">
+          ⚠ {error}
         </div>
-        {error && (
-          <div className="text-destructive text-sm text-center bg-destructive/10 p-2 rounded-md">
-            {error}
-          </div>
-        )}
-        <Field>
-          <FieldLabel htmlFor="name">Nom / Pseudo</FieldLabel>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Votre nom"
-            {...form.register("name")}
-          />
-          {form.formState.errors.name && (
-            <p className="text-destructive text-sm mt-1">{form.formState.errors.name.message}</p>
+      )}
+
+      {/* Nom */}
+      <div className="space-y-1.5">
+        <label htmlFor="name" className="label-neon">Nom / Pseudo</label>
+        <Input id="name" type="text" placeholder="Votre pseudo" className="input-neon" {...register("name")} />
+        {errors.name && <p className="text-destructive text-xs font-mono mt-1">{errors.name.message}</p>}
+      </div>
+
+      {/* Email */}
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="label-neon">Email</label>
+        <Input id="email" type="email" placeholder="m@example.com" className="input-neon" {...register("email")} />
+        {errors.email && <p className="text-destructive text-xs font-mono mt-1">{errors.email.message}</p>}
+        <p className="text-[10px] text-muted-foreground font-mono">Adresse confidentielle &mdash; jamais partagée.</p>
+      </div>
+
+      {/* Mots de passe */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label htmlFor="password" className="label-neon">Mot de passe</label>
+          <Input id="password" type="password" className="input-neon" {...register("password")} />
+          {errors.password && <p className="text-destructive text-xs font-mono mt-1">{errors.password.message}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="confirm-password" className="label-neon">Confirmer</label>
+          <Input id="confirm-password" type="password" className="input-neon" {...register("confirmPassword")} />
+          {errors.confirmPassword && (
+            <p className="text-destructive text-xs font-mono mt-1">{errors.confirmPassword.message}</p>
           )}
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            {...form.register("email")}
-          />
-          {form.formState.errors.email && (
-            <p className="text-destructive text-sm mt-1">{form.formState.errors.email.message}</p>
-          )}
-          <FieldDescription>
-            Nous utiliserons cette adresse pour vous contacter. Nous ne partagerons pas votre email.
-          </FieldDescription>
-        </Field>
-        <Field>
-          <Field className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                {...form.register("password")}
-              />
-              {form.formState.errors.password && (
-                <p className="text-destructive text-sm mt-1">{form.formState.errors.password.message}</p>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirmer
-              </FieldLabel>
-              <Input
-                id="confirm-password"
-                type="password"
-                {...form.register("confirmPassword")}
-              />
-              {form.formState.errors.confirmPassword && (
-                <p className="text-destructive text-sm mt-1">{form.formState.errors.confirmPassword.message}</p>
-              )}
-            </Field>
-          </Field>
-          <FieldDescription>
-            Minimum 8 caractères.
-          </FieldDescription>
-        </Field>
-        <Field>
-          <Button type="submit" variant="default" className="w-full" disabled={isLoading}>
-            {isLoading ? "Création..." : "Créer mon compte"}
-          </Button>
-        </Field>
-        <FieldSeparator>
-          Ou continuer avec
-        </FieldSeparator>
-        <Field>
-          <AuthProviderButtons />
-        </Field>
-        <FieldDescription className="text-center">
-          Déjà un compte ?{" "}
-          <Button
-            type="button"
-            variant="link"
-            onClick={onSwitchToLogin}
-            className="underline hover:text-foreground transition-colors"
-          >
-            Se connecter
-          </Button>
-        </FieldDescription>
-      </FieldGroup>
+        </div>
+      </div>
+      <p className="text-[10px] text-muted-foreground font-mono -mt-2">Minimum 8 caractères.</p>
+
+      {/* Submit */}
+      <Button type="submit" variant="default" className="w-full btn-neon-primary" disabled={isLoading}>
+        {isLoading ? "Création..." : "Créer mon compte"}
+      </Button>
+
+      {/* Séparateur */}
+      <div className="flex items-center gap-3 py-1">
+        <div className="h-px flex-1 bg-primary/15" />
+        <span className="text-[9px] font-mono tracking-[0.25em] text-muted-foreground uppercase shrink-0">Ou continuer avec</span>
+        <div className="h-px flex-1 bg-primary/15" />
+      </div>
+
+      <AuthProviderButtons />
+
+      {/* Switch */}
+      <p className="text-center text-sm text-muted-foreground pt-1">
+        Déjà un compte ?{" "}
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="font-semibold text-secondary hover:text-secondary/80 hover:underline underline-offset-2 transition-colors"
+        >
+          ← Se connecter
+        </button>
+      </p>
     </form>
   )
 }
+
