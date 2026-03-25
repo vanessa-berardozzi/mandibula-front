@@ -1,4 +1,5 @@
 import { Sidebar, SidebarProvider } from "@/components/layout/Header/Sidebar/sidebar";
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Header } from '../components/layout';
@@ -39,6 +40,7 @@ export default function RootLayout({children}: Readonly<{
 					</Sidebar>
 					{children}
 				</SidebarProvider>
+				<Analytics />
       </body>
 	</html>
   );
