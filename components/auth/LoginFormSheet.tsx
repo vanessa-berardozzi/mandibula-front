@@ -24,6 +24,24 @@ export function LoginFormSheet({
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  const handleProviderClick = async (provider: string) => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      const { error: authError } = await signIn.social({
+        provider: provider as never,
+        callbackURL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      })
+      if (authError) {
+        setError(authError.message ?? "Erreur d'authentification")
+        setIsLoading(false)
+      }
+    } catch {
+      setError("Erreur lors de la connexion avec " + provider)
+      setIsLoading(false)
+    }
+  }
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: "", password: "" },
@@ -54,7 +72,7 @@ export function LoginFormSheet({
 
       {/* Header */}
       <div className="text-center space-y-2 pb-1">
-        <span className="text-[9px] font-mono tracking-[0.28em] text-primary/45 uppercase">// Accès sécurisé</span>
+        <span className="text-[9px] font-mono tracking-[0.28em] text-primary/45 uppercase">Accès sécurisé</span>
         <h1 className="text-2xl font-semibold text-foreground tracking-tight">Bienvenue</h1>
         <p className="text-muted-foreground text-sm">Connectez-vous à votre compte</p>
       </div>
@@ -97,7 +115,7 @@ export function LoginFormSheet({
         <div className="h-px flex-1 bg-primary/15" />
       </div>
 
-      <AuthProviderButtons />
+      <AuthProviderButtons onProviderClick={handleProviderClick} />
 
       {/* Switch */}
       <p className="text-center text-sm text-muted-foreground pt-1">

@@ -50,10 +50,10 @@ export function AuthProviderButtons({ onProviderClick }: {
             ${provider.hover}
           `}
         >
-          <Image src={provider.img} alt="" width={22} height={22} />
-          <span className="text-[11px] font-medium text-muted-foreground leading-none">
-            {provider.label}
-          </span>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Image src={provider.img} alt="" width={42} height={42} />
+          </div>
+          
         </button>
       ))}
     </div>

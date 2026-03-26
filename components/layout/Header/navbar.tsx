@@ -29,12 +29,14 @@ export function Navbar() {
 
         <div className="flex-1 flex justify-center">
           <Link href="/">
-            <Image
-              src="/logo_lg_neon.png"
-              alt="Mandibula"
-              width={60}
-              height={60}
-            />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <Image
+                src="/logo_lg_neon.png"
+                alt="Mandibula"
+                width={50}
+                height={50}
+              />
+            </div>
           </Link>
         </div>
 

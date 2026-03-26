@@ -41,13 +41,15 @@ export function MobileNavbar() {
         {/* Logo centré */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <Link href="/" className="block">
-            <Image
-              src="/logo_lg_neon.png"
-              alt="Mandibula Logo"
-              width={45}
-              height={45}
-              priority
-            />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Image
+                src="/logo_lg_neon.png"
+                alt="Mandibula Logo"
+                width={40}
+                height={40}
+                priority
+              />
+            </div>
           </Link>
         </div>
 
