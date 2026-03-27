@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     domains: [
       'lh3.googleusercontent.com', // Google OAuth avatars
       'cdn.discordapp.com', // Discord avatars
+      'platform-lookaside.fbsbx.com', // Facebook OAuth avatars
+      'scontent.xx.fbcdn.net', // Facebook CDN avatars
     ],
   },
   async rewrites() {
