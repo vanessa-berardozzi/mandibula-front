@@ -6,6 +6,12 @@ const backendUrl =
   "https://mandibula-back.onrender.com"
 
 const nextConfig: NextConfig = {
+  images: {
+    domains: [
+      'lh3.googleusercontent.com', // Google OAuth avatars
+      'cdn.discordapp.com', // Discord avatars
+    ],
+  },
   async rewrites() {
     return [
       {
