@@ -20,6 +20,15 @@ export async function handler(req: NextRequest) {
     const headers = new Headers(req.headers)
     headers.delete('host') // Supprimer le header host original
     
+    // IMPORTANT: Transmettre les headers X-Forwarded-* pour que Better Auth
+    // sache que la requête vient du frontend (pas de localhost)
+    const forwardedHost = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000'
+    const forwardedProto = req.headers.get('x-forwarded-proto') || 'https'
+    
+    headers.set('x-forwarded-host', forwardedHost)
+    headers.set('x-forwarded-proto', forwardedProto)
+    headers.set('x-forwarded-for', req.headers.get('x-forwarded-for') || '127.0.0.1')
+    
     // IMPORTANT: Passer les cookies du frontend au backend
     const cookieHeader = req.headers.get('cookie')
     if (cookieHeader) {
