@@ -1,6 +1,7 @@
 'use client';
 
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useSession } from "@/lib/auth.client";
 import { Bug, Home, Package, ShoppingBag, User, Zap } from 'lucide-react';
 import Link from 'next/link';
 
@@ -9,7 +10,9 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ onClose }: MobileMenuProps) {
-  const menuSections = [
+  const { data: session } = useSession();
+
+  const allSections = [
     {
       title: "NAVIGATION",
       items: [
@@ -31,9 +34,14 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
       items: [
         { icon: User, label: "Mon Profil", href: "/profile" },
         { icon: Package, label: "Mes Commandes", href: "/orders" },
-      ]
+      ],
+      requiresAuth: true,
     }
   ];
+
+  const menuSections = allSections.filter(
+    (section) => !section.requiresAuth || session?.user
+  );
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden">

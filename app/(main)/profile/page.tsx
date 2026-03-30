@@ -178,7 +178,6 @@ export default function ProfilePage() {
     ...MOCK_USER,
     userName: session.user.name || MOCK_USER.userName,
     email: session.user.email,
-    avatarUrl: session.user.image || MOCK_USER.avatarUrl,
   };
 
   return (

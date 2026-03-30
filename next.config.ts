@@ -7,11 +7,23 @@ const backendUrl =
 
 const nextConfig: NextConfig = {
   images: {
-    domains: [
-      'lh3.googleusercontent.com', // Google OAuth avatars
-      'cdn.discordapp.com', // Discord avatars
-      'platform-lookaside.fbsbx.com', // Facebook OAuth avatars
-      'scontent.xx.fbcdn.net', // Facebook CDN avatars
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', // Google OAuth avatars
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.discordapp.com', // Discord avatars
+      },
+      {
+        protocol: 'https',
+        hostname: 'platform-lookaside.fbsbx.com', // Facebook OAuth avatars
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.xx.fbcdn.net', // Facebook CDN avatars
+      },
     ],
   },
   async rewrites() {

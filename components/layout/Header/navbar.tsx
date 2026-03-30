@@ -1,26 +1,57 @@
 'use client'
 
+import { UserAvatar, useUserAvatar } from "@/components/shared"
 import { Input } from "@/components/ui"
-import { useSession } from "@/lib/auth.client"
 import { Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+/**
+ * Avatar utilisateur pour la navbar - version ronde et petite
+ */
+function NavbarUserAvatar() {
+  const { isAuthenticated, isLoading } = useUserAvatar();
+  const router = useRouter();
+
+  if (isLoading) {
+    return <div className="w-9 h-9 rounded-full bg-primary/20 animate-pulse" />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <button
+        type="button"
+        onClick={() => router.push("/login")}
+        aria-label="Se connecter"
+        className="w-9 h-9 rounded-full flex items-center justify-center border-2 border-primary/50 hover:border-primary/80 bg-black/50 hover:bg-primary/10 transition-all hover:scale-110"
+      >
+        <User className="w-4 h-4 text-primary" />
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href="/profile"
+      aria-label="Mon profil"
+      className="transition-transform hover:scale-110"
+    >
+      <UserAvatar
+        className="w-9 h-9 rounded-full border-2 border-primary-foreground/50 hover:border-primary/80 overflow-hidden flex items-center justify-center"
+        imageClassName="w-full h-full object-cover"
+        fallbackClassName="w-full h-full flex items-center justify-center font-bold text-xs"
+        width={36}
+        height={36}
+      />
+    </Link>
+  );
+}
+
 export function Navbar() {
-  const router = useRouter()
-  const { data: session, isPending } = useSession()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
-
-  const handleProfileClick = () => {
-    if (session?.user) {
-      router.push("/profile")
-    } else if (!isPending) {
-      router.push("/login")
-    }
-  }
 
   return (
     <nav aria-label="Navigation principale">
@@ -65,13 +96,8 @@ export function Navbar() {
             <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
           </Link>
 
-          <button
-            type="button"
-            onClick={handleProfileClick}
-            aria-label={session?.user ? "Mon profil" : "Se connecter"}
-          >
-            <User className="w-6 h-6 icon-foreground icon-neon-hover" />
-          </button>
+          {/* Avatar utilisateur - version navbar (rond, petit) */}
+          <NavbarUserAvatar />
         </div>
       </div>
     </nav>

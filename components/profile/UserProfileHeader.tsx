@@ -1,12 +1,11 @@
 "use client";
 
+import { UserAvatar } from "@/components/shared";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 
 interface UserProfileHeaderProps {
   userName: string;
   email: string;
-  avatarUrl?: string;
   memberSince: string;
   level: number;
   loyaltyPoints: number;
@@ -16,7 +15,6 @@ interface UserProfileHeaderProps {
 export function UserProfileHeader({
   userName,
   email,
-  avatarUrl,
   memberSince,
   level,
   loyaltyPoints,
@@ -45,22 +43,16 @@ export function UserProfileHeader({
         <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
           {/* Avatar et infos principales */}
           <div className="flex gap-6 items-start flex-1">
-            {/* Avatar avec cadre gaming */}
+            {/* Avatar gaming carré */}
             <div className="relative shrink-0">
-              <div className="w-28 h-28 rounded-sm border-2 border-primary/70 overflow-hidden bg-accent/40 flex items-center justify-center shadow-[inset_0_0_15px_rgba(216,249,153,0.2)]">
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
-                    alt={userName}
-                    width={112}
-                    height={112}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-primary/30 to-secondary/30">
-                    <span className="text-3xl font-bold text-primary">{userName.charAt(0).toUpperCase()}</span>
-                  </div>
-                )}
+              <div className="rounded-sm border-2 border-primary/70 overflow-hidden bg-accent/40 shadow-[inset_0_0_15px_rgba(216,249,153,0.2)]">
+                <UserAvatar
+                  className="w-28 h-28 rounded-sm flex items-center justify-center"
+                  imageClassName="w-full h-full object-cover"
+                  fallbackClassName="w-full h-full flex items-center justify-center font-bold text-3xl text-primary"
+                  width={112}
+                  height={112}
+                />
               </div>
               {/* Badge niveau */}
               <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center font-bold border-2 border-primary shadow-lg">

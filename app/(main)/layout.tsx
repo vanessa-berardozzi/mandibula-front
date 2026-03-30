@@ -1,7 +1,4 @@
-import { Header } from "@/components/layout"
-import { BottomNav } from "@/components/layout/Header/Mobile/BottomNav"
-import { Sidebar, SidebarProvider } from "@/components/layout/Header/Sidebar/sidebar"
-import { SidebarContent } from "@/components/layout/Header/Sidebar/SidebarContent"
+import { BottomNav, Header, Sidebar, SidebarContent, SidebarProvider } from "@/components/layout"
 
 export default function MainLayout({
 	children,

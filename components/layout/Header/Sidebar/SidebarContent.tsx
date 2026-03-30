@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { useSession } from "@/lib/auth.client";
 import { Bug, ChevronDown, ChevronRight, Home, Package, Search, ShoppingBag, User, Zap } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -56,6 +57,7 @@ const categories = [
 ];
 
 export function SidebarContent() {
+  const { data: session } = useSession();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
 
@@ -252,8 +254,8 @@ export function SidebarContent() {
           </div>
         </div>
 
-        {/* SECTION COMPTE */}
-        <div className="space-y-2">
+        {/* SECTION COMPTE - visible uniquement si connecté */}
+        {session?.user && <div className="space-y-2">
           {/* Titre de section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
@@ -288,7 +290,7 @@ export function SidebarContent() {
               );
             })}
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Footer avec info système */}
