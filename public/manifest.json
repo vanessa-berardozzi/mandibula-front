@@ -1,0 +1,88 @@
+{
+  "name": "Mandibula Shop - Boutique d'Isopodes et Blattes",
+  "short_name": "Mandibula",
+  "description": "Boutique en ligne spécialisée dans la vente d'isopodes, blattes et accessoires pour terrariums",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#000000",
+  "theme_color": "#D8F999",
+  "prefer_related_applications": false,
+  "categories": ["shopping", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "purpose": "any"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "purpose": "any"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Isopodes",
+      "short_name": "Isopodes",
+      "description": "Parcourir notre collection d'isopodes",
+      "url": "/shop/isopodes",
+      "icons": [{ "src": "/shortcut-isopodes.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Blattes",
+      "short_name": "Blattes",
+      "description": "Parcourir notre collection de blattes",
+      "url": "/shop/blattes",
+      "icons": [{ "src": "/shortcut-blattes.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Accessoires",
+      "short_name": "Accessoires",
+      "description": "Voir nos accessoires pour terrariums",
+      "url": "/shop/accessoires",
+      "icons": [{ "src": "/shortcut-accessoires.png", "sizes": "192x192" }]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

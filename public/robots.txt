@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /auth
+Disallow: /*.json$
+Disallow: /profile
+Disallow: /checkout
+
+# Délai de crawl (en millisecondes)
+Crawl-delay: 0
+
+# Sitemap principal
+Sitemap: https://mandibula.shop/sitemap.xml
+
+# Règles spécifiques pour les bots search
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Bloquer les mauvais bots
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+Disallow: /
