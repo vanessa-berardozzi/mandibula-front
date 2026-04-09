@@ -1,8 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { HologramDisplay } from '@/components/features/HologramDisplay';
 import { InvertebreCard } from '@/components/features/InvertebreCard';
+import { Button } from '@/components/ui/button';
+import { useCartContext } from '@/context/CartContext';
+import { useSession } from '@/lib/auth.client';
+import { Check, ShoppingCart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 // ============================================
@@ -299,7 +303,33 @@ function AccessoireDetails({ product }: { product: AccessoireProduct }) {
 
 export default function ProductPageV2() {
 	const [quantity, setQuantity] = useState(1);
+	const [isAdding, setIsAdding] = useState(false);
+	const [added, setAdded] = useState(false);
 	const product = CURRENT_PRODUCT;
+
+	const router = useRouter();
+	const { data: session } = useSession();
+	const { addItem } = useCartContext();
+
+	const handleAddToCart = async () => {
+		if (!session?.user) {
+			router.push('/login');
+			return;
+		}
+		if (product.stock === 0) return;
+
+		setIsAdding(true);
+		try {
+			await addItem(product.id, quantity, product.price);
+			setAdded(true);
+			setQuantity(1);
+			setTimeout(() => setAdded(false), 2500);
+		} catch (error) {
+			console.error('Erreur ajout panier:', error);
+		} finally {
+			setIsAdding(false);
+		}
+	};
 
 	return (
 		<main className='min-h-screen pb-8'>
@@ -389,30 +419,35 @@ export default function ProductPageV2() {
 								</div>
 							
 							</div>
-							<Button className='w-full py-2 text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(202,226,197,0.4)] hover:shadow-[0_0_30px_rgba(202,226,197,0.6)]'>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 24 24'
-									fill='none'
-									stroke='currentColor'
-									strokeWidth='2'
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									className='w-3 h-3 mr-1'
-								>
-									<circle
-										cx='9'
-										cy='21'
-										r='1'
-									/>
-									<circle
-										cx='20'
-										cy='21'
-										r='1'
-									/>
-									<path d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6' />
-								</svg>
-								Ajouter au panier
+							<Button
+								onClick={handleAddToCart}
+								disabled={isAdding || product.stock === 0}
+								className={`w-full py-2 text-xs font-black uppercase tracking-widest transition-all ${
+									added
+										? 'bg-primary/30 text-primary shadow-[0_0_25px_rgba(202,226,197,0.6)]'
+										: product.stock === 0
+											? 'opacity-50 cursor-not-allowed'
+											: 'shadow-[0_0_15px_rgba(202,226,197,0.4)] hover:shadow-[0_0_30px_rgba(202,226,197,0.6)]'
+								}`}
+							>
+								{isAdding ? (
+									<>
+										<div className='w-3 h-3 mr-1 animate-spin border border-current border-t-transparent rounded-full' />
+										Ajout...
+									</>
+								) : added ? (
+									<>
+										<Check className='w-3 h-3 mr-1' />
+										Ajouté !
+									</>
+								) : product.stock === 0 ? (
+									'Épuisé'
+								) : (
+									<>
+										<ShoppingCart className='w-3 h-3 mr-1' />
+										Ajouter au panier
+									</>
+								)}
 							</Button>
 							<div className='pt-1 border-t border-primary/30 flex items-center justify-between text-m mt-2'>
 								<span className='text-muted-foreground uppercase tracking-wider'>

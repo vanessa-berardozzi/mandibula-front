@@ -1,8 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useCartContext } from "@/context/CartContext";
+import { useSession } from "@/lib/auth.client";
+import { Check, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 interface ProductCardProps {
   title: string;
@@ -10,11 +14,43 @@ interface ProductCardProps {
   stock: number;
   imageUrl?: string;
   href?: string;
+  productId?: string;
 }
 
-export function ProductCard({ title, price, stock, imageUrl, href = "/product" }: ProductCardProps) {
+export function ProductCard({ title, price, stock, imageUrl, href = "/product", productId }: ProductCardProps) {
   const isInStock = stock > 0;
   const availabilityLabel = isInStock ? `${stock} en stock` : "Epuisé";
+  
+  const { data: session } = useSession();
+  const { addItem } = useCartContext();
+  const [isAdding, setIsAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!productId || !session?.user) {
+      // Rediriger vers login si pas connecté
+      if (!session?.user) {
+        window.location.href = "/login";
+      }
+      return;
+    }
+
+    if (!isInStock) return;
+
+    setIsAdding(true);
+    try {
+      await addItem(productId, 1, price);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   const cardContent = (
     <div
@@ -83,27 +119,49 @@ export function ProductCard({ title, price, stock, imageUrl, href = "/product" }
               <span className="text-sm text-primary/70 font-bold">€</span>
             </div>
             
-            <Button 
-              asChild
-              size="icon"
-              className="shrink-0 shadow-[0_0_10px_rgba(202,226,197,0.3)] hover:shadow-[0_0_15px_rgba(202,226,197,0.5)]" 
-            >
-              <span aria-hidden="true" tabIndex={-1}>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  className="w-4 h-4"
-                >
-                  <path d="M5 12h14"/>
-                  <path d="m12 5 7 7-7 7"/>
-                </svg>
-              </span>
-            </Button>
+            {productId ? (
+              <Button 
+                onClick={handleAddToCart}
+                disabled={!isInStock || isAdding}
+                size="icon"
+                className={`shrink-0 transition-all ${
+                  added 
+                    ? "bg-primary/30 text-primary shadow-[0_0_15px_rgba(216,249,153,0.4)]" 
+                    : "shadow-[0_0_10px_rgba(202,226,197,0.3)] hover:shadow-[0_0_15px_rgba(202,226,197,0.5)]"
+                } ${!isInStock ? "opacity-50 cursor-not-allowed" : ""}` }
+                title={isInStock ? "Ajouter au panier" : "Produit épuisé"}
+              >
+                {isAdding ? (
+                  <div className="w-4 h-4 animate-spin border border-current border-t-transparent rounded-full" />
+                ) : added ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <ShoppingCart className="w-4 h-4" />
+                )}
+              </Button>
+            ) : (
+              <Button 
+                asChild
+                size="icon"
+                className="shrink-0 shadow-[0_0_10px_rgba(202,226,197,0.3)] hover:shadow-[0_0_15px_rgba(202,226,197,0.5)]" 
+              >
+                <span aria-hidden="true" tabIndex={-1}>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="w-4 h-4"
+                  >
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
