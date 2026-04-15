@@ -5,7 +5,7 @@ import type { CartResponse, CartValidationResponse } from '@/types/cart';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface LocalCartItem {
-  productId: string;
+  variantId: string;
   quantity: number;
   price?: number;
 }
@@ -52,7 +52,9 @@ export function useCart() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const items = JSON.parse(stored) as LocalCartItem[];
+        const parsed = JSON.parse(stored) as LocalCartItem[];
+        // Filtrer les items stales sans variantId (ancien format)
+        const items = parsed.filter((item) => !!item.variantId);
         const totals = calculateTotals(items);
         setState((prev) => ({
           ...prev,
@@ -96,7 +98,7 @@ export function useCart() {
 
       const cart = (await response.json()) as CartResponse;
       const items = cart.items.map((item) => ({
-        productId: item.productId,
+        variantId: item.variantId,
         quantity: item.quantity,
         price: item.price,
       }));
@@ -120,14 +122,14 @@ export function useCart() {
    * UX rapide: localStorage immédiate, API en background
    */
   const addItem = useCallback(
-    async (productId: string, quantity: number = 1, price?: number) => {
+    async (variantId: string, quantity: number = 1, price?: number) => {
       setState((prev) => {
-        const existing = prev.items.find((i) => i.productId === productId);
+        const existing = prev.items.find((i) => i.variantId === variantId);
         const newItems = existing
           ? prev.items.map((i) =>
-              i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i
+              i.variantId === variantId ? { ...i, quantity: i.quantity + quantity } : i
             )
-          : [...prev.items, { productId, quantity, price }];
+          : [...prev.items, { variantId, quantity, price }];
 
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
@@ -146,7 +148,7 @@ export function useCart() {
           const response = await fetch(`${API_BASE}/items`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId, quantity }),
+            body: JSON.stringify({ variantId, quantity }),
             credentials: 'include',
           });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -164,9 +166,9 @@ export function useCart() {
    * Supprime un produit du panier
    */
   const removeItem = useCallback(
-    async (productId: string) => {
+    async (variantId: string) => {
       setState((prev) => {
-        const newItems = prev.items.filter((i) => i.productId !== productId);
+        const newItems = prev.items.filter((i) => i.variantId !== variantId);
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
 
@@ -181,7 +183,7 @@ export function useCart() {
       if (session?.user) {
         setState((prev) => ({ ...prev, isSyncing: true }));
         try {
-          const response = await fetch(`${API_BASE}/items/${productId}`, {
+          const response = await fetch(`${API_BASE}/items/${variantId}`, {
             method: 'DELETE',
             credentials: 'include',
           });
@@ -201,11 +203,10 @@ export function useCart() {
    * Défini après removeItem pour éviter la dépendance circulaire
    */
   const updateQuantity = useCallback(
-    async (productId: string, quantity: number) => {
+    async (variantId: string, quantity: number) => {
       if (quantity === 0) {
-        // Inline la logique de suppression pour éviter la référence circulaire
         setState((prev) => {
-          const newItems = prev.items.filter((i) => i.productId !== productId);
+          const newItems = prev.items.filter((i) => i.variantId !== variantId);
           const totals = calculateTotals(newItems);
           saveToLocalStorage(newItems);
           return { ...prev, items: newItems, ...totals };
@@ -214,7 +215,7 @@ export function useCart() {
         if (session?.user) {
           setState((prev) => ({ ...prev, isSyncing: true }));
           try {
-            const response = await fetch(`${API_BASE}/items/${productId}`, {
+            const response = await fetch(`${API_BASE}/items/${variantId}`, {
               method: 'DELETE',
               credentials: 'include',
             });
@@ -230,7 +231,7 @@ export function useCart() {
 
       setState((prev) => {
         const newItems = prev.items.map((i) =>
-          i.productId === productId ? { ...i, quantity } : i
+          i.variantId === variantId ? { ...i, quantity } : i
         );
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
@@ -241,7 +242,7 @@ export function useCart() {
       if (session?.user) {
         setState((prev) => ({ ...prev, isSyncing: true }));
         try {
-          const response = await fetch(`${API_BASE}/items/${productId}`, {
+          const response = await fetch(`${API_BASE}/items/${variantId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ quantity }),

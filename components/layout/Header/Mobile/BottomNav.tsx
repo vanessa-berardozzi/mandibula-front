@@ -1,4 +1,5 @@
 'use client';
+import { useCartContext } from "@/context/CartContext";
 import { useSession } from "@/lib/auth.client";
 import { Bug, Home, Search, ShoppingCart, User } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const { itemCount } = useCartContext();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const activeTab = useMemo(() => {
@@ -23,7 +25,7 @@ export function BottomNav() {
     { id: 'home',       icon: Home,         label: 'Accueil',    action: 'link'  as const, href: '/' },
     { id: 'categories', icon: Bug,          label: 'Catégories', action: 'link'  as const, href: '/categories' },
     { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const, handler: () => setSearchOpen(true) },
-    { id: 'cart',       icon: ShoppingCart, label: 'Panier',     action: 'link'  as const, href: '/cart', badge: 3 }, // TODO: vrai compteur panier
+    { id: 'cart',       icon: ShoppingCart, label: 'Panier',     action: 'link'  as const, href: '/cart', badge: itemCount },
     { id: 'profile',    icon: User,         label: 'Profil',     action: 'link'  as const, href: session?.user ? '/profile' : '/login' },
   ];
 

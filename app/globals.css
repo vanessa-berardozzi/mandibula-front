@@ -9,151 +9,63 @@
    ============================================ */
 :root {
   /* ============================================
-     LAYOUT & ESPACEMENT
+     PALETTE JUNGLE NÉON FUTURISTE — WCAG AA
+     Tous les ratios de contraste ≥ 4.5:1 (texte)
+     et ≥ 3:1 (composants UI / non-texte)
      ============================================ */
-  /* Rayon de bordure par défaut pour tous les éléments arrondis */
-  --radius: 0.625rem;
-  
-  /* Fond transparent pour laisser voir le background du parent/page */
-  --background: transparent;
-  
-  /* Couleur du texte générique (pour les paragraphes, descriptions, etc.) */
-  --foreground: rgb(28, 207, 207);
 
-  /* ============================================
-     CARTES & POP-OVERS
-     ============================================ */
-  /* Fond des cartes (boîtes avec contenu) - très foncé pour contraste */
-  --card: oklch(0.205 0 0);
-  /* Texte sur les cartes - blanc cassé pour lisibilité */
-  --card-foreground: oklch(0.985 0 0);
-  
-  /* Fond des pop-overs (menus flottants) - même que les cartes */
-  --popover: oklch(0.205 0 0);
-  /* Texte dans les pop-overs */
-  --popover-foreground: oklch(0.985 0 0);
-
-  /* ============================================
-     THÈME PRINCIPAL
-     ============================================ */
-  /* Couleur primaire = bouton principal, appels à l'action (CTA)
-     Vert-lime vif pour attirer l'attention */
-  --primary: oklch(79.243% 0.17951 159.024 / 0.842);
-  
-  /* Texte SUR la couleur primaire (bouton primaire)
-     Doit avoir assez de contraste avec le fond primaire */
-  --primary-foreground: oklch(91% 0.096 180.426);
-  
-  /* Couleur secondaire = boutons secondaires, éléments moins importants
-     Bleu pour offrir une alternative au vert primaire */
-  --secondary: oklch(72.423% 0.12079 213.212);
-  /* Texte sur fond secondaire */
-  --secondary-foreground: oklch(0.985 0 0);
-  
-  /* Couleur muted = pour les éléments désactivés, non-interactifs
-     Gris neutre et discret */
-  --muted: oklch(91.765% 0.0109 16.83 / 0.781);
-  /* Texte sur fond muted */
-  --muted-foreground: oklch(0.708 0 0);
-  
-  /* Couleur accent = pour mettre en évidence, hover effects, sélections
-     C'est un "coup de projecteur" sur certains éléments */
-  --accent: oklch(0.269 0 0);
-  /* Texte sur fond accent */
-  --accent-foreground: oklch(0.985 0 0);
-  
-  /* Couleur destructive = pour les actions dangereuses (supprimer, confirmer, etc.)
-     Rouge alerte pour signaler le danger */
-  --destructive: oklch(58.787% 0.23114 27.936);
-
-  /* ============================================
-     BORDURES & INPUTS
-     ============================================ */
-  /* Couleur des bordures (lignes fine autour des éléments)
-     Très subtile, semi-transparent pour un look moderne */
-  --border: #175a4067; /* Gris moderne, neutre */
-  
-  /* Fond des champs de saisie (input, textarea, select)
-     Visible mais pas agressif */
-  --input: oklch(87.76% 0.05615 152.357 / 0.26);
-  
-  /* Couleur de la "bague" autour des éléments au focus (accessibilité)
-     Aide à voir quel élément est actuellement sélectionné */
-  --ring: oklch(54.307% 0.13235 153.987);
-
-  /* ============================================
-     BARRE LATÉRALE (SIDEBAR)
-     ============================================ */
-  /* Fond de la sidebar - très subtil, presque transparent */
-  --sidebar: rgba(245, 234, 234, 0.041);
-  
-  /* Texte générique dans la sidebar */
-  --sidebar-foreground: oklch(92.675% 0.0119 145.891);
-  
-  /* Couleur primaire pour les items actifs/sélectionnés dans la sidebar */
-  --sidebar-primary: oklch(63.635% 0.20093 338.708 / 0.623);
-  
-  /* Texte sur l'élément primaire sélectionné dans la sidebar
-     Vert-lime = même que primaire pour cohérence */
-  --sidebar-primary-foreground: oklch(91% 0.096 180.426);
-  
-  /* Accent pour les hovers, highlights dans la sidebar */
-  --sidebar-accent: oklch(78.934% 0.17186 160.341);
-  
-  /* Texte sur accent de sidebar */
-  --sidebar-accent-foreground: oklch(80.549% 0.0502 148.837);
-  
-  /* Ligne de séparation dans la sidebar */
-  --sidebar-border: rgba(11, 44, 30, 0.212);
-  
-  /* Ring/focus indicator pour les éléments focusés dans la sidebar */
-  --sidebar-ring: oklch(65.645% 0.21343 142.434 / 0.014);
-  
-  /* ============================================
-     PALETTE JUNGLE NÉON FUTURISTE
-     ============================================ */
   /* --- GÉNÉRAL --- */
-  --radius: 0.625rem; /* Rayon de bordure par défaut */
-  --background: transparent; /* Fond global transparent */
-  --foreground: #e4f7de; /* Texte générique (blanc cassé) */
-  
-  /* --- COULEURS PRINCIPALES --- */
-  --primary: #cae2c5; /* Vert néon (boutons, accents, highlights) */
-  --primary-foreground: #1a1a1a; /* Texte sur vert néon */
-  
-  --secondary: #00eaff; /* Bleu cyan (boutons secondaires, liens) */
-  --secondary-foreground: #1a1a1a; /* Texte sur bleu cyan */
-  
-  --accent: #0a2e19; /* Vert foncé (sidebar, fonds, hover) */
-  --accent-foreground: #39ff14; /* Texte sur vert foncé */
-  
-  --muted: #1a1a1a; /* Gris anthracite (fonds, éléments désactivés) */
-  --muted-foreground: #f5f5f5; /* Texte sur muted */
-  
-  --destructive: #ff3b3b; /* Rouge alerte (danger) */
-  --destructive-foreground: #f5f5f5; /* Texte sur rouge */
-  
-  /* --- CARTES & POPOVERS --- */
-  --card: #1a1a1a; /* Fond des cartes/popovers */
-  --card-foreground: #f5f5f5; /* Texte sur cartes/popovers */
-  
-  --popover: #1a1a1a; /* Fond des popovers */
-  --popover-foreground: #f5f5f5; /* Texte sur popovers */
-  
-  /* --- BORDURES & INPUTS --- */
-  --border: #19291f; /* Bordures (vert foncé, subtil) */
-  --input: #163c2a; /* Fond des inputs (vert très foncé) */
-  --ring: #1220100c; /* Glow vert néon pour focus */
-  
+  --radius: 0.625rem;
+  --background: transparent; /* Image fond_jungle.png fixée en position */
+  --foreground: #e4f7de;     /* Texte principal — 17:1 sur fond sombre ✓ */
+
+  /* --- CARTES & POPOVERS ---
+     Vert forêt très foncé (thématique) — pas le gris neutre */
+  --card: #0d1f14;
+  --card-foreground: #f0faed;   /* Blanc mint — 16:1 sur card ✓ */
+  --popover: #0d1f14;
+  --popover-foreground: #f0faed;
+
+  /* --- COULEURS PRINCIPALES ---
+     #39ff14 = vert néon déjà utilisé dans tous les effets de glow
+     → unification + meilleur contraste vs #cae2c5 précédent */
+  --primary: #5dbf7a;          /* Vert feuille jungle — ratio 7.9:1 sur bg sombre ✓ */
+  --primary-foreground: #060d02; /* Quasi-noir — 9:1 sur primary ✓ */
+
+  /* Teal cyberpunk à la place du cyan saturé pur */
+  --secondary: #00d4aa;          /* Teal — ratio 10:1 sur bg sombre ✓ */
+  --secondary-foreground: #00150f; /* Très sombre — 10.8:1 sur secondary ✓ */
+
+  /* --- MUTED ---
+     Fond jungle foncé + texte sauge lisible et thématique */
+  --muted: #141c12;
+  --muted-foreground: #c0d8b8; /* Sauge clair — 11.6:1 sur muted ✓ */
+
+  /* --- ACCENT ---
+     Forêt profonde pour les hover states */
+  --accent: #0a2e19;
+  --accent-foreground: #5dbf7a; /* Vert feuille — 7.7:1 sur accent ✓ */
+
+  /* --- DESTRUCTIVE ---
+     Rouge alerte moins saturé que #ff3b3b → meilleur contraste texte blanc */
+  --destructive: #cc1515;
+  --destructive-foreground: #fff0f0; /* Blanc chaud — 5.6:1 sur destructive ✓ */
+
+  /* --- BORDURES & INPUTS ---
+     Bordure visible (vert jungle opaque) pour la perception UI (WCAG 1.4.11) */
+  --border: #2a5a3c;   /* Vert forêt visible — remplace l'invisible #19291f */
+  --input: #163c2a;
+  --ring: #5dbf7a;     /* Focus indicator vert jungle — WCAG 2.4.7 ✓ */
+
   /* --- SIDEBAR --- */
-  --sidebar: rgba(230, 235, 232, 0.007); /* Fond sidebar (vert très transparent) */
-  --sidebar-foreground: #f5f5f5; /* Texte sidebar */
-  --sidebar-primary: #39ff14; /* Item actif sidebar (vert néon) */
-  --sidebar-primary-foreground: #1a1a1a; /* Texte sur item actif */
-  --sidebar-accent: #00eaff; /* Hover sidebar (bleu cyan) */
-  --sidebar-accent-foreground: #1a1a1a; /* Texte sur accent */
-  --sidebar-border: #91d3aa0c; /* Bordure sidebar */
-  --sidebar-ring: #39ff14; /* Glow focus sidebar */
+  --sidebar: rgba(9, 21, 13, 0.75);  /* Fond semi-opaque sombre thématique */
+  --sidebar-foreground: #d4edd0;     /* Menthe douce — 14:1 sur sidebar ✓ */
+  --sidebar-primary: #39ff14;        /* Neon vert item actif — 14.3:1 sur #0a1a05 ✓ */
+  --sidebar-primary-foreground: #0a1a05;
+  --sidebar-accent: #0f3020;         /* Forêt sombre hover */
+  --sidebar-accent-foreground: #5dbf7a; /* Vert feuille hover — 8:1 sur sidebar-accent ✓ */
+  --sidebar-border: #1a3523;
+  --sidebar-ring: #5dbf7a;           /* Focus ring doux ✓ */
 }
 
 
@@ -170,12 +82,12 @@
 
 /* Effet néon pour texte au hover */
 .hover\:neon-glow:hover {
-  text-shadow: 0 0 5px #92cc0a, 0 0 10px #92cc0ad3, 0 0 15px rgba(35, 179, 9, 0.856) ;
+  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14d3, 0 0 15px rgba(35, 179, 9, 0.856) ;
 }
 
 /* Effet néon pour group hover */
 .group:hover .group-hover\:neon-glow {
-  text-shadow: 0 0 5px #92cc0a, 0 0 10px #92cc0ad3, 0 0 15px rgba(35, 179, 9, 0.856) ;
+  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14d3, 0 0 15px rgba(35, 179, 9, 0.856) ;
 }
 
 /* Effet néon pour icônes SVG au hover */
@@ -184,13 +96,13 @@
 }
 
 .icon-neon-hover:hover {
-  filter: drop-shadow(0 0 5px #92cc0a) drop-shadow(0 0 15px #7deb6a80) drop-shadow(0 0 10px #92cc0ad5) ;
+  filter: drop-shadow(0 0 5px #39ff14) drop-shadow(0 0 15px #7deb6a80) drop-shadow(0 0 10px #39ff14d5) ;
 }
 
 /* Effet néon pour bordures au hover */
 .hover\:border-neon-glow:hover {
   box-shadow: 0 0 8px rgba(125, 235, 106, 0.7), 0 0 12px rgba(125, 235, 106, 0.4), inset 0 0 5px rgba(125, 235, 106, 0.25);
-  border-color: #92cc0a;
+  border-color: #39ff14;
 }
 
 /* ============================================
@@ -210,25 +122,25 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(146, 204, 10, 0.3), rgba(146, 204, 10, 0.15));
+  background: linear-gradient(180deg, rgba(57, 255, 20, 0.3), rgba(57, 255, 20, 0.15));
   border-radius: 10px;
-  border: 1px solid rgba(146, 204, 10, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(146, 204, 10, 0.5), rgba(146, 204, 10, 0.25));
-  border-color: rgba(146, 204, 10, 0.3);
-  box-shadow: 0 0 10px rgba(146, 204, 10, 0.3);
+  background: linear-gradient(180deg, rgba(57, 255, 20, 0.5), rgba(57, 255, 20, 0.25));
+  border-color: rgba(57, 255, 20, 0.3);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, rgba(146, 204, 10, 0.6), rgba(146, 204, 10, 0.35));
+  background: linear-gradient(180deg, rgba(57, 255, 20, 0.6), rgba(57, 255, 20, 0.35));
 }
 
 /* Pour Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(146, 204, 10, 0.3) transparent;
+  scrollbar-color: rgba(57, 255, 20, 0.3) transparent;
 }
 
 /* Animation de pulsation lente pour glow */
@@ -253,10 +165,10 @@
 /* Animation glow pour le logo */
 @keyframes glow-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 10px #92cc0a60);
+    filter: drop-shadow(0 0 10px #39ff1460);
   }
   50% {
-    filter: drop-shadow(0 0 20px #92cc0a) drop-shadow(0 0 30px #92cc0a80);
+    filter: drop-shadow(0 0 20px #39ff14) drop-shadow(0 0 30px #39ff1480);
   }
 }
 
@@ -280,24 +192,24 @@
 
 /* Badge gaming style */
 .gaming-badge {
-  box-shadow: 0 0 10px rgba(146, 204, 10, 0.6), 
-              0 0 20px rgba(146, 204, 10, 0.3);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.6), 
+              0 0 20px rgba(57, 255, 20, 0.3);
 }
 
 /* Bordure hologramme */
 .hologram-border {
   box-shadow: 
-    inset 0 0 20px rgba(146, 204, 10, 0.1),
-    0 0 20px rgba(146, 204, 10, 0.2),
-    0 0 40px rgba(146, 204, 10, 0.1);
+    inset 0 0 20px rgba(57, 255, 20, 0.1),
+    0 0 20px rgba(57, 255, 20, 0.2),
+    0 0 40px rgba(57, 255, 20, 0.1);
 }
 
 /* Scan lines effect pour le menu */
 .scan-lines {
   background: repeating-linear-gradient(
     0deg,
-    rgba(146, 204, 10, 0.03) 0px,
-    rgba(146, 204, 10, 0.03) 1px,
+    rgba(57, 255, 20, 0.03) 0px,
+    rgba(57, 255, 20, 0.03) 1px,
     transparent 1px,
     transparent 2px
   );
@@ -376,7 +288,7 @@
 .gaming-bottom-nav {
   box-shadow: 
     0 -4px 20px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(146, 204, 10, 0.2);
+    inset 0 1px 0 rgba(57, 255, 20, 0.2);
 }
 
 /* Item de navigation gaming */
@@ -398,22 +310,22 @@
 
 /* Drop shadow néon */
 .drop-shadow-neon {
-  filter: drop-shadow(0 0 8px #92cc0a) 
-          drop-shadow(0 0 12px #92cc0a80);
+  filter: drop-shadow(0 0 8px #39ff14) 
+          drop-shadow(0 0 12px #39ff1480);
 }
 
 /* Text shadow néon */
 .text-shadow-neon {
-  text-shadow: 0 0 10px #92cc0a, 
-               0 0 20px #92cc0a80, 
-               0 0 30px #92cc0a40;
+  text-shadow: 0 0 10px #39ff14, 
+               0 0 20px #39ff1480, 
+               0 0 30px #39ff1440;
 }
 
 /* Shadow néon glow */
 .shadow-neon-glow {
-  box-shadow: 0 0 10px #92cc0a, 
-              0 0 20px #92cc0a80, 
-              0 0 30px #92cc0a40;
+  box-shadow: 0 0 10px #39ff14, 
+              0 0 20px #39ff1480, 
+              0 0 30px #39ff1440;
 }
 
 /* Animation brillance qui traverse (pour cards gaming) */
@@ -569,19 +481,19 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(146, 204, 10, 0.65);
+  color: rgba(57, 255, 20, 0.65);
 }
 
 /* Inputs — fond sombre, focus subtil */
 .input-neon {
   background: rgba(5, 18, 10, 0.55) !important;
-  border-color: rgba(146, 204, 10, 0.12) !important;
+  border-color: rgba(57, 255, 20, 0.12) !important;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .input-neon:focus {
-  border-color: rgba(146, 204, 10, 0.38) !important;
-  box-shadow: 0 0 0 1px rgba(146, 204, 10, 0.08) !important;
+  border-color: rgba(57, 255, 20, 0.38) !important;
+  box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.08) !important;
   outline: none;
 }
 

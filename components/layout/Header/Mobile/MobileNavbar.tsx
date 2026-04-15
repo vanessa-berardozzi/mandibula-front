@@ -1,6 +1,7 @@
 'use client';
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCartContext } from "@/context/CartContext";
 import { Menu, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import { MobileMenu } from './MobileMenu';
 
 export function MobileNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount] = useState(3); // TODO: Remplacer par le vrai compteur panier
+  const { itemCount: cartCount } = useCartContext();
 
   return (
     <nav 

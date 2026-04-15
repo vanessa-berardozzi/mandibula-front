@@ -5,7 +5,7 @@ import { CartSummary } from '@/components/features/CartSummary';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
 import type { CartValidationResponse } from '@/types/cart';
-import { AlertCircle, ShoppingBag } from 'lucide-react';
+import { Package, ShoppingBag, Skull } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,15 +14,12 @@ interface ProductData {
   [key: string]: {
     id: string;
     name: string;
+    variantName: string;
     price: number;
     image?: string;
   };
 }
 
-/**
- * Page Panier
- * Design: Jungle apocalyptique futuriste avec UI gaming neon
- */
 export default function CartPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -32,19 +29,42 @@ export default function CartPage() {
   const [isValidating, setIsValidating] = useState(false);
   const [validation, setValidation] = useState<CartValidationResponse>();
   const [products, setProducts] = useState<ProductData>({});
+  const [clearConfirm, setClearConfirm] = useState(false);
 
-  // Construit un dictionnaire produits depuis les items du panier
   useEffect(() => {
-    const productsDict: ProductData = {};
-    items.forEach((item) => {
-      productsDict[item.productId] = {
-        id: item.productId,
-        name: `Produit ${item.productId.slice(0, 8)}...`,
-        price: item.price || 0,
-      };
-    });
-
-    setProducts(productsDict);
+    const variantIds = items.filter((item) => item.variantId).map((item) => item.variantId);
+    if (variantIds.length === 0) {
+      setProducts({});
+      return;
+    }
+    fetch(`/api/products/variants/batch?ids=${variantIds.join(',')}`)
+      .then((r) => r.json())
+      .then((variants: { id: string; name: string; price: number; product: { id: string; name: string; images: string[] } }[]) => {
+        const dict: ProductData = {};
+        for (const v of variants) {
+          dict[v.id] = {
+            id: v.product.id,
+            name: v.product.name,
+            variantName: v.name,
+            price: v.price,
+            image: v.product.images?.[0],
+          };
+        }
+        setProducts(dict);
+      })
+      .catch(() => {
+        // Fallback : afficher l'id tronqué si l'API échoue
+        const fallback: ProductData = {};
+        items.filter((item) => item.variantId).forEach((item) => {
+          fallback[item.variantId] = {
+            id: item.variantId,
+            name: `Produit ${item.variantId.slice(0, 8).toUpperCase()}`,
+            variantName: '',
+            price: item.price || 0,
+          };
+        });
+        setProducts(fallback);
+      });
   }, [items]);
 
   const handleCheckout = async () => {
@@ -52,210 +72,221 @@ export default function CartPage() {
       router.push('/login');
       return;
     }
-
-    if (items.length === 0) {
-      alert('Le panier est vide');
-      return;
-    }
+    if (items.length === 0) return;
 
     setIsValidating(true);
     try {
       const result = await validateCart();
       setValidation(result ?? undefined);
-
       if (result?.valid) {
-        // Rediriger vers checkout avec les données validées
         router.push('/checkout');
       } else {
-        // Afficher les erreurs
         alert('Panier invalide: ' + (result?.errors?.[0] || 'Erreur inconnue'));
       }
     } catch (error) {
       console.error('Validation error:', error);
-      alert('Erreur lors de la validation: ' + (error instanceof Error ? error.message : ''));
+      alert('Erreur: ' + (error instanceof Error ? error.message : ''));
     } finally {
       setIsValidating(false);
     }
   };
 
   const handleClearCart = async () => {
-    if (confirm('Vider complètement le panier ?')) {
-      await clearCart();
+    if (!clearConfirm) {
+      setClearConfirm(true);
+      setTimeout(() => setClearConfirm(false), 3000);
+      return;
     }
+    setClearConfirm(false);
+    await clearCart();
   };
 
+  /* ── LOADING ── */
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-primary text-center">
-          <ShoppingBag size={48} className="mx-auto mb-4 animate-bounce" />
-          <p className="font-mono">Chargement du panier...</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-4">
+          <div className="relative mx-auto w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+            <div className="absolute inset-2 rounded-full border-2 border-primary/60 animate-spin" />
+            <ShoppingBag className="absolute inset-0 m-auto w-6 h-6 text-primary" />
+          </div>
+          <p className="font-mono text-xs text-primary/60 tracking-widest uppercase animate-pulse">
+            Chargement inventaire...
+          </p>
         </div>
       </div>
     );
   }
 
-  // Panier vide
+  /* ── PANIER VIDE ── */
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-black via-black/95 to-black p-6">
+      <div className="container mx-auto px-4 py-16 max-w-2xl">
+        {/* Terminal vide */}
         <div
-          className={`
-            max-w-2xl mx-auto mt-12 rounded-lg border-2 border-dashed border-primary/30
-            bg-linear-to-b from-black/60 to-black/40 p-12 backdrop-blur-sm
-            text-center
-          `}
+          className="relative border border-primary/30 bg-black/80 backdrop-blur-md overflow-hidden"
+          style={{ clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)' }}
         >
-          <ShoppingBag size={64} className="mx-auto mb-6 text-primary/40" />
+          {/* Scan line overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(0deg, rgba(146,204,10,1) 0px, rgba(146,204,10,1) 1px, transparent 1px, transparent 4px)',
+            }}
+          />
+          {/* Top bar */}
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-primary/5">
+            <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-primary/40" />
+            <div className="w-2 h-2 rounded-full bg-primary/40" />
+            <span className="ml-2 font-mono text-xs text-primary/40 tracking-widest">INVENTORY_SYS :: SLOT_CHECK</span>
+          </div>
 
-          <h1 className="text-3xl font-black uppercase tracking-widest text-primary mb-4">
-            Panier Vide
-          </h1>
-
-          <p className="text-foreground/60 mb-8 font-mono">
-            Votre panier ne contient aucun article. Explorez nos créatures exotiques!
-          </p>
-
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              href="/"
-              className={`
-                px-8 py-3 font-black uppercase tracking-wider rounded
-                bg-primary text-black
-                hover:shadow-[0_0_20px_rgba(216,249,153,0.5)]
-                hover:scale-105 transition-all
-              `}
-            >
-              Continuer le Shopping
-            </Link>
-
-            <Link
-              href="/categories/isopodes"
-              className={`
-                px-8 py-3 font-black uppercase tracking-wider rounded
-                border-2 border-primary text-primary
-                hover:bg-primary/10 transition-all
-              `}
-            >
-              Voir les Isopodes
-            </Link>
+          <div className="p-12 text-center space-y-6">
+            <div className="relative mx-auto w-24 h-24">
+              <div className="absolute inset-0 border-2 border-dashed border-primary/20 rounded-sm animate-spin" style={{ animationDuration: '20s' }} />
+              <Skull className="absolute inset-0 m-auto w-10 h-10 text-primary/30" />
+            </div>
+            <div>
+              <p className="font-mono text-xs text-primary/40 tracking-widest mb-2">[ ERREUR_INVENTAIRE_001 ]</p>
+              <h1 className="text-3xl font-black uppercase tracking-widest text-primary/80 mb-2">Inventaire Vide</h1>
+              <p className="text-sm font-mono text-foreground/40">Aucun spécimen capturé. Retournez en mission.</p>
+            </div>
+            <div className="flex gap-4 justify-center flex-wrap pt-4">
+              <Link
+                href="/"
+                className="px-8 py-3 font-black uppercase tracking-wider text-sm bg-primary text-black hover:shadow-[0_0_20px_rgba(216,249,153,0.5)] hover:scale-105 transition-all"
+                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
+              >
+                ▶ Reprendre la chasse
+              </Link>
+              <Link
+                href="/categories/isopodes"
+                className="px-8 py-3 font-black uppercase tracking-wider text-sm border-2 border-primary/60 text-primary hover:bg-primary/10 hover:scale-105 transition-all"
+                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
+              >
+                Isopodes
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  /* ── PANIER REMPLI ── */
   return (
-    <div className="min-h-screen bg-linear-to-b from-black via-black/98 to-black p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header HUD Style */}
-        <div className="mb-8 relative">
-          <div
-            className={`
-              p-6 rounded-lg border-2 border-primary/60
-              bg-linear-to-r from-primary/5 via-black to-black
-              backdrop-blur-sm
-              before:absolute before:inset-0 before:rounded-lg
-              before:bg-linear-to-r before:from-transparent before:via-primary/10 before:to-transparent
-              before:animate-pulse before:pointer-events-none
-            `}
-          >
-            <div className="relative z-10">
-              <p className="text-xs font-mono text-primary/60 tracking-widest uppercase mb-2">
-                [CARGO_MANIFEST_V2.48]
-              </p>
-              <h1 className="text-4xl font-black uppercase tracking-widest text-primary drop-shadow-[0_0_10px_rgba(216,249,153,0.4)]">
-                🛒 Mon Panier
-              </h1>
-              <p className="text-sm text-primary/70 font-mono mt-2">
-                {itemCount} article{itemCount > 1 ? 's' : ''} • {items.length} produit
-                {items.length > 1 ? 's' : ''}
-              </p>
-            </div>
+    <div className="container mx-auto px-4 pb-12">
+
+      {/* ── HUD HEADER ── */}
+      <div className="mb-6 relative overflow-hidden border-b border-primary/50 pb-4">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-mono text-sm text-primary/65 tracking-[0.3em] uppercase mb-1">
+              cargo_manifest :: v2.48.2
+            </p>
+            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-widest text-primary drop-shadow-[0_0_12px_rgba(216,249,153,0.35)]">
+              Inventaire
+            </h1>
+          </div>
+          <div className="flex items-center gap-6 font-mono text-sm text-primary/80">
+            <span className="flex items-center gap-2">
+              <Package size={14} className="text-primary" />
+              <span><span className="text-primary font-bold">{itemCount}</span> article{itemCount > 1 ? 's' : ''}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-primary/70">ACTIF</span>
+            </span>
+          </div>
+        </div>
+        {/* Ligne de progression décorative */}
+        <div className="absolute bottom-0 left-0 h-px w-full bg-linear-to-r from-primary/60 via-primary/20 to-transparent" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* ── COLONNE INVENTAIRE ── */}
+        <div className="lg:col-span-2 space-y-3">
+
+          {/* Slots d'inventaire */}
+          <div className="space-y-2">
+            {items.map((item, index) => (
+              <CartItemRow
+                key={item.variantId}
+                item={item}
+                product={products[item.variantId]}
+                slotIndex={index + 1}
+              />
+            ))}
+          </div>
+
+          {/* Bouton vider le panier */}
+          <div className="pt-2">
+            <button
+              onClick={handleClearCart}
+              className={`
+                group flex items-center gap-2 px-5 py-3 font-mono text-sm font-bold uppercase tracking-widest
+                border-2 transition-all duration-200
+                ${clearConfirm
+                  ? 'border-destructive bg-destructive/20 text-white shadow-[0_0_20px_rgba(204,21,21,0.5)] scale-[1.02]'
+                  : 'border-destructive bg-black/70 text-destructive hover:bg-destructive/15 hover:shadow-[0_0_12px_rgba(204,21,21,0.4)]'
+                }
+              `}
+              style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
+            >
+              <Skull size={16} className={`shrink-0 ${clearConfirm ? 'animate-bounce' : ''}`} />
+              <span>{clearConfirm ? '⚠ Confirmer — tout supprimer ?' : "Vider l'inventaire"}</span>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Article List */}
-          <div className="lg:col-span-2">
+        {/* ── COLONNE TERMINAL MISSION ── */}
+        <div className="lg:col-span-1 space-y-4">
+          <CartSummary
+            subtotal={subtotal}
+            validation={validation}
+            isValidating={isValidating}
+            onCheckout={handleCheckout}
+            isCheckoutDisabled={!session?.user || items.length === 0}
+          />
+
+          {!session?.user && (
             <div
-              className={`
-                rounded-lg border border-primary/30 bg-black/40 p-6 backdrop-blur-sm
-                space-y-2
-              `}
+              className="relative border border-primary/25 bg-black/60 backdrop-blur-sm overflow-hidden"
+              style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
-              {/* Info badge */}
-              <div className="mb-6 flex items-start gap-3 p-3 rounded border border-primary/20 bg-primary/5">
-                <AlertCircle size={20} className="text-primary shrink-0 mt-0.5" />
-                <p className="text-xs text-primary/80 font-mono">
-                  Les prix sont recalculés et validés au moment du paiement pour garantir votre sécurité.
+              <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
+              <div className="p-4 space-y-3">
+                <p className="font-mono text-sm text-primary/50 tracking-widest uppercase">
+                  ⚠ Authentification requise
                 </p>
-              </div>
-
-              {/* Articles */}
-              {items.map((item) => (
-                <CartItemRow
-                  key={item.productId}
-                  item={item}
-                  product={products[item.productId]}
-                />
-              ))}
-
-              {/* Clear cart button */}
-              <button
-                onClick={handleClearCart}
-                className={`
-                  w-full mt-6 py-2 px-4 font-mono text-sm
-                  border border-destructive/50 text-destructive/70
-                  hover:bg-destructive/10 rounded
-                  transition-all
-                `}
-              >
-                🗑️ Vider le Panier
-              </button>
-            </div>
-          </div>
-
-          {/* Summary Sidebar */}
-          <div className="lg:col-span-1">
-            <CartSummary
-              subtotal={subtotal}
-              validation={validation}
-              isValidating={isValidating}
-              onCheckout={handleCheckout}
-              isCheckoutDisabled={!session?.user || items.length === 0}
-            />
-
-            {/* Auth prompt if not logged in */}
-            {!session?.user && (
-              <div className="mt-6 p-4 rounded border border-primary/30 bg-primary/5">
-                <p className="text-xs text-primary/70 font-mono mb-3">
-                  Connectez-vous pour valider votre commande
+                <p className="font-mono text-sm text-foreground/40">
+                  Connectez-vous pour déployer votre cargaison.
                 </p>
                 <Link
                   href="/login"
-                  className={`
-                    block w-full py-2 px-4 text-center font-bold text-sm
-                    bg-primary text-black rounded
-                    hover:scale-105 transition-all
-                  `}
+                  className="block w-full py-2.5 px-4 text-center font-black text-sm uppercase tracking-wider bg-primary text-black hover:shadow-[0_0_15px_rgba(216,249,153,0.4)] hover:scale-[1.02] transition-all"
+                  style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
                 >
-                  Se Connecter
+                  Se connecter
                 </Link>
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Lien retour */}
+          <div className="text-center pt-2">
+            <Link
+              href="/"
+              className="font-mono text-sm text-primary/65 hover:text-primary tracking-widest uppercase transition-colors"
+            >
+              ← Retour en mission
+            </Link>
           </div>
         </div>
 
-        {/* Continue shopping link */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/"
-            className="text-primary/60 hover:text-primary font-mono text-sm transition-colors"
-          >
-            ← Continuer le shopping
-          </Link>
-        </div>
       </div>
     </div>
   );

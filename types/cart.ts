@@ -1,11 +1,17 @@
 export interface CartItem {
   id?: string;
-  productId: string;
-  product?: {
+  variantId: string;
+  variant?: {
     id: string;
     name: string;
     price: number;
-    image?: string;
+    lotSize: number;
+    stock: number;
+    product: {
+      id: string;
+      name: string;
+      image?: string;
+    };
   };
   quantity: number;
   price: number;
@@ -28,12 +34,24 @@ export interface CartValidationResponse {
   subtotal: number;
   tax: number;
   shippingCost: number;
+  discount: number;
   total: number;
+  promoCode?: string;
   errors?: string[];
 }
 
+export interface PromoValidationResponse {
+  valid: boolean;
+  code?: string;
+  description?: string;
+  discountType?: 'percent' | 'fixed';
+  discountValue?: number;
+  discountAmount?: number;
+  error?: string;
+}
+
 export interface CartItemValidated {
-  productId: string;
+  variantId: string;
   quantity: number;
   price: number;
   total: number;

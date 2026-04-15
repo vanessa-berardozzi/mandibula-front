@@ -14,10 +14,10 @@ interface ProductCardProps {
   stock: number;
   imageUrl?: string;
   href?: string;
-  productId?: string;
+  variantId?: string;
 }
 
-export function ProductCard({ title, price, stock, imageUrl, href = "/product", productId }: ProductCardProps) {
+export function ProductCard({ title, price, stock, imageUrl, href = "/product", variantId }: ProductCardProps) {
   const isInStock = stock > 0;
   const availabilityLabel = isInStock ? `${stock} en stock` : "Epuisé";
   
@@ -30,8 +30,7 @@ export function ProductCard({ title, price, stock, imageUrl, href = "/product", 
     e.preventDefault();
     e.stopPropagation();
     
-    if (!productId || !session?.user) {
-      // Rediriger vers login si pas connecté
+    if (!variantId || !session?.user) {
       if (!session?.user) {
         window.location.href = "/login";
       }
@@ -42,7 +41,7 @@ export function ProductCard({ title, price, stock, imageUrl, href = "/product", 
 
     setIsAdding(true);
     try {
-      await addItem(productId, 1, price);
+      await addItem(variantId, 1, price);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     } catch (error) {
@@ -119,7 +118,7 @@ export function ProductCard({ title, price, stock, imageUrl, href = "/product", 
               <span className="text-sm text-primary/70 font-bold">€</span>
             </div>
             
-            {productId ? (
+            {variantId ? (
               <Button 
                 onClick={handleAddToCart}
                 disabled={!isInStock || isAdding}

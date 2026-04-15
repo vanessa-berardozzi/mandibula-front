@@ -11,9 +11,9 @@ interface CartContextType {
   itemCount: number;
   isLoading: boolean;
   isSyncing: boolean;
-  addItem: (productId: string, quantity?: number, price?: number) => Promise<void>;
-  updateQuantity: (productId: string, quantity: number) => Promise<void>;
-  removeItem: (productId: string) => Promise<void>;
+  addItem: (variantId: string, quantity?: number, price?: number) => Promise<void>;
+  updateQuantity: (variantId: string, quantity: number) => Promise<void>;
+  removeItem: (variantId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   validateCart: () => Promise<CartValidationResponse | null>;
   refetch: () => Promise<void>;

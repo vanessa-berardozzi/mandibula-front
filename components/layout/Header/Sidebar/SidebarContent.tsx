@@ -2,9 +2,9 @@
 
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth.client";
-import { Bug, ChevronDown, ChevronRight, Home, Package, Search, ShoppingBag, User, Zap } from "lucide-react";
+import { Bug, ChevronDown, ChevronRight, Home, Package, Search, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Configuration des sections de navigation
 const navigationItems = [
@@ -18,48 +18,24 @@ const accountItems = [
   { icon: Package, label: "Mes Commandes", href: "/orders" },
 ];
 
-// Configuration des catégories avec couleurs personnalisées et icônes
-const categories = [
-  {
-    id: "isopodes",
-    name: "Isopodes",
-    icon: Bug,
-    color: "#22c56e", 
-    subcategories: [
-      { name: "Débutant", href: "/categories/isopodes/debutant" },
-      { name: "Intermédiaire", href: "/categories/isopodes/intermediaire" },
-      { name: "Expert", href: "/categories/isopodes/expert" }
-    ]
-  },
-  {
-    id: "blattes",
-    name: "Blattes",
-    icon: Bug,
-    color: "#7ba996", 
-    subcategories: [
-      { name: "Débutant", href: "/categories/blattes/debutant" },
-      { name: "Intermédiaire", href: "/categories/blattes/intermediaire" },
-      { name: "Expert", href: "/categories/blattes/expert" }
-    ]
-  },
-  {
-    id: "accessoires",
-    name: "Accessoires",
-    icon: Zap,
-    color: "#00d492", 
-    subcategories: [
-      { name: "Terrariums", href: "/categories/accessoires/terrariums" },
-      { name: "Substrats", href: "/categories/accessoires/substrats" },
-      { name: "Décoration", href: "/categories/accessoires/decoration" },
-      { name: "Nourriture", href: "/categories/accessoires/nourriture" }
-    ]
-  }
-];
+// Palette de couleurs tournante pour les catégories
+const CATEGORY_COLORS = ["#22c56e", "#7ba996", "#00d492", "#4fc3a1", "#a8d8a8", "#56b870"];
+
+interface ApiSubcategory { id: string; name: string; slug: string; }
+interface ApiCategory { id: string; name: string; slug: string; children: ApiSubcategory[]; }
 
 export function SidebarContent() {
   const { data: session } = useSession();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products/categories/all")
+      .then((res) => res.ok ? res.json() as Promise<ApiCategory[]> : Promise.resolve([]))
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
 
   const toggleCategory = (categoryId: string) => {
     setOpenCategory(openCategory === categoryId ? null : categoryId);
@@ -149,7 +125,7 @@ export function SidebarContent() {
           {/* Items des catégories */}
           <div className="space-y-2">
             {categories.map((category, idx) => {
-              const Icon = category.icon;
+              const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
               const isOpen = openCategory === category.id;
               
               return (
@@ -159,31 +135,28 @@ export function SidebarContent() {
                     onClick={() => toggleCategory(category.id)}
                     className="group w-full flex items-center gap-3 px-3 py-3 rounded-lg border transition-all duration-200 hover:translate-x-1 gaming-menu-item"
                     style={{ 
-                      background: `linear-gradient(to right, ${category.color}70, ${category.color}33)`,
-                      borderColor: `${category.color}30`,
-                      boxShadow: `0 4px 10px -2px ${category.color}40`,
+                      background: `linear-gradient(to right, ${color}70, ${color}33)`,
+                      borderColor: `${color}30`,
+                      boxShadow: `0 4px 10px -2px ${color}40`,
                       animationDelay: `${(3 + idx) * 80}ms` 
                     }}
                   >
                     {/* Icône avec effet néon */}
                     <div className="relative shrink-0">
-                      <Icon 
+                      <Bug
                         className="w-5 h-5 transition-transform group-hover:scale-110" 
-                        style={{ color: category.color }}
+                        style={{ color }}
                       />
-                      {/* Glow effect au hover */}
                       <div 
                         className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ backgroundColor: `${category.color}50` }}
+                        style={{ backgroundColor: `${color}50` }}
                       />
                     </div>
                     
                     {/* Nom de la catégorie */}
                     <span 
                       className="flex-1 text-left font-medium text-sm tracking-wide transition-colors hover:neon-glow"
-                      style={{ 
-                        color: '#e4f7de'
-                      }}
+                      style={{ color: '#e4f7de' }}
                     >
                       {category.name}
                     </span>
@@ -193,12 +166,12 @@ export function SidebarContent() {
                       {isOpen ? (
                         <ChevronDown 
                           className="w-4 h-4 transition-all group-hover:translate-y-0.5" 
-                          style={{ color: category.color }}
+                          style={{ color }}
                         />
                       ) : (
                         <ChevronRight 
                           className="w-4 h-4 transition-all group-hover:translate-x-0.5" 
-                          style={{ color: category.color }}
+                          style={{ color }}
                         />
                       )}
                     </div>
@@ -206,46 +179,47 @@ export function SidebarContent() {
 
                   {/* Sous-catégories avec animation slide */}
                   {isOpen && (
-                    <div className="ml-6 mt-2 space-y-1 border-l-2 pl-3" style={{ borderColor: `${category.color}40` }}>
-                      {category.subcategories.map((subcat, subIdx) => (
+                    <div className="ml-6 mt-2 space-y-1 border-l-2 pl-3" style={{ borderColor: `${color}40` }}>
+                      {category.children.map((subcat, subIdx) => (
                         <Link
-                          key={subcat.href}
-                          href={subcat.href}
+                          key={subcat.id}
+                          href={`/categories/${category.slug}/${subcat.slug}`}
                           className="group flex items-center gap-3 px-3 py-2 rounded-md border transition-all duration-200 hover:translate-x-1"
                           style={{ 
-                            background: `linear-gradient(to right, ${category.color}40, ${category.color}20)`,
-                            borderColor: `${category.color}20`,
+                            background: `linear-gradient(to right, ${color}40, ${color}20)`,
+                            borderColor: `${color}20`,
                             animationDelay: `${(idx * 3 + subIdx) * 40}ms` 
                           }}
                         >
-                          {/* Point indicateur */}
                           <div 
                             className="w-1.5 h-1.5 rounded-full transition-all group-hover:scale-150"
-                            style={{ 
-                              backgroundColor: category.color,
-                              boxShadow: `0 0 8px ${category.color}80`
-                            }}
+                            style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}80` }}
                           />
-                          
-                          {/* Nom de la sous-catégorie */}
                           <span 
                             className="flex-1 text-sm tracking-wide transition-colors hover:neon-glow"
-                            style={{ 
-                              color: '#e4f7de'
-                            }}
+                            style={{ color: '#e4f7de' }}
                           >
                             {subcat.name}
                           </span>
-                          
-                          {/* Flèche animée */}
                           <span 
                             className="text-xs transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1"
-                            style={{ color: category.color }}
+                            style={{ color }}
                           >
                             →
                           </span>
                         </Link>
                       ))}
+                      {/* Lien "Voir tout" pour la catégorie */}
+                      <Link
+                        href={`/categories/${category.slug}`}
+                        className="group flex items-center gap-3 px-3 py-2 rounded-md border border-dashed transition-all duration-200 hover:translate-x-1"
+                        style={{ borderColor: `${color}30`, animationDelay: `${(idx * 3 + category.children.length) * 40}ms` }}
+                      >
+                        <span className="flex-1 text-xs font-mono tracking-widest" style={{ color: `${color}99` }}>
+                          VOIR TOUT
+                        </span>
+                        <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" style={{ color }}>→</span>
+                      </Link>
                     </div>
                   )}
                 </div>

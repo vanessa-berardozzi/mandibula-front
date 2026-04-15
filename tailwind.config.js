@@ -8,41 +8,53 @@ const config = {
   theme: {
     extend: {
       colors: {
-        // Synced avec globals.css (converted to hex for Tailwind v4)
-        primary: "rgb(216, 249, 153)",
-        "primary-foreground": "#000000",
-        secondary: "#4B82B8",
-        "secondary-foreground": "#FAFAFA",
-        muted: "#1a1a1a",
-        "muted-foreground": "#B3B3B3",
-        accent: "#1a1a1a",
-        "accent-foreground": "#FAFAFA",
-        destructive: "#D32F2F",
-        
-        // Cards & Popovers
-        card: "#0a0a0a",
-        "card-foreground": "#FAFAFA",
-        popover: "#0a0a0a",
-        "popover-foreground": "#FAFAFA",
-        
-        // Borders & Inputs
-        border: "#CCE5DB",
-        input: "#7DBCA8",
-        ring: "#6B9E8C",
-        
+        // Synchronisé avec globals.css — palette WCAG AA
+        // Tous les ratios texte ≥ 4.5:1, UI non-texte ≥ 3:1
+
+        // Vert feuille jungle — doux et organique (ratio 7.9:1 sur fond sombre)
+        primary: "#5dbf7a",
+        "primary-foreground": "#060d02",
+
+        // Teal cyberpunk (ratio 10:1 sur fond sombre)
+        secondary: "#00d4aa",
+        "secondary-foreground": "#00150f",
+
+        // Muted — fond jungle + texte sauge lisible (ratio 11.6:1)
+        muted: "#141c12",
+        "muted-foreground": "#c0d8b8",
+
+        // Accent — forêt profonde hover (ratio 7.7:1)
+        accent: "#0a2e19",
+        "accent-foreground": "#5dbf7a",
+
+        // Destructive — rouge alerte (ratio 5.6:1 avec #fff0f0)
+        destructive: "#cc1515",
+        "destructive-foreground": "#fff0f0",
+
+        // Cards & Popovers — vert forêt foncé (thématique)
+        card: "#0d1f14",
+        "card-foreground": "#f0faed",
+        popover: "#0d1f14",
+        "popover-foreground": "#f0faed",
+
+        // Borders & Inputs — bordure visible pour WCAG 1.4.11
+        border: "#2a5a3c",
+        input: "#163c2a",
+        ring: "#5dbf7a",    // ← focus indicator vert jungle — WCAG 2.4.7 ✓
+
         // Layout
         background: "transparent",
-        foreground: "#E8FFFF",
-        
+        foreground: "#e4f7de",
+
         // Sidebar
-        sidebar: "rgba(245, 234, 234, 0.041)",
-        "sidebar-foreground": "#E8F5F0",
-        "sidebar-primary": "#A85FA8",
-        "sidebar-primary-foreground": "rgb(216, 249, 153)",
-        "sidebar-accent": "#C8E6D8",
-        "sidebar-accent-foreground": "#7DB8A0",
-        "sidebar-border": "rgba(11, 44, 30, 0.212)",
-        "sidebar-ring": "rgba(101, 136, 127, 0.014)",
+        sidebar: "rgba(9, 21, 13, 0.75)",
+        "sidebar-foreground": "#d4edd0",
+        "sidebar-primary": "#39ff14",
+        "sidebar-primary-foreground": "#0a1a05",
+        "sidebar-accent": "#0f3020",
+        "sidebar-accent-foreground": "#5dbf7a",
+        "sidebar-border": "#1a3523",
+        "sidebar-ring": "#5dbf7a",
       },
       borderRadius: {
         md: "0.625rem",

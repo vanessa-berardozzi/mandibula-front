@@ -2,6 +2,7 @@
 
 import { UserAvatar, useUserAvatar } from "@/components/shared"
 import { Input } from "@/components/ui"
+import { useCartContext } from "@/context/CartContext"
 import { Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -49,6 +50,20 @@ function NavbarUserAvatar() {
   );
 }
 
+function CartLink() {
+  const { itemCount } = useCartContext();
+  return (
+    <Link href="/cart" aria-label={`Panier (${itemCount} articles)`} className="relative">
+      <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
+      {itemCount > 0 && (
+        <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-primary rounded-full border-2 border-black gaming-badge">
+          {itemCount > 9 ? '9+' : itemCount}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -92,9 +107,7 @@ export function Navbar() {
             </button>
           )}
 
-          <Link href="/cart" aria-label="Panier">
-            <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
-          </Link>
+          <CartLink />
 
           {/* Avatar utilisateur - version navbar (rond, petit) */}
           <NavbarUserAvatar />

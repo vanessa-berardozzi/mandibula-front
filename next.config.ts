@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'images.sumup.com', // Images produits SumUp
+      },
+      {
+        protocol: 'https',
         hostname: 'lh3.googleusercontent.com', // Google OAuth avatars
       },
       {
@@ -31,6 +35,18 @@ const nextConfig: NextConfig = {
       {
         source: "/api/auth/:path*",
         destination: `${backendUrl}/api/auth/:path*`,
+      },
+      {
+        source: "/api/cart/:path*",
+        destination: `${backendUrl}/api/cart/:path*`,
+      },
+      {
+        source: "/api/products/:path*",
+        destination: `${backendUrl}/api/products/:path*`,
+      },
+      {
+        source: "/api/products",
+        destination: `${backendUrl}/api/products`,
       },
     ]
   },
