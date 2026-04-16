@@ -136,7 +136,22 @@ export default function ProductDetailPage() {
     );
   }
 
-  const attrs = product.attributes as Record<string, unknown> | null;
+  const attrs = product.attributes as {
+    type?: string;
+    temperature?: string;
+    humidite?: string;
+    substrat?: string;
+    alimentation?: string;
+    origine?: string;
+    niveau?: string;
+    niveauScore?: number;
+    wc?: boolean;
+    conseils?: string[];
+    compatible?: string;
+    utilisation?: string;
+    contenance?: string;
+    [key: string]: unknown;
+  } | null;
   const isAnimal = attrs?.type === 'animal';
   const price = selectedVariant ? parseFloat(selectedVariant.price) : parseFloat(product.price);
   const stock = selectedVariant?.stock ?? 0;
