@@ -2,7 +2,7 @@
 
 import { useSession } from '@/lib/auth.client';
 import type { CartResponse, CartValidationResponse } from '@/types/cart';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export interface LocalCartItem {
   variantId: string;
@@ -329,6 +329,21 @@ export function useCart() {
       fetchCartFromServer();
     }
   }, [session?.user, loadFromLocalStorage, fetchCartFromServer]);
+
+  /**
+   * Vide le localStorage panier à la déconnexion
+   */
+  const prevUserRef = React.useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const currentUserId = session?.user?.id;
+    if (prevUserRef.current !== undefined && !currentUserId) {
+      // L'utilisateur vient de se déconnecter
+      localStorage.removeItem(STORAGE_KEY);
+      const totals = calculateTotals([]);
+      setState((prev) => ({ ...prev, items: [], ...totals }));
+    }
+    prevUserRef.current = currentUserId;
+  }, [session?.user?.id, calculateTotals]);
 
   return {
     // State
