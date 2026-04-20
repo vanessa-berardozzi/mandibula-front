@@ -1,6 +1,6 @@
 'use client';
 
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useCartContext } from "@/context/CartContext";
 import { Menu, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
@@ -35,6 +35,10 @@ export function MobileNavbar() {
             side="left" 
             className="w-[85%] max-w-sm bg-sidebar backdrop-blur-xl border-r border-primary/30 p-0 hologram-border"
           >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Menu principal</SheetTitle>
+              <SheetDescription>Navigation principale du site</SheetDescription>
+            </SheetHeader>
             <MobileMenu onClose={() => setMenuOpen(false)} />
           </SheetContent>
         </Sheet>

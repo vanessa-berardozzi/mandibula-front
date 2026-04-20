@@ -33,7 +33,7 @@ export default function LandingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/products?limit=20")
+    fetch("/api/products?limit=6")
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<ProductsResponse>;
@@ -96,7 +96,7 @@ export default function LandingPage() {
             Aucun produit disponible.
           </p>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product, index) => {
             const defaultVariant = product.variants[0];
             return (
@@ -111,6 +111,7 @@ export default function LandingPage() {
                   imageUrl={product.images[0]}
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}
+                  priority={index === 0}
                 />
               </div>
             );
