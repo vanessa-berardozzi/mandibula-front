@@ -29,7 +29,8 @@ export function AuthPanel({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-stretch justify-end" role="dialog" aria-modal="true" aria-labelledby="auth-panel-title">
+      <span id="auth-panel-title" className="sr-only">Authentification</span>
       <div className="flex-1 cursor-default" onClick={close} aria-hidden="true" />
       <div
         className={`relative w-full max-w-md flex flex-col justify-center backdrop-blur-xl border-l border-primary/20 shadow-[-20px_0_60px_rgba(0,0,0,0.6)] px-8 py-12 overflow-y-auto ${isClosing ? "auth-panel-out" : "auth-panel"}`}

@@ -176,11 +176,13 @@ export function CartSummary({
           ) : (
             /* Input + bouton */
             <div className="flex gap-2">
+              <label htmlFor="promo-code-input" className="sr-only">Code promo</label>
               <div
                 className="flex-1 border border-primary/60 bg-black/75 overflow-hidden"
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
                 <input
+                  id="promo-code-input"
                   type="text"
                   value={promoInput}
                   onChange={(e) => {

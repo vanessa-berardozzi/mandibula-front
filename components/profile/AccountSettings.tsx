@@ -56,6 +56,7 @@ export function AccountSettings({ settings }: AccountSettingsProps) {
               </Button>
             ) : (
               <label className="flex items-center cursor-pointer ml-4">
+                <span className="sr-only">{setting.label}</span>
                 <input
                   type="checkbox"
                   checked={setting.status || false}

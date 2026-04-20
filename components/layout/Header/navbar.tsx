@@ -95,6 +95,7 @@ export function Navbar() {
                 onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Rechercher..."
                 autoFocus
+                aria-label="Rechercher dans le site"
                 className="w-50 px-4 py-2 rounded-md border-neon-glow"
               />
               <button onClick={() => setIsSearchOpen(false)} aria-label="Fermer la recherche">

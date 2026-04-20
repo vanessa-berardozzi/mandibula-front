@@ -65,6 +65,7 @@ export function SidebarContent() {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Rechercher..."
+            aria-label="Rechercher une catégorie"
             className="pl-10 bg-black/40 border-primary/20 text-foreground placeholder:text-primary/40 focus:border-primary/50 hover:border-primary/40 transition-all"
           />
         </div>
