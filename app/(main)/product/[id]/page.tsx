@@ -131,7 +131,7 @@ export default function ProductDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <p className="font-mono text-destructive text-sm tracking-widest uppercase">Produit introuvable</p>
-        <Button variant="outline" onClick={() => router.push('/')}>Retour à l'accueil</Button>
+        <Button variant="outline" onClick={() => router.push('/')}>← Retour à l&rsquo;accueil</Button>
       </div>
     );
   }

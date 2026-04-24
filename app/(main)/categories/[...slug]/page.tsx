@@ -1,8 +1,6 @@
-'use client';
-
 import { ProductCard } from '@/components/features/ProductCard';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 interface Variant {
   id: string;
@@ -27,67 +25,28 @@ interface CategoryResponse {
   total: number;
 }
 
-export default function CategoryPage() {
-  const params = useParams<{ slug: string[] }>();
-  const router = useRouter();
+const backendUrl =
+  process.env.API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'https://mandibula-back.onrender.com';
 
-  // On utilise toujours le dernier segment du chemin comme slug de catégorie
-  const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug];
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const { slug } = await params;
+  const slugSegments = Array.isArray(slug) ? slug : [slug];
   const categorySlug = slugSegments[slugSegments.length - 1];
 
-  const [category, setCategory] = useState<CategoryResponse['category'] | null>(null);
-  const [products, setProducts] = useState<ApiProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const res = await fetch(`${backendUrl}/api/products/category/${categorySlug}`, {
+    cache: 'no-store',
+  });
 
-  useEffect(() => {
-    if (!categorySlug) return;
-    setIsLoading(true);
-    setNotFound(false);
+  if (res.status === 404) notFound();
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    fetch(`/api/products/category/${categorySlug}`)
-      .then((res) => {
-        if (res.status === 404) { setNotFound(true); return null; }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<CategoryResponse>;
-      })
-      .then((data) => {
-        if (data) {
-          setCategory(data.category);
-          setProducts(data.data);
-        }
-      })
-      .catch((err) => console.error('Erreur chargement catégorie:', err))
-      .finally(() => setIsLoading(false));
-  }, [categorySlug]);
-
-  // ── Loading ──
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <p className="font-mono text-primary/60 text-xs tracking-widest animate-pulse uppercase">
-          Scan en cours...
-        </p>
-      </div>
-    );
-  }
-
-  // ── 404 ──
-  if (notFound) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <p className="font-mono text-destructive text-sm uppercase tracking-widest">
-          Catégorie introuvable
-        </p>
-        <button
-          onClick={() => router.push('/')}
-          className="font-mono text-xs text-primary/60 hover:text-primary underline underline-offset-4 transition-colors"
-        >
-          ← Retour à l'accueil
-        </button>
-      </div>
-    );
-  }
+  const data: CategoryResponse = await res.json();
 
   return (
     <main className="min-h-screen pb-12">
@@ -105,29 +64,29 @@ export default function CategoryPage() {
             catalogue / {slugSegments.join(' / ')}
           </p>
           <h1 className="text-2xl md:text-4xl font-black text-foreground uppercase tracking-tight">
-            {category?.name ?? categorySlug}
+            {data.category.name}
           </h1>
           <p className="text-sm font-mono text-primary/50 mt-1">
-            {products.length} spécimen{products.length !== 1 ? 's' : ''} disponible{products.length !== 1 ? 's' : ''}
+            {data.data.length} spécimen{data.data.length !== 1 ? 's' : ''} disponible{data.data.length !== 1 ? 's' : ''}
           </p>
         </div>
 
         {/* ── Grille produits ── */}
-        {products.length === 0 ? (
+        {data.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p className="font-mono text-primary/30 text-xs uppercase tracking-widest">
               [ AUCUN SPÉCIMEN EN STOCK ]
             </p>
-            <button
-              onClick={() => router.push('/')}
+            <Link
+              href="/"
               className="font-mono text-xs text-primary/50 hover:text-primary underline underline-offset-4 transition-colors"
             >
-              ← Retour à l'accueil
-            </button>
+              ← Retour à l&rsquo;accueil
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {products.map((product, index) => {
+            {data.data.map((product, index) => {
               const defaultVariant = product.variants[0];
               return (
                 <div
@@ -149,13 +108,6 @@ export default function CategoryPage() {
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </main>
   );
 }
