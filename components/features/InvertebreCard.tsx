@@ -129,10 +129,9 @@ export function InvertebreCard({
         {/* CONDITIONS 2×2 */}
         <div className="grid grid-cols-2 gap-1">
           {[
-            { icon: "🌡️", label: "Temp.", value: breedingConditions.temperature.split(" ")[0] },
-            { icon: "💧", label: "Hum.",  value: breedingConditions.humidity.split(" ")[0] },
-            { icon: "🌱", label: "Substr.", value: breedingConditions.substrate.split(" + ")[0].split("+")[0].trim() },
-            { icon: "🍽️", label: "Aliment.", value: breedingConditions.feeding.split(",")[0] },
+            { icon: "🌡️", label: "Température.", value: breedingConditions.temperature.split(" ")[0] },
+            { icon: "💧", label: "Humidité.",  value: breedingConditions.humidity.split(" ")[0] },
+            
           ].map(({ icon, label, value }) => (
             <div key={label} className="flex items-center gap-1.5 p-1.5 bg-primary/5 border border-primary/20 rounded-sm">
               <span className="text-sm leading-none">{icon}</span>

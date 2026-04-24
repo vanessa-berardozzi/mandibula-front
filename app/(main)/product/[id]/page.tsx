@@ -158,12 +158,13 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen pb-8">
-      <div className="w-full px-4 md:px-8 pt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 items-start">
+      <div className="w-full px-4 md:px-8 pt-4 space-y-4">
 
-          {/* ── COLONNE GAUCHE : Visuel + Panier ── */}
-          <div className="flex flex-col gap-3 lg:col-span-1">
-            {/* Visuel produit */}
+        {/* ── LIGNE HAUTE : Visuel (gauche) + Panier & Conditionnement (droite) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+
+          {/* ── GAUCHE : Visuel produit ── */}
+          <div>
             {isAnimal ? (
               <InvertebreCard
                 imageUrl={product.images[0] ?? '/boite.png'}
@@ -186,21 +187,16 @@ export default function ProductDetailPage() {
                 className="relative w-full aspect-square bg-card/20 backdrop-blur-md border border-primary/50 overflow-hidden shadow-[0_0_25px_rgba(93,191,122,0.2)]"
                 style={{ clipPath: 'polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px)' }}
               >
-                {/* Coins décoratifs néon */}
                 <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-primary z-10" />
                 <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-primary z-10" />
                 <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-primary z-10" />
                 <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-primary z-10" />
-                {/* Ligne accent haut */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary to-transparent opacity-80 z-10" />
-                {/* Scan lines */}
                 <div
                   className="absolute inset-0 pointer-events-none opacity-[0.05] z-10"
                   style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(93,191,122,0.08) 0px, rgba(93,191,122,0.08) 1px, transparent 1px, transparent 4px)' }}
                 />
-                {/* Halo sol */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-6 bg-primary/20 blur-2xl rounded-full z-10" />
-                {/* Gradient fade bas */}
                 <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-card/80 to-transparent z-10" />
                 <Image
                   src={product.images[0]}
@@ -217,26 +213,52 @@ export default function ProductDetailPage() {
                 autoRotate
               />
             )}
+          </div>
 
-            {/* Sélecteur de variante */}
+          {/* ── DROITE : Titre + Prix + Conditionnement + Panier ── */}
+          <div className="flex flex-col gap-3">
+            {/* Titre & Prix */}
+            <div>
+              <p className="text-xs font-mono text-primary/50 uppercase tracking-widest mb-1">
+                {product.category?.name ?? 'Produit'}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight">
+                {product.name}
+              </h1>
+              <p className="text-2xl font-black text-primary font-mono mt-1">
+                {price.toFixed(2)}€
+              </p>
+            </div>
+
+            {/* Dropdown conditionnement */}
             {product.variants.length > 1 && (
               <Section title="Conditionnement">
-                <div className="flex flex-wrap gap-2">
-                  {product.variants.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => { setSelectedVariant(v); setQuantity(1); }}
-                      className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border rounded-sm transition-all ${
-                        selectedVariant?.id === v.id
-                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_8px_rgba(202,226,197,0.4)]'
-                          : 'border-primary/30 text-muted-foreground hover:border-primary/60'
-                      } ${v.stock === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
-                      disabled={v.stock === 0}
-                    >
-                      {v.name}
-                      <span className="ml-1.5 text-primary/70">{parseFloat(v.price).toFixed(2)}€</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={selectedVariant?.id ?? ''}
+                    onChange={(e) => {
+                      const v = product.variants.find((v) => v.id === e.target.value);
+                      if (v) { setSelectedVariant(v); setQuantity(1); }
+                    }}
+                    className="w-full appearance-none bg-card/40 border border-primary/40 text-foreground text-xs font-mono uppercase tracking-wider px-3 py-2 pr-8 rounded-sm focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(202,226,197,0.3)] transition-all cursor-pointer"
+                  >
+                    {product.variants.map((v) => (
+                      <option
+                        key={v.id}
+                        value={v.id}
+                        disabled={v.stock === 0}
+                        className="bg-card text-foreground"
+                      >
+                        {v.name} — {parseFloat(v.price).toFixed(2)}€{v.stock === 0 ? ' (épuisé)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Icône chevron */}
+                  <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <svg className="w-3 h-3 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               </Section>
             )}
@@ -302,118 +324,105 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
-
-          {/* ── COLONNE DROITE : Infos ── */}
-          <div className="space-y-2 lg:col-span-2">
-            {/* Titre */}
-            <div>
-              <p className="text-xs font-mono text-primary/50 uppercase tracking-widest mb-1">
-                {product.category?.name ?? 'Produit'}
-              </p>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight">
-                {product.name}
-              </h1>
-              <p className="text-2xl font-black text-primary font-mono mt-1">
-                {price.toFixed(2)}€
-              </p>
-            </div>
-
-            {/* Description */}
-            {product.description && (
-              <Section title="À propos">
-                <p className="text-base text-muted-foreground leading-relaxed">{product.description}</p>
-              </Section>
-            )}
-
-            {/* Attributs animaux */}
-            {isAnimal && (
-              <>
-                <Section title="Conditions d'élevage" variant="premium">
-                  <div className="grid grid-cols-2 gap-2 text-base">
-                    {attrs?.temperature && (
-                      <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Température</span>
-                        <span className="text-foreground">{String(attrs.temperature)}</span>
-                      </div>
-                    )}
-                    {attrs?.humidite && (
-                      <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Humidité</span>
-                        <span className="text-foreground">{String(attrs.humidite)}</span>
-                      </div>
-                    )}
-                    {attrs?.substrat && (
-                      <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Substrat</span>
-                        <span className="text-foreground">{String(attrs.substrat)}</span>
-                      </div>
-                    )}
-                    {attrs?.alimentation && (
-                      <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Alimentation</span>
-                        <span className="text-foreground">{String(attrs.alimentation)}</span>
-                      </div>
-                    )}
-                    {attrs?.origine && (
-                      <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Origine</span>
-                        <span className="text-foreground">{String(attrs.origine)}</span>
-                      </div>
-                    )}
-                    {attrs?.wc && (
-                      <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-sm">
-                        <span className="text-xs text-amber-400 font-mono uppercase">Wild-Caught</span>
-                      </div>
-                    )}
-                  </div>
-                </Section>
-
-                {/* Conseils */}
-                {Array.isArray(attrs?.conseils) && (attrs.conseils as string[]).length > 0 && (
-                  <Section title="💡 Conseils d'élevage">
-                    <ul className="space-y-2">
-                      {(attrs.conseils as string[]).map((tip, i) => (
-                        <li key={i} className="flex gap-2 text-base text-muted-foreground p-2 bg-primary/5 border border-primary/15 rounded-sm leading-relaxed">
-                          <span className="text-primary/70 shrink-0 mt-0.5">▸</span>
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Section>
-                )}
-              </>
-            )}
-
-            {/* Attributs accessoires */}
-            {!isAnimal && attrs && (
-              <>
-                {Array.isArray(attrs.caracteristiques) && (
-                  <Section title="Caractéristiques" variant="premium">
-                    <ul className="space-y-2">
-                      {(attrs.caracteristiques as string[]).map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-base text-muted-foreground leading-relaxed">
-                          <span className="text-primary mt-0.5">▸</span>
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Section>
-                )}
-                {Array.isArray(attrs.contenu) && (attrs.contenu as string[]).length > 0 && (
-                  <Section title="Contenu du kit">
-                    <ul className="space-y-1">
-                      {(attrs.contenu as string[]).map((c, i) => (
-                        <li key={i} className="flex items-start gap-2 text-base text-muted-foreground">
-                          <span className="text-primary/70">▸</span><span>{c}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Section>
-                )}
-              </>
-            )}
-          </div>
         </div>
+
+        {/* ── LIGNE BASSE : Description & Attributs (pleine largeur) ── */}
+        <div className="space-y-2">
+          {/* Description */}
+          {product.description && (
+            <Section title="À propos">
+              <p className="text-base text-muted-foreground leading-relaxed">{product.description}</p>
+            </Section>
+          )}
+
+          {/* Attributs animaux */}
+          {isAnimal && (
+            <>
+              <Section title="Conditions d'élevage" variant="premium">
+                <div className="grid grid-cols-2 gap-2 text-base">
+                  {attrs?.temperature && (
+                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
+                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Température</span>
+                      <span className="text-foreground">{String(attrs.temperature)}</span>
+                    </div>
+                  )}
+                  {attrs?.humidite && (
+                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
+                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Humidité</span>
+                      <span className="text-foreground">{String(attrs.humidite)}</span>
+                    </div>
+                  )}
+                  {attrs?.substrat && (
+                    <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
+                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Substrat</span>
+                      <span className="text-foreground">{String(attrs.substrat)}</span>
+                    </div>
+                  )}
+                  {attrs?.alimentation && (
+                    <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
+                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Alimentation</span>
+                      <span className="text-foreground">{String(attrs.alimentation)}</span>
+                    </div>
+                  )}
+                  {attrs?.origine && (
+                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
+                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Origine</span>
+                      <span className="text-foreground">{String(attrs.origine)}</span>
+                    </div>
+                  )}
+                  {attrs?.wc && (
+                    <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-sm">
+                      <span className="text-xs text-amber-400 font-mono uppercase">Wild-Caught</span>
+                    </div>
+                  )}
+                </div>
+              </Section>
+
+              {Array.isArray(attrs?.conseils) && (attrs.conseils as string[]).length > 0 && (
+                <Section title="💡 Conseils d'élevage">
+                  <ul className="space-y-2">
+                    {(attrs.conseils as string[]).map((tip, i) => (
+                      <li key={i} className="flex gap-2 text-base text-muted-foreground p-2 bg-primary/5 border border-primary/15 rounded-sm leading-relaxed">
+                        <span className="text-primary/70 shrink-0 mt-0.5">▸</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+            </>
+          )}
+
+          {/* Attributs accessoires */}
+          {!isAnimal && attrs && (
+            <>
+              {Array.isArray(attrs.caracteristiques) && (
+                <Section title="Caractéristiques" variant="premium">
+                  <ul className="space-y-2">
+                    {(attrs.caracteristiques as string[]).map((f, i) => (
+                      <li key={i} className="flex items-start gap-2 text-base text-muted-foreground leading-relaxed">
+                        <span className="text-primary mt-0.5">▸</span>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+              {Array.isArray(attrs.contenu) && (attrs.contenu as string[]).length > 0 && (
+                <Section title="Contenu du kit">
+                  <ul className="space-y-1">
+                    {(attrs.contenu as string[]).map((c, i) => (
+                      <li key={i} className="flex items-start gap-2 text-base text-muted-foreground">
+                        <span className="text-primary/70">▸</span><span>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+            </>
+          )}
+        </div>
+
       </div>
     </main>
   );
