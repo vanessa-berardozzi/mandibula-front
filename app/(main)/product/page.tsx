@@ -333,7 +333,7 @@ export default function ProductPageV2() {
 
 	return (
 		<main className='min-h-screen pb-8'>
-			<div className='container mx-auto px-3 md:px-4 pt-20 md:pt-16'>
+			<div className='w-full px-4 md:px-8 pt-20 md:pt-16'>
 				{/* Grille compacte : ajuste automatiquement selon l'écran */}
 				<div className='grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-4 items-start'>
 					{/* COLONNE GAUCHE - Visuel + Panier (lg: 1/3) */}

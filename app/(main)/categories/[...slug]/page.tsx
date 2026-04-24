@@ -91,7 +91,7 @@ export default function CategoryPage() {
 
   return (
     <main className="min-h-screen pb-12">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 md:px-8">
         {/* ── En-tête catégorie ── */}
         <div
           className="relative mb-8 p-6 md:p-8 bg-card/15 backdrop-blur-md border border-primary/40"
@@ -126,7 +126,7 @@ export default function CategoryPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {products.map((product, index) => {
               const defaultVariant = product.variants[0];
               return (
@@ -141,6 +141,7 @@ export default function CategoryPage() {
                     imageUrl={product.images[0]}
                     href={`/product/${product.id}`}
                     variantId={defaultVariant?.id}
+                    priority={index === 0}
                   />
                 </div>
               );

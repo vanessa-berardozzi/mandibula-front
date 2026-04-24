@@ -81,6 +81,7 @@ export function Navbar() {
                 alt="Mandibula"
                 width={50}
                 height={50}
+                style={{ width: '50px', height: 'auto' }}
               />
             </div>
           </Link>

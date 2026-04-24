@@ -122,7 +122,7 @@ export default function CartPage() {
   /* ── PANIER VIDE ── */
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 max-w-2xl">
+      <div className="w-full max-w-2xl mx-auto px-4 py-16">
         {/* Terminal vide */}
         <div
           className="relative border border-primary/30 bg-black/80 backdrop-blur-md overflow-hidden"
@@ -177,7 +177,7 @@ export default function CartPage() {
 
   /* ── PANIER REMPLI ── */
   return (
-    <div className="container mx-auto px-4 pb-12">
+    <div className="w-full px-4 md:px-8 pb-12">
 
       {/* ── HUD HEADER ── */}
       <div className="mb-6 relative overflow-hidden border-b border-primary/50 pb-4">

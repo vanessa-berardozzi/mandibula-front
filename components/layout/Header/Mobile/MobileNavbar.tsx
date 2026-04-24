@@ -52,6 +52,7 @@ export function MobileNavbar() {
                 alt="Mandibula Logo"
                 width={40}
                 height={40}
+                style={{ width: '40px', height: 'auto' }}
                 priority
               />
             </div>

@@ -46,7 +46,7 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen pb-12">
       {/* Header hero avec cadre néon */}
-      <div className="container mx-auto px-4 pb-8">
+      <div className="w-full px-4 md:px-8 pb-8">
         <div className="relative mb-8">
           <div
             className="relative p-8 md:p-12 bg-card/15 backdrop-blur-md border-2 border-primary/60 rounded-sm shadow-[0_0_30px_rgba(202,226,197,0.4)]"
@@ -80,7 +80,7 @@ export default function LandingPage() {
       </div>
 
       {/* Section produits */}
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 md:px-8">
         {isLoading && (
           <p className="text-center font-mono text-primary/60 text-sm tracking-widest animate-pulse">
             CHARGEMENT DES SPÉCIMENS...
@@ -96,7 +96,7 @@ export default function LandingPage() {
             Aucun produit disponible.
           </p>
         )}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {products.map((product, index) => {
             const defaultVariant = product.variants[0];
             return (
@@ -111,7 +111,7 @@ export default function LandingPage() {
                   imageUrl={product.images[0]}
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}
-                  priority={index === 0}
+                  priority={index < 3}
                 />
               </div>
             );

@@ -51,7 +51,7 @@ export function SidebarContent() {
         <h2 className="text-xl font-bold text-primary tracking-wider glitch-text">
           MANDIBULA
         </h2>
-        <p className="text-[10px] text-primary/70 tracking-widest font-mono mt-1">
+        <p className="text-[12px] text-primary/70 tracking-widest font-mono mt-1">
           SYSTÈME_V2.48.2
         </p>
       </div>
@@ -79,7 +79,7 @@ export function SidebarContent() {
           {/* Titre de section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
-            <h3 className="text-[10px] font-mono text-primary/80 tracking-widest px-2">
+            <h3 className="text-sm font-mono text-primary/80 tracking-widest px-2">
               NAVIGATION
             </h3>
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
@@ -117,7 +117,7 @@ export function SidebarContent() {
           {/* Titre de section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
-            <h3 className="text-[10px] font-mono text-primary/80 tracking-widest px-2">
+            <h3 className="text-sm font-mono text-primary/80 tracking-widest px-2">
               CATÉGORIES
             </h3>
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
@@ -234,7 +234,7 @@ export function SidebarContent() {
           {/* Titre de section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
-            <h3 className="text-[10px] font-mono text-primary/80 tracking-widest px-2">
+            <h3 className="text-sm font-mono text-primary/80 tracking-widest px-2">
               COMPTE
             </h3>
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />

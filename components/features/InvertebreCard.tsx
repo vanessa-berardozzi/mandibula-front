@@ -20,6 +20,7 @@ interface InvertebreCardProps {
   difficultyLevel: number;
   breedingConditions: BreedingConditions;
   className?: string;
+  priority?: boolean;
 }
 
 const DIFFICULTY_COLORS: Record<number, { text: string; filled: string }> = {
@@ -40,6 +41,7 @@ export function InvertebreCard({
   difficultyLevel,
   breedingConditions,
   className = "",
+  priority = false,
 }: InvertebreCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const diff = DIFFICULTY_COLORS[difficultyLevel] ?? DIFFICULTY_COLORS[1];
@@ -109,7 +111,7 @@ export function InvertebreCard({
         </div>
         {/* IMAGE */}
         <div className="relative flex items-center justify-center">
-          <div className="relative w-full h-44">
+          <div className="relative w-full h-56">
             {/* Halo sol */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2/3 h-4 bg-primary/25 blur-xl rounded-full" />
             <Image
@@ -117,6 +119,7 @@ export function InvertebreCard({
               alt={name}
               fill
               className="object-contain drop-shadow-[0_0_22px_rgba(202,226,197,0.55)]"
+              priority={priority}
             />
           </div>
         </div>

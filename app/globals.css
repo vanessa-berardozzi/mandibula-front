@@ -68,6 +68,10 @@
   --sidebar-ring: #5dbf7a;           /* Focus ring doux ✓ */
 }
 
+/* Taille de base augmentée pour confort de lecture (zoom ~125%) */
+html {
+  font-size: 125%; /* 20px au lieu de 16px — scale tous les rem Tailwind */
+}
 
 /* ============================================
    COULEUR DES ICONES SVG

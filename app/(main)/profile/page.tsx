@@ -167,7 +167,7 @@ export default function ProfilePage() {
   if (isPending || !session?.user) {
     return (
       <main className="min-h-screen pb-12">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
+        <div className="w-full px-4 md:px-8 text-center text-muted-foreground">
           Chargement du profil...
         </div>
       </main>
@@ -182,7 +182,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen pb-12">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 md:px-8">
         {/* En-tête du profil */}
         <UserProfileHeader {...profileHeaderData} onSignOut={handleSignOut} />
 

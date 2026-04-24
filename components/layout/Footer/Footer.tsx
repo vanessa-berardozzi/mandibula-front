@@ -57,15 +57,15 @@ export function Footer() {
 
           {/* Colonne 1 : Brand + contact */}
           <div className="col-span-2 md:col-span-1">
-            <p className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Mandibula Shop</p>
-            <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">
+            <p className="text-sm font-bold text-primary uppercase tracking-widest mb-3">Mandibula Shop</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               Invertébrés exotiques & équipements.<br />
               Qualité garantie, expédition sécurisée.
             </p>
             <div className="space-y-1.5">
               <a
                 href="mailto:contact@mandibula.shop"
-                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                 aria-label="E-mail de contact"
               >
                 <Mail className="w-3 h-3 shrink-0" />
@@ -73,13 +73,13 @@ export function Footer() {
               </a>
               <a
                 href="tel:+33123456789"
-                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Numéro de téléphone"
               >
                 <Phone className="w-3 h-3 shrink-0" />
                 +33 (0)1 23 45 67 89
               </a>
-              <div className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+              <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
                 <MapPin className="w-3 h-3 shrink-0 mt-0.5" />
                 <span>Paris, France</span>
               </div>
@@ -89,7 +89,7 @@ export function Footer() {
           {/* Colonnes 2, 3, 4 : liens */}
           {LINK_COLS.map((col) => (
             <div key={col.title}>
-              <p className="text-[11px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-1.5">
+              <p className="text-sm font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
                 {col.title}
               </p>
@@ -98,7 +98,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[11px] text-muted-foreground hover:text-primary hover:translate-x-0.5 transition-all duration-150 inline-block"
+                      className="text-sm text-muted-foreground hover:text-primary hover:translate-x-0.5 transition-all duration-150 inline-block"
                     >
                       {link.label}
                     </Link>
@@ -113,7 +113,7 @@ export function Footer() {
         <div className="h-px bg-linear-to-r from-transparent via-primary/15 to-transparent mb-5" />
 
         {/* RANGÉE BAS : sociaux | légal | copyright */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
 
           {/* Réseaux sociaux */}
           <div className="flex items-center gap-2">

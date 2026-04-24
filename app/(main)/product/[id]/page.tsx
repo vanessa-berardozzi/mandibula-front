@@ -158,7 +158,7 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen pb-8">
-      <div className="container mx-auto px-3 md:px-4 pt-4">
+      <div className="w-full px-4 md:px-8 pt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 items-start">
 
           {/* ── COLONNE GAUCHE : Visuel + Panier ── */}
@@ -179,14 +179,35 @@ export default function ProductDetailPage() {
                   substrate: String(attrs?.substrat ?? ''),
                   feeding: String(attrs?.alimentation ?? ''),
                 }}
+                priority
               />
             ) : product.images[0] ? (
-              <div className="relative w-full aspect-square border border-primary/40 bg-card/20 overflow-hidden rounded-sm">
+              <div
+                className="relative w-full aspect-square bg-card/20 backdrop-blur-md border border-primary/50 overflow-hidden shadow-[0_0_25px_rgba(93,191,122,0.2)]"
+                style={{ clipPath: 'polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px)' }}
+              >
+                {/* Coins décoratifs néon */}
+                <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-primary z-10" />
+                <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-primary z-10" />
+                <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-primary z-10" />
+                <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-primary z-10" />
+                {/* Ligne accent haut */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary to-transparent opacity-80 z-10" />
+                {/* Scan lines */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-[0.05] z-10"
+                  style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(93,191,122,0.08) 0px, rgba(93,191,122,0.08) 1px, transparent 1px, transparent 4px)' }}
+                />
+                {/* Halo sol */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-6 bg-primary/20 blur-2xl rounded-full z-10" />
+                {/* Gradient fade bas */}
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-card/80 to-transparent z-10" />
                 <Image
                   src={product.images[0]}
                   alt={product.name}
                   fill
-                  className="object-contain p-4"
+                  className="object-contain p-6 drop-shadow-[0_0_20px_rgba(93,191,122,0.4)] transition-transform duration-700 hover:scale-105"
+                  priority
                 />
               </div>
             ) : (
@@ -300,7 +321,7 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <Section title="À propos">
-                <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+                <p className="text-base text-muted-foreground leading-relaxed">{product.description}</p>
               </Section>
             )}
 
@@ -308,34 +329,34 @@ export default function ProductDetailPage() {
             {isAnimal && (
               <>
                 <Section title="Conditions d'élevage" variant="premium">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="grid grid-cols-2 gap-2 text-base">
                     {attrs?.temperature && (
                       <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-[10px] font-mono text-primary/50 uppercase tracking-wider">Température</span>
+                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Température</span>
                         <span className="text-foreground">{String(attrs.temperature)}</span>
                       </div>
                     )}
                     {attrs?.humidite && (
                       <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-[10px] font-mono text-primary/50 uppercase tracking-wider">Humidité</span>
+                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Humidité</span>
                         <span className="text-foreground">{String(attrs.humidite)}</span>
                       </div>
                     )}
                     {attrs?.substrat && (
                       <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-[10px] font-mono text-primary/50 uppercase tracking-wider">Substrat</span>
+                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Substrat</span>
                         <span className="text-foreground">{String(attrs.substrat)}</span>
                       </div>
                     )}
                     {attrs?.alimentation && (
                       <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-[10px] font-mono text-primary/50 uppercase tracking-wider">Alimentation</span>
+                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Alimentation</span>
                         <span className="text-foreground">{String(attrs.alimentation)}</span>
                       </div>
                     )}
                     {attrs?.origine && (
                       <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                        <span className="text-[10px] font-mono text-primary/50 uppercase tracking-wider">Origine</span>
+                        <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Origine</span>
                         <span className="text-foreground">{String(attrs.origine)}</span>
                       </div>
                     )}
@@ -352,7 +373,7 @@ export default function ProductDetailPage() {
                   <Section title="💡 Conseils d'élevage">
                     <ul className="space-y-2">
                       {(attrs.conseils as string[]).map((tip, i) => (
-                        <li key={i} className="flex gap-2 text-sm text-muted-foreground p-2 bg-primary/5 border border-primary/15 rounded-sm leading-relaxed">
+                        <li key={i} className="flex gap-2 text-base text-muted-foreground p-2 bg-primary/5 border border-primary/15 rounded-sm leading-relaxed">
                           <span className="text-primary/70 shrink-0 mt-0.5">▸</span>
                           <span>{tip}</span>
                         </li>
@@ -370,7 +391,7 @@ export default function ProductDetailPage() {
                   <Section title="Caractéristiques" variant="premium">
                     <ul className="space-y-2">
                       {(attrs.caracteristiques as string[]).map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                        <li key={i} className="flex items-start gap-2 text-base text-muted-foreground leading-relaxed">
                           <span className="text-primary mt-0.5">▸</span>
                           <span>{f}</span>
                         </li>
@@ -382,7 +403,7 @@ export default function ProductDetailPage() {
                   <Section title="Contenu du kit">
                     <ul className="space-y-1">
                       {(attrs.contenu as string[]).map((c, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <li key={i} className="flex items-start gap-2 text-base text-muted-foreground">
                           <span className="text-primary/70">▸</span><span>{c}</span>
                         </li>
                       ))}
