@@ -18,6 +18,7 @@ interface ApiProduct {
   price: string;
   images: string[];
   variants: Variant[];
+  category?: { id: string; name: string; slug: string; parentId: string | null };
 }
 
 interface ProductsResponse {
@@ -80,7 +81,7 @@ export default function LandingPage() {
       </div>
 
       {/* Section produits */}
-      <div className="w-full px-4 md:px-8">
+      <div className="w-full max-w-500 mx-auto px-4 md:px-8 xl:px-16 2xl:px-24">
         {isLoading && (
           <p className="text-center font-mono text-primary/60 text-sm tracking-widest animate-pulse">
             CHARGEMENT DES SPÉCIMENS...
@@ -96,7 +97,7 @@ export default function LandingPage() {
             Aucun produit disponible.
           </p>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-5">
           {products.map((product, index) => {
             const defaultVariant = product.variants[0];
             return (
@@ -112,6 +113,7 @@ export default function LandingPage() {
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}
                   priority={index < 3}
+                  categorySlug={product.category?.slug}
                 />
               </div>
             );

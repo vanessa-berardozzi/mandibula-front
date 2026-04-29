@@ -50,7 +50,7 @@ export default async function CategoryPage({
 
   return (
     <main className="min-h-screen pb-12">
-      <div className="w-full px-4 md:px-8">
+      <div className="w-full max-w-500 mx-auto px-4 md:px-8 xl:px-16 2xl:px-24">
         {/* ── En-tête catégorie ── */}
         <div
           className="relative mb-8 p-6 md:p-8 bg-card/15 backdrop-blur-md border border-primary/40"
@@ -85,7 +85,7 @@ export default async function CategoryPage({
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-5">
             {data.data.map((product, index) => {
               const defaultVariant = product.variants[0];
               return (
@@ -101,6 +101,7 @@ export default async function CategoryPage({
                     href={`/product/${product.id}`}
                     variantId={defaultVariant?.id}
                     priority={index === 0}
+                    categorySlug={categorySlug}
                   />
                 </div>
               );
