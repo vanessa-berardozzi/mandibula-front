@@ -7,7 +7,7 @@ import { Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * Avatar utilisateur pour la navbar - version ronde et petite
@@ -15,8 +15,14 @@ import { useState } from 'react'
 function NavbarUserAvatar() {
   const { isAuthenticated, isLoading } = useUserAvatar();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Toujours afficher le skeleton pendant le SSR et jusqu'à l'hydration
+  if (!mounted || isLoading) {
     return <div className="w-9 h-9 rounded-full bg-primary/20 animate-pulse" />;
   }
 
@@ -81,7 +87,7 @@ export function Navbar() {
                 alt="Mandibula"
                 width={50}
                 height={50}
-                style={{ width: '50px', height: 'auto' }}
+                className="w-auto h-auto max-w-12.5 max-h-12.5"
               />
             </div>
           </Link>
