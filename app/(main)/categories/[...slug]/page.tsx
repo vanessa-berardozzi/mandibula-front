@@ -1,4 +1,4 @@
-import { ProductCard } from '@/components/features/ProductCard';
+import { SimpleProductCard } from '@/components/features/SimpleProductCard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -93,7 +93,7 @@ export default async function CategoryPage({
                   key={product.id}
                   style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.04}s backwards` }}
                 >
-                  <ProductCard
+                  <SimpleProductCard
                     title={product.name}
                     price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
                     stock={defaultVariant?.stock ?? 0}
@@ -101,7 +101,7 @@ export default async function CategoryPage({
                     href={`/product/${product.id}`}
                     variantId={defaultVariant?.id}
                     priority={index === 0}
-                    categorySlug={categorySlug}
+                    categoryName={data.category.name}
                   />
                 </div>
               );

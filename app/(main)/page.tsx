@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductCard } from "@/components/features/ProductCard";
+import { SimpleProductCard } from "@/components/features/SimpleProductCard";
 import { useEffect, useState } from "react";
 
 interface Variant {
@@ -105,7 +105,7 @@ export default function LandingPage() {
                 key={product.id}
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.05}s backwards` }}
               >
-                <ProductCard
+                <SimpleProductCard
                   title={product.name}
                   price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
                   stock={defaultVariant?.stock ?? 0}
@@ -113,7 +113,7 @@ export default function LandingPage() {
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}
                   priority={index < 3}
-                  categorySlug={product.category?.slug}
+                  categoryName={product.category?.name}
                 />
               </div>
             );

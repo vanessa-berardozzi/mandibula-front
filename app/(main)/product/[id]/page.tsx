@@ -1,12 +1,10 @@
 'use client';
 
-import { HologramDisplay } from '@/components/features/HologramDisplay';
-import { InvertebreCard } from '@/components/features/InvertebreCard';
+import { TradingProductCard } from '@/components/features/TradingProductCard';
 import { Button } from '@/components/ui/button';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
 import { Check, ShoppingCart } from 'lucide-react';
-import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -158,61 +156,77 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen pb-8">
-      <div className="w-full px-4 md:px-8 pt-4 space-y-4">
+      <div className="w-full px-4 md:px-8 pt-4 space-y-6">
 
         {/* ── LIGNE HAUTE : Visuel (gauche) + Panier & Conditionnement (droite) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start max-w-4xl mx-auto">
 
-          {/* ── GAUCHE : Visuel produit ── */}
-          <div>
-            {isAnimal ? (
-              <InvertebreCard
-                imageUrl={product.images[0] ?? '/boite.png'}
-                name={product.name}
-                price={price}
-                category={product.category?.name ?? ''}
-                origin={String(attrs?.origine ?? '')}
-                difficulty={String(attrs?.niveau ?? 'Facile') as 'Facile' | 'Intermédiaire' | 'Expert'}
-                difficultyLevel={Number(attrs?.niveauScore ?? 1)}
-                breedingConditions={{
-                  temperature: String(attrs?.temperature ?? ''),
-                  humidity: String(attrs?.humidite ?? ''),
-                  substrate: String(attrs?.substrat ?? ''),
-                  feeding: String(attrs?.alimentation ?? ''),
-                }}
-                priority
-              />
-            ) : product.images[0] ? (
-              <div
-                className="relative w-full aspect-square bg-card/20 backdrop-blur-md border border-primary/50 overflow-hidden shadow-[0_0_25px_rgba(93,191,122,0.2)]"
-                style={{ clipPath: 'polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px)' }}
-              >
-                <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-primary z-10" />
-                <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-primary z-10" />
-                <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-primary z-10" />
-                <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-primary z-10" />
-                <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary to-transparent opacity-80 z-10" />
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-[0.05] z-10"
-                  style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(93,191,122,0.08) 0px, rgba(93,191,122,0.08) 1px, transparent 1px, transparent 4px)' }}
-                />
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-6 bg-primary/20 blur-2xl rounded-full z-10" />
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-card/80 to-transparent z-10" />
-                <Image
-                  src={product.images[0]}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-6 drop-shadow-[0_0_20px_rgba(93,191,122,0.4)] transition-transform duration-700 hover:scale-105"
+          {/* ── GAUCHE : Visuel produit avec panneau décoratif ── */}
+          <div 
+            className="relative w-full p-6 md:p-8 border border-primary/40 overflow-hidden"
+            style={{ 
+              clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)',
+              background: 'linear-gradient(135deg, rgba(12, 20, 15, 0.85) 0%, rgba(8, 15, 12, 0.90) 50%, rgba(5, 12, 10, 0.85) 100%)',
+            }}
+          >
+            {/* Image de fond : fougères tropicales */}
+            <div
+              className="absolute inset-0 opacity-15"
+              style={{
+                backgroundImage: 'url(/v2_watermarked-bd8c3858-1193-4765-8f08-eedc315b524e-removebg-preview.png)',
+                backgroundSize: '150%',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+
+            {/* Vignette douce */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                boxShadow: 'inset 0 0 80px rgba(0, 0, 0, 0.4)',
+              }}
+            />
+            
+            {/* Indicateurs top */}
+            <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(146,204,10,0.6)]" />
+              <div className="w-2 h-2 rounded-full bg-primary/40" />
+              <div className="w-2 h-2 rounded-full bg-primary/40" />
+            </div>
+            
+            <div className="absolute top-3 right-3 font-mono text-xs text-primary/70 uppercase tracking-widest z-10">
+              ID: {product.id.slice(0, 8)}
+            </div>
+
+            {/* Ligne décorative avec effet néon */}
+            <div className="absolute top-10 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent shadow-[0_0_4px_rgba(146,204,10,0.4)]" />
+
+            {/* Carte centrée */}
+            <div className="relative flex items-center justify-center pt-8 z-10">
+              <div className="w-full max-w-70 mx-auto">
+                <TradingProductCard
+                  title={product.name}
+                  price={price}
+                  stock={stock}
+                  imageUrl={product.images[0] ?? '/boite.png'}
+                  href={`/product/${product.id}`}
+                  variantId={selectedVariant?.id}
+                  categorySlug={product.category?.slug}
                   priority
                 />
               </div>
-            ) : (
-              <HologramDisplay
-                imageUrl="/boite.png"
-                productName={product.name}
-                autoRotate
-              />
-            )}
+            </div>
+
+            {/* Label catégorie en bas */}
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+              <span className="font-mono text-xs text-primary/50 uppercase tracking-wider">
+                {product.category?.name ?? 'Spécimen'}
+              </span>
+              <span className="font-mono text-xs text-primary/70 uppercase tracking-wider">
+                {stock > 0 ? `${stock} en stock` : 'Épuisé'}
+              </span>
+            </div>
           </div>
 
           {/* ── DROITE : Titre + Prix + Conditionnement + Panier ── */}
@@ -327,7 +341,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* ── LIGNE BASSE : Description & Attributs (pleine largeur) ── */}
-        <div className="space-y-2">
+        <div className="space-y-4 max-w-4xl mx-auto">
           {/* Description */}
           {product.description && (
             <Section title="À propos">

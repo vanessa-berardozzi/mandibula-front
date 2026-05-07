@@ -79,7 +79,7 @@ const TIER_ANIM: Record<Tier, { speed: string; idleOpacity: number; hoverOpacity
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface ProductCardProps {
+interface TradingProductCardProps {
   title: string;
   price: number;
   stock: number;
@@ -90,7 +90,7 @@ interface ProductCardProps {
   categorySlug?: string;
 }
 
-export function ProductCard({
+export function TradingProductCard({
   title,
   price,
   stock,
@@ -99,7 +99,7 @@ export function ProductCard({
   variantId,
   priority = false,
   categorySlug,
-}: ProductCardProps) {
+}: TradingProductCardProps) {
   const isInStock = stock > 0;
   const rc   = CATEGORY_COLORS[categorySlug ?? ""] ?? DEFAULT_CATEGORY;
   const tier = getCategoryTier(categorySlug);
@@ -184,7 +184,7 @@ export function ProductCard({
           aspectRatio: "5 / 7",
           background: `linear-gradient(145deg, ${rc.frameColor}cc 0%, ${rc.frameColor}55 40%, ${rc.frameColor}88 100%)`,
           borderRadius: "10px",
-          padding: "7px 6px 6px",
+          padding: "14px 12px 12px",
           boxShadow: [
             `0 0 0 1px ${rc.frameColor}30`,
             `0 0 ${isHovered ? "30px" : "18px"} ${rc.glowColor}`,
@@ -204,7 +204,7 @@ export function ProductCard({
         <div
           className="absolute inset-0 pointer-events-none rounded-[10px]"
           style={{
-            padding: "7px 6px 6px",
+            padding: "14px 12px 12px",
             background: getBorderGradient(tier, rc.frameColor),
             backgroundSize: "200% 100%",
             backgroundPosition: isHovered ? `${mouseX}% center` : "50% center",
