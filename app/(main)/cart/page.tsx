@@ -76,16 +76,34 @@ export default function CartPage() {
 
     setIsValidating(true);
     try {
-      const result = await validateCart();
-      setValidation(result ?? undefined);
-      if (result?.valid) {
-        router.push('/checkout');
-      } else {
-        alert('Panier invalide: ' + (result?.errors?.[0] || 'Erreur inconnue'));
+      // 1. Créer la commande côté backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          items: items.map(item => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+          paymentMethod: 'SUM_UP', // Méthode par défaut, peut être changée sur la page checkout
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la création de la commande');
       }
+
+      const data = await response.json();
+      
+      // 2. Rediriger vers la page de paiement avec l'orderId
+      router.push(`/cart/checkout?orderId=${data.orderId}`);
     } catch (error) {
-      console.error('Validation error:', error);
-      alert('Erreur: ' + (error instanceof Error ? error.message : ''));
+      console.error('Checkout error:', error);
+      alert('Erreur: ' + (error instanceof Error ? error.message : 'Une erreur est survenue'));
     } finally {
       setIsValidating(false);
     }
