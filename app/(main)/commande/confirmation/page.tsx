@@ -10,7 +10,7 @@ interface OrderStatus {
   orderId: string;
   status: string;
   paymentStatus: "PENDING" | "PAID" | "FAILED";
-  total: number;
+  total: number | string;
 }
 
 function OrderConfirmationContent() {
@@ -135,7 +135,7 @@ function OrderConfirmationContent() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Montant :</span>
-                <span className="font-semibold">{orderStatus.total.toFixed(2)} €</span>
+                <span className="font-semibold">{Number(orderStatus.total).toFixed(2)} €</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Statut :</span>
