@@ -260,7 +260,7 @@ function OrderConfirmationContent() {
             </div>
             <h1 className="text-2xl font-bold mb-2 text-foreground">Paiement échoué</h1>
             <p className="text-muted-foreground text-sm mb-6">
-              Votre paiement n'a pas pu être traité.
+              Votre paiement n&apos;a pas pu être traité.
             </p>
 
             <div className="h-px mb-6 bg-linear-to-r from-transparent via-destructive/30 to-transparent" />
@@ -270,7 +270,7 @@ function OrderConfirmationContent() {
                 <span className="text-destructive mt-0.5">▸</span> Vérifiez vos informations bancaires
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-destructive mt-0.5">▸</span> Assurez-vous d'avoir suffisamment de fonds
+                <span className="text-destructive mt-0.5">▸</span> Assurez-vous d&apos;avoir suffisamment de fonds
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-destructive mt-0.5">▸</span> Contactez votre banque si le problème persiste

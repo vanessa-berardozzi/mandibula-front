@@ -3,15 +3,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface OrderItem {
   id: string;
   date: string;
   orderNumber: string;
   total: number;
-  status: "Livré" | "En cours" | "Annulé" | "En préparation";
+  status: "Livré" | "En cours" | "Annulé" | "En préparation" | "Paiement en attente";
   items: number;
   trackingUrl?: string;
+  canRetry?: boolean;
 }
 
 interface OrderHistoryProps {
@@ -26,6 +29,8 @@ const getStatusColor = (status: string) => {
       return "bg-blue-500/20 text-blue-300 border-blue-500/50";
     case "En préparation":
       return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50";
+    case "Paiement en attente":
+      return "bg-orange-500/20 text-orange-300 border-orange-500/50";
     case "Annulé":
       return "bg-red-500/20 text-red-300 border-red-500/50";
     default:
@@ -33,8 +38,40 @@ const getStatusColor = (status: string) => {
   }
 };
 
+function RetryButton({ orderId }: { orderId: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleRetry = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, paymentMethod: "SUM_UP" }),
+      });
+      if (!res.ok) throw new Error();
+      const { checkoutUrl } = await res.json();
+      window.location.href = checkoutUrl;
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      size="sm"
+      onClick={handleRetry}
+      disabled={loading}
+      className="bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 border border-orange-500/50 rounded-sm text-xs h-8 gap-1"
+    >
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+      Reprendre
+    </Button>
+  );
+}
+
 export function OrderHistory({ orders }: OrderHistoryProps) {
-  // Trier les commandes les plus récentes d'abord
   const sortedOrders = [...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
@@ -59,50 +96,47 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
                   clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)"
                 }}
               >
-                {/* Petit coin décoratif */}
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary/50" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary/50" />
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                  {/* Numéro de commande */}
                   <div className="md:col-span-3">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Commande</p>
                     <p className="text-sm font-bold text-primary font-mono">{order.orderNumber}</p>
                   </div>
 
-                  {/* Date */}
                   <div className="md:col-span-2">
                     <p className="text-xs text-muted-foreground uppercase">Date</p>
                     <p className="text-sm text-foreground">{new Date(order.date).toLocaleDateString("fr-FR")}</p>
                   </div>
 
-                  {/* Total */}
                   <div className="md:col-span-2">
                     <p className="text-xs text-muted-foreground uppercase">Total</p>
                     <p className="text-sm font-semibold text-primary">{order.total.toFixed(2)}€</p>
                   </div>
 
-                  {/* Nombre articles */}
                   <div className="md:col-span-2">
                     <p className="text-xs text-muted-foreground uppercase">Articles</p>
                     <p className="text-sm text-foreground">{order.items} article(s)</p>
                   </div>
 
-                  {/* Statut */}
                   <div className="md:col-span-2">
                     <Badge className={`${getStatusColor(order.status)} border`}>
                       {order.status}
                     </Badge>
                   </div>
 
-                  {/* Actions */}
                   <div className="md:col-span-1 flex gap-2 justify-end">
-                    <Button
-                      size="sm"
-                      className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-xs h-8"
-                    >
-                      Détails
-                    </Button>
+                    {order.canRetry ? (
+                      <RetryButton orderId={order.id} />
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-xs h-8"
+                      >
+                        Détails
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -113,3 +147,5 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
     </Card>
   );
 }
+
+
