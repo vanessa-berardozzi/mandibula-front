@@ -14,7 +14,7 @@ interface OrderStatus {
 }
 
 function OrderConfirmationContent() {
-  const { data: session } = useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
   const { clearCart } = useCartContext();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,6 +34,8 @@ function OrderConfirmationContent() {
   }, [orderStatus, cartCleared, clearCart]);
 
   useEffect(() => {
+    if (sessionLoading) return; // Attendre que la session soit chargée
+
     if (!session?.user) {
       router.push("/login");
       return;
@@ -75,10 +77,10 @@ function OrderConfirmationContent() {
     };
 
     checkOrderStatus();
-  }, [session, orderId, router]);
+  }, [session, sessionLoading, orderId, router]);
 
-  if (!session?.user) {
-    return null; // Redirection en cours
+  if (sessionLoading || !session?.user) {
+    return null; // Redirection en cours ou session en cours de chargement
   }
 
   if (isLoading) {
