@@ -49,7 +49,7 @@ function OrderConfirmationContent() {
     const checkOrderStatus = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/checkout/order/${orderId}/status`,
+          `/api/checkout/order/${orderId}/status`,
           {
             credentials: "include",
           }

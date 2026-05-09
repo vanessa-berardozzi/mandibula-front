@@ -55,7 +55,7 @@ function CheckoutContent() {
 
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`, {
+        const response = await fetch(`/api/orders/${orderId}`, {
           credentials: "include",
         });
 
@@ -91,7 +91,7 @@ function CheckoutContent() {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
+      const response = await fetch('/api/checkout', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

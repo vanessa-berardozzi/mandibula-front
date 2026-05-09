@@ -77,7 +77,7 @@ export default function CartPage() {
     setIsValidating(true);
     try {
       // 1. Créer la commande côté backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+      const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

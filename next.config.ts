@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
         source: "/api/products",
         destination: `${backendUrl}/api/products`,
       },
+      {
+        source: "/api/checkout/:path*",
+        destination: `${backendUrl}/api/checkout/:path*`,
+      },
+      {
+        source: "/api/orders/:path*",
+        destination: `${backendUrl}/api/orders/:path*`,
+      },
     ]
   },
 }

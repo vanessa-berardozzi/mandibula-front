@@ -13,7 +13,7 @@ interface CartSummaryProps {
 }
 
 async function fetchPromoValidation(code: string, subtotal: number): Promise<PromoValidationResponse> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/cart/promo`, {
+  const res = await fetch('/api/cart/promo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
