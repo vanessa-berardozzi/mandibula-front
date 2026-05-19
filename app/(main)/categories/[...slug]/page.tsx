@@ -8,6 +8,7 @@ interface Variant {
   lotSize: number;
   price: string;
   stock: number;
+  reservedStock: number;
   isActive: boolean;
 }
 
@@ -96,7 +97,7 @@ export default async function CategoryPage({
                   <SimpleProductCard
                     title={product.name}
                     price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
-                    stock={defaultVariant?.stock ?? 0}
+                    stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
                     imageUrl={product.images[0]}
                     href={`/product/${product.id}`}
                     variantId={defaultVariant?.id}

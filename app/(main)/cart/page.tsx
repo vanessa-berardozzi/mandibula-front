@@ -17,6 +17,7 @@ interface ProductData {
     variantName: string;
     price: number;
     image?: string;
+    availableStock?: number;
   };
 }
 
@@ -39,7 +40,7 @@ export default function CartPage() {
     }
     fetch(`/api/products/variants/batch?ids=${variantIds.join(',')}`)
       .then((r) => r.json())
-      .then((variants: { id: string; name: string; price: number; product: { id: string; name: string; images: string[] } }[]) => {
+      .then((variants: { id: string; name: string; price: number; stock: number; reservedStock: number; product: { id: string; name: string; images: string[] } }[]) => {
         const dict: ProductData = {};
         for (const v of variants) {
           dict[v.id] = {
@@ -48,6 +49,7 @@ export default function CartPage() {
             variantName: v.name,
             price: v.price,
             image: v.product.images?.[0],
+            availableStock: v.stock - (v.reservedStock ?? 0),
           };
         }
         setProducts(dict);

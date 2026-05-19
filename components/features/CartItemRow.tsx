@@ -14,6 +14,7 @@ interface CartItemRowProps {
     variantName?: string;
     price: number;
     image?: string;
+    availableStock?: number;
   };
   slotIndex?: number;
 }
@@ -25,8 +26,10 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
 
   if (!product) return null;
 
+  const maxQty = product.availableStock ?? 100;
+
   const handleQuantityChange = async (newQty: number) => {
-    if (newQty < 1 || newQty > 100) return;
+    if (newQty < 1 || newQty > maxQty) return;
     setIsUpdating(true);
     try {
       await updateQuantity(item.variantId, newQty);
@@ -122,7 +125,7 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
         </span>
         <button
           onClick={() => handleQuantityChange(item.quantity + 1)}
-          disabled={isUpdating || item.quantity >= 100}
+          disabled={isUpdating || item.quantity >= maxQty}
           className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-30 transition-all"
         >
           <Plus size={12} />

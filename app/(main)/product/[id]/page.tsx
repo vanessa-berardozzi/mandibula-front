@@ -16,6 +16,7 @@ interface ProductVariant {
   lotSize: number;
   price: string;
   stock: number;
+  reservedStock: number;
   isActive: boolean;
 }
 
@@ -100,7 +101,8 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!session?.user) { router.push('/login'); return; }
-    if (!selectedVariant || selectedVariant.stock === 0) return;
+    const availableStock = selectedVariant ? selectedVariant.stock - (selectedVariant.reservedStock ?? 0) : 0;
+    if (!selectedVariant || availableStock === 0) return;
 
     setIsAdding(true);
     try {
@@ -152,7 +154,7 @@ export default function ProductDetailPage() {
   } | null;
   const isAnimal = attrs?.type === 'animal';
   const price = selectedVariant ? parseFloat(selectedVariant.price) : parseFloat(product.price);
-  const stock = selectedVariant?.stock ?? 0;
+  const stock = selectedVariant ? selectedVariant.stock - (selectedVariant.reservedStock ?? 0) : 0;
 
   return (
     <main className="min-h-screen pb-8">
@@ -256,16 +258,19 @@ export default function ProductDetailPage() {
                     }}
                     className="w-full appearance-none bg-card/40 border border-primary/40 text-foreground text-xs font-mono uppercase tracking-wider px-3 py-2 pr-8 rounded-sm focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(202,226,197,0.3)] transition-all cursor-pointer"
                   >
-                    {product.variants.map((v) => (
-                      <option
-                        key={v.id}
-                        value={v.id}
-                        disabled={v.stock === 0}
-                        className="bg-card text-foreground"
-                      >
-                        {v.name} — {parseFloat(v.price).toFixed(2)}€{v.stock === 0 ? ' (épuisé)' : ''}
-                      </option>
-                    ))}
+                    {product.variants.map((v) => {
+                      const vAvailableStock = v.stock - (v.reservedStock ?? 0);
+                      return (
+                        <option
+                          key={v.id}
+                          value={v.id}
+                          disabled={vAvailableStock === 0}
+                          className="bg-card text-foreground"
+                        >
+                          {v.name} — {parseFloat(v.price).toFixed(2)}€{vAvailableStock === 0 ? ' (épuisé)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                   {/* Icône chevron */}
                   <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
