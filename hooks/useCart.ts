@@ -2,7 +2,7 @@
 
 import { useSession } from '@/lib/auth.client';
 import type { CartResponse, CartValidationResponse } from '@/types/cart';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface LocalCartItem {
   variantId: string;
@@ -18,9 +18,30 @@ export interface CartState {
   isSyncing: boolean;
 }
 
+const STORAGE_KEY = 'mandibula_cart';
+const GUEST_TOKEN_KEY = 'mandibula_guest_token';
+const API_BASE = '/api/cart';
+
+/**
+ * Génère ou récupère le token anonyme (UUID v4 simplifié)
+ * Stocké en localStorage pour identifier le panier guest en DB
+ */
+function getOrCreateGuestToken(): string {
+  try {
+    const existing = localStorage.getItem(GUEST_TOKEN_KEY);
+    if (existing) return existing;
+    const token = crypto.randomUUID();
+    localStorage.setItem(GUEST_TOKEN_KEY, token);
+    return token;
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Hook principal pour gérer le panier
  * Logique hybride : localStorage pour UX rapide + API sync en background
+ * Les utilisateurs non connectés ont un panier en DB identifié par guestToken
  */
 export function useCart() {
   const [state, setState] = useState<CartState>({
@@ -32,9 +53,23 @@ export function useCart() {
   });
 
   const { data: session } = useSession();
+  const guestTokenRef = useRef<string>('');
 
-  const STORAGE_KEY = 'mandibula_cart';
-  const API_BASE = '/api/cart';
+  // Initialise le guestToken côté client seulement
+  useEffect(() => {
+    guestTokenRef.current = getOrCreateGuestToken();
+  }, []);
+
+  /**
+   * Retourne les headers appropriés selon l'état de connexion
+   */
+  const getHeaders = useCallback((): HeadersInit => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (!session?.user && guestTokenRef.current) {
+      headers['X-Guest-Token'] = guestTokenRef.current;
+    }
+    return headers;
+  }, [session?.user]);
 
   /**
    * Calcule subtotal et item count
@@ -53,14 +88,9 @@ export function useCart() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as LocalCartItem[];
-        // Filtrer les items stales sans variantId (ancien format)
         const items = parsed.filter((item) => !!item.variantId);
         const totals = calculateTotals(items);
-        setState((prev) => ({
-          ...prev,
-          items,
-          ...totals,
-        }));
+        setState((prev) => ({ ...prev, items, ...totals }));
         return items;
       }
     } catch (error) {
@@ -81,16 +111,22 @@ export function useCart() {
   }, []);
 
   /**
-   * Récupère le panier depuis le serveur (restauration après login)
+   * Récupère le panier depuis le serveur
    */
   const fetchCartFromServer = useCallback(async () => {
-    if (!session?.user) return;
+    const isGuest = !session?.user;
+    const guestToken = guestTokenRef.current;
+
+    if (isGuest && !guestToken) return;
 
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (isGuest && guestToken) headers['X-Guest-Token'] = guestToken;
+
       const response = await fetch(API_BASE, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
       });
 
@@ -104,12 +140,7 @@ export function useCart() {
       }));
 
       const totals = calculateTotals(items);
-      setState((prev) => ({
-        ...prev,
-        items,
-        ...totals,
-        isLoading: false,
-      }));
+      setState((prev) => ({ ...prev, items, ...totals, isLoading: false }));
       saveToLocalStorage(items);
     } catch (error) {
       console.error('Error fetching cart from server:', error);
@@ -118,8 +149,38 @@ export function useCart() {
   }, [session?.user, calculateTotals, saveToLocalStorage]);
 
   /**
-   * Ajoute un produit au panier (local + sync serveur)
-   * UX rapide: localStorage immédiate, API en background
+   * Fusionne le panier guest dans le panier utilisateur après connexion
+   */
+  const mergeGuestCartOnLogin = useCallback(async (guestToken: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/merge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guestToken }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const { cart } = await response.json() as { cart: CartResponse };
+      const items = cart.items.map((item) => ({
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+      const totals = calculateTotals(items);
+      setState((prev) => ({ ...prev, items, ...totals }));
+      saveToLocalStorage(items);
+
+      // Supprimer le guestToken après fusion réussie
+      localStorage.removeItem(GUEST_TOKEN_KEY);
+      guestTokenRef.current = '';
+    } catch (error) {
+      console.error('Error merging guest cart:', error);
+    }
+  }, [calculateTotals, saveToLocalStorage]);
+
+  /**
+   * Ajoute un produit au panier (local immédiat + sync serveur en background)
    */
   const addItem = useCallback(
     async (variantId: string, quantity: number = 1, price?: number) => {
@@ -130,36 +191,28 @@ export function useCart() {
               i.variantId === variantId ? { ...i, quantity: i.quantity + quantity } : i
             )
           : [...prev.items, { variantId, quantity, price }];
-
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
-
-        return {
-          ...prev,
-          items: newItems,
-          ...totals,
-        };
+        return { ...prev, items: newItems, ...totals };
       });
 
-      // Sync serveur en background (non-bloquant)
-      if (session?.user) {
-        setState((prev) => ({ ...prev, isSyncing: true }));
-        try {
-          const response = await fetch(`${API_BASE}/items`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ variantId, quantity }),
-            credentials: 'include',
-          });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        } catch (error) {
-          console.error('Error syncing add to server:', error);
-        } finally {
-          setState((prev) => ({ ...prev, isSyncing: false }));
-        }
+      // Sync serveur en background (connecté ou anonyme)
+      setState((prev) => ({ ...prev, isSyncing: true }));
+      try {
+        const response = await fetch(`${API_BASE}/items`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ variantId, quantity }),
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      } catch (error) {
+        console.error('Error syncing add to server:', error);
+      } finally {
+        setState((prev) => ({ ...prev, isSyncing: false }));
       }
     },
-    [session?.user, calculateTotals, saveToLocalStorage]
+    [calculateTotals, saveToLocalStorage, getHeaders]
   );
 
   /**
@@ -171,62 +224,33 @@ export function useCart() {
         const newItems = prev.items.filter((i) => i.variantId !== variantId);
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
-
-        return {
-          ...prev,
-          items: newItems,
-          ...totals,
-        };
+        return { ...prev, items: newItems, ...totals };
       });
 
-      // Sync serveur
-      if (session?.user) {
-        setState((prev) => ({ ...prev, isSyncing: true }));
-        try {
-          const response = await fetch(`${API_BASE}/items/${variantId}`, {
-            method: 'DELETE',
-            credentials: 'include',
-          });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        } catch (error) {
-          console.error('Error syncing delete to server:', error);
-        } finally {
-          setState((prev) => ({ ...prev, isSyncing: false }));
-        }
+      setState((prev) => ({ ...prev, isSyncing: true }));
+      try {
+        const response = await fetch(`${API_BASE}/items/${variantId}`, {
+          method: 'DELETE',
+          headers: getHeaders(),
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      } catch (error) {
+        console.error('Error syncing delete to server:', error);
+      } finally {
+        setState((prev) => ({ ...prev, isSyncing: false }));
       }
     },
-    [session?.user, calculateTotals, saveToLocalStorage]
+    [calculateTotals, saveToLocalStorage, getHeaders]
   );
 
   /**
    * Met à jour la quantité d'un produit
-   * Défini après removeItem pour éviter la dépendance circulaire
    */
   const updateQuantity = useCallback(
     async (variantId: string, quantity: number) => {
       if (quantity === 0) {
-        setState((prev) => {
-          const newItems = prev.items.filter((i) => i.variantId !== variantId);
-          const totals = calculateTotals(newItems);
-          saveToLocalStorage(newItems);
-          return { ...prev, items: newItems, ...totals };
-        });
-
-        if (session?.user) {
-          setState((prev) => ({ ...prev, isSyncing: true }));
-          try {
-            const response = await fetch(`${API_BASE}/items/${variantId}`, {
-              method: 'DELETE',
-              credentials: 'include',
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          } catch (error) {
-            console.error('Error syncing delete to server:', error);
-          } finally {
-            setState((prev) => ({ ...prev, isSyncing: false }));
-          }
-        }
-        return;
+        return removeItem(variantId);
       }
 
       setState((prev) => {
@@ -238,25 +262,22 @@ export function useCart() {
         return { ...prev, items: newItems, ...totals };
       });
 
-      // Sync serveur
-      if (session?.user) {
-        setState((prev) => ({ ...prev, isSyncing: true }));
-        try {
-          const response = await fetch(`${API_BASE}/items/${variantId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity }),
-            credentials: 'include',
-          });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        } catch (error) {
-          console.error('Error syncing update to server:', error);
-        } finally {
-          setState((prev) => ({ ...prev, isSyncing: false }));
-        }
+      setState((prev) => ({ ...prev, isSyncing: true }));
+      try {
+        const response = await fetch(`${API_BASE}/items/${variantId}`, {
+          method: 'PATCH',
+          headers: getHeaders(),
+          body: JSON.stringify({ quantity }),
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      } catch (error) {
+        console.error('Error syncing update to server:', error);
+      } finally {
+        setState((prev) => ({ ...prev, isSyncing: false }));
       }
     },
-    [session?.user, calculateTotals, saveToLocalStorage]
+    [calculateTotals, saveToLocalStorage, getHeaders, removeItem]
   );
 
   /**
@@ -264,33 +285,24 @@ export function useCart() {
    */
   const clearCart = useCallback(async () => {
     setState((prev) => {
-      const newItems: LocalCartItem[] = [];
-      saveToLocalStorage(newItems);
-      return {
-        ...prev,
-        items: newItems,
-        subtotal: 0,
-        itemCount: 0,
-      };
+      saveToLocalStorage([]);
+      return { ...prev, items: [], subtotal: 0, itemCount: 0 };
     });
 
-    // Sync serveur
-    if (session?.user) {
-      try {
-        const response = await fetch(API_BASE, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      } catch (error) {
-        console.error('Error syncing clear to server:', error);
-      }
+    try {
+      const response = await fetch(API_BASE, {
+        method: 'DELETE',
+        headers: getHeaders(),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    } catch (error) {
+      console.error('Error syncing clear to server:', error);
     }
-  }, [session?.user, saveToLocalStorage]);
+  }, [saveToLocalStorage, getHeaders]);
 
   /**
-   * CRITIQUE: Valide le panier avant checkout
-   * Invoke le serveur qui recalcule TOUS les prix, taxes, stocks
+   * CRITIQUE: Valide le panier avant checkout (requiert auth)
    */
   const validateCart = useCallback(async (): Promise<CartValidationResponse | null> => {
     if (!session?.user) {
@@ -321,39 +333,43 @@ export function useCart() {
    * Initialise le panier au démarrage
    */
   useEffect(() => {
-    // Charger depuis localStorage
     loadFromLocalStorage();
-
-    // Si connecté, récupérer depuis serveur (pour restauration cross-devices)
-    if (session?.user) {
-      fetchCartFromServer();
-    }
-  }, [session?.user, loadFromLocalStorage, fetchCartFromServer]);
+  }, [loadFromLocalStorage]);
 
   /**
-   * Vide le localStorage panier à la déconnexion
+   * Détecte connexion/déconnexion pour merger ou vider le panier
    */
-  const prevUserRef = React.useRef<string | undefined>(undefined);
+  const prevUserIdRef = React.useRef<string | undefined>(undefined);
   useEffect(() => {
     const currentUserId = session?.user?.id;
-    if (prevUserRef.current !== undefined && !currentUserId) {
-      // L'utilisateur vient de se déconnecter
+
+    if (!prevUserIdRef.current && currentUserId) {
+      // L'utilisateur vient de se connecter — merger le panier guest si existant
+      const guestToken = guestTokenRef.current || localStorage.getItem(GUEST_TOKEN_KEY) || '';
+      if (guestToken) {
+        mergeGuestCartOnLogin(guestToken);
+      } else {
+        fetchCartFromServer();
+      }
+    } else if (prevUserIdRef.current && !currentUserId) {
+      // L'utilisateur vient de se déconnecter — réinitialiser
       localStorage.removeItem(STORAGE_KEY);
-      const totals = calculateTotals([]);
-      setState((prev) => ({ ...prev, items: [], ...totals }));
+      // Générer un nouveau guestToken pour la prochaine session anonyme
+      const newToken = crypto.randomUUID();
+      localStorage.setItem(GUEST_TOKEN_KEY, newToken);
+      guestTokenRef.current = newToken;
+      setState((prev) => ({ ...prev, items: [], subtotal: 0, itemCount: 0 }));
     }
-    prevUserRef.current = currentUserId;
-  }, [session?.user?.id, calculateTotals]);
+
+    prevUserIdRef.current = currentUserId;
+  }, [session?.user?.id, fetchCartFromServer, mergeGuestCartOnLogin]);
 
   return {
-    // State
     items: state.items,
     subtotal: state.subtotal,
     itemCount: state.itemCount,
     isLoading: state.isLoading,
     isSyncing: state.isSyncing,
-
-    // Actions
     addItem,
     updateQuantity,
     removeItem,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCartContext } from "@/context/CartContext";
-import { useSession } from "@/lib/auth.client";
 import { Check, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,7 +104,6 @@ export function TradingProductCard({
   const tier = getCategoryTier(categorySlug);
   const ta   = TIER_ANIM[tier];
 
-  const { data: session } = useSession();
   const { addItem } = useCartContext();
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -138,11 +136,7 @@ export function TradingProductCard({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!variantId || !session?.user) {
-      if (!session?.user) window.location.href = "/login";
-      return;
-    }
-    if (!isInStock) return;
+    if (!variantId || !isInStock) return;
     setIsAdding(true);
     try {
       await addItem(variantId, 1, price);

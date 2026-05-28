@@ -71,7 +71,7 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!session?.user) {
-      router.push('/login');
+      router.push('/login?redirect=/cart');
       return;
     }
     if (items.length === 0) return;
@@ -259,9 +259,9 @@ export default function CartPage() {
                   Connectez-vous pour déployer votre cargaison.
                 </p>
                 <Link
-                  href="/login"
+                  href="/login?redirect=/cart"
                   className="block w-full py-2.5 px-4 text-center font-black text-sm uppercase tracking-wider bg-primary text-black hover:shadow-[0_0_15px_rgba(216,249,153,0.4)] hover:scale-[1.02] transition-all"
-                  style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
+                  style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 12px)' }}
                 >
                   Se connecter
                 </Link>

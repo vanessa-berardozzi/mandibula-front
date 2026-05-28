@@ -8,7 +8,7 @@ export default function SignupPage() {
 
   return (
     <SignupFormSheet
-      onSwitchToLogin={() => router.push("/login")}
+      onSwitchToLogin={() => router.push(`/login${window.location.search}`)}
     />
   );
 }

@@ -9,6 +9,18 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { AuthProviderButtons } from "./AuthProviderButtons"
 
+/** Résout la destination après login selon le contexte d'utilisation du formulaire.
+ * - Sur /login ou /signup : lit le param ?redirect ou renvoie vers /
+ * - Ailleurs (modale, page produit, etc.) : reste sur la page courante
+ */
+function resolvePostAuthPath(): string {
+  const isAuthPage = ['/login', '/signup'].includes(window.location.pathname)
+  if (isAuthPage) {
+    return new URLSearchParams(window.location.search).get('redirect') || '/'
+  }
+  return window.location.pathname + window.location.search
+}
+
 const formSchema = z
   .object({
     name: z.string().min(2, "Le nom est requis"),
@@ -35,8 +47,11 @@ export function SignupFormSheet({
     setError(null)
     setIsLoading(true)
     try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
       const { error: authError } = await signIn.social({
-        provider: provider as never,        callbackURL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',      })
+        provider: provider as never,
+        callbackURL: `${baseUrl}${resolvePostAuthPath()}`,
+      })
       if (authError) {
         setError(authError.message ?? "Erreur d'authentification")
         setIsLoading(false)
@@ -65,7 +80,7 @@ export function SignupFormSheet({
         setError(authError.message ?? "Erreur lors de l'inscription")
         return
       }
-      window.location.href = "/"
+      window.location.href = resolvePostAuthPath()
     } catch {
       setError("Une erreur est survenue, veuillez réessayer")
     } finally {
