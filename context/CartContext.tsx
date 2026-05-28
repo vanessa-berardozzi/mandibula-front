@@ -2,7 +2,7 @@
 
 import type { LocalCartItem } from '@/hooks/useCart';
 import { useCart } from '@/hooks/useCart';
-import type { CartValidationResponse } from '@/types/cart';
+import type { CartValidationResponse, PromoValidationResponse } from '@/types/cart';
 import { createContext, ReactNode, useContext } from 'react';
 
 interface CartContextType {
@@ -11,6 +11,10 @@ interface CartContextType {
   itemCount: number;
   isLoading: boolean;
   isSyncing: boolean;
+  promoResult: PromoValidationResponse | null;
+  discount: number;
+  applyPromo: (code: string) => Promise<PromoValidationResponse>;
+  removePromo: () => void;
   addItem: (variantId: string, quantity?: number, price?: number) => Promise<void>;
   updateQuantity: (variantId: string, quantity: number) => Promise<void>;
   removeItem: (variantId: string) => Promise<void>;

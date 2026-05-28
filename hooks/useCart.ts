@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from '@/lib/auth.client';
-import type { CartResponse, CartValidationResponse } from '@/types/cart';
+import type { CartResponse, CartValidationResponse, PromoValidationResponse } from '@/types/cart';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface LocalCartItem {
@@ -51,6 +51,8 @@ export function useCart() {
     isLoading: false,
     isSyncing: false,
   });
+
+  const [promoResult, setPromoResult] = useState<PromoValidationResponse | null>(null);
 
   const { data: session } = useSession();
   const guestTokenRef = useRef<string>('');
@@ -370,6 +372,29 @@ export function useCart() {
     itemCount: state.itemCount,
     isLoading: state.isLoading,
     isSyncing: state.isSyncing,
+    promoResult,
+    discount: (() => {
+      if (!promoResult?.valid) return 0;
+      if (promoResult.discountType === 'percent') {
+        return Math.round(state.subtotal * (promoResult.discountValue ?? 0) / 100 * 100) / 100;
+      }
+      if (promoResult.discountType === 'fixed') {
+        return Math.min(promoResult.discountValue ?? 0, state.subtotal);
+      }
+      return promoResult.discountAmount ?? 0;
+    })(),
+    applyPromo: async (code: string) => {
+      const res = await fetch('/api/cart/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code, subtotal: state.subtotal }),
+      });
+      const result: PromoValidationResponse = await res.json();
+      setPromoResult(result);
+      return result;
+    },
+    removePromo: () => setPromoResult(null),
     addItem,
     updateQuantity,
     removeItem,

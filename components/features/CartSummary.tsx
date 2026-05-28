@@ -1,6 +1,7 @@
 'use client';
 
-import type { CartValidationResponse, PromoValidationResponse } from '@/types/cart';
+import { useCartContext } from '@/context/CartContext';
+import type { CartValidationResponse } from '@/types/cart';
 import { Check, Tag, X, Zap } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,16 +13,6 @@ interface CartSummaryProps {
   isCheckoutDisabled?: boolean;
 }
 
-async function fetchPromoValidation(code: string, subtotal: number): Promise<PromoValidationResponse> {
-  const res = await fetch('/api/cart/promo', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ code, subtotal }),
-  });
-  return res.json();
-}
-
 export function CartSummary({
   subtotal,
   validation,
@@ -30,46 +21,37 @@ export function CartSummary({
   isCheckoutDisabled,
 }: CartSummaryProps) {
   const SHIPPING_COST = 5.99;
+  const { promoResult, discount, applyPromo, removePromo } = useCartContext();
 
-  // ── Promo state ──
+  // ── Promo input (local uniquement, le state promo est dans le context) ──
   const [promoInput, setPromoInput] = useState('');
-  const [promoResult, setPromoResult] = useState<PromoValidationResponse | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;
     setPromoLoading(true);
+    setPromoError(null);
     try {
-      const result = await fetchPromoValidation(promoInput.trim(), subtotal);
-      setPromoResult(result);
+      const result = await applyPromo(promoInput.trim());
+      if (!result.valid) setPromoError(result.error ?? 'Code invalide');
+      else setPromoInput('');
     } finally {
       setPromoLoading(false);
     }
   };
 
   const handleRemovePromo = () => {
-    setPromoResult(null);
+    removePromo();
     setPromoInput('');
+    setPromoError(null);
   };
 
   // ── Calculs ──
-  // Les prix sont TTC : la TVA est déjà incluse dans le sous-total
-  // Le discount est recalculé en live sur le subtotal courant si un code promo est actif
-  const discount = validation?.discount ?? (() => {
-    if (!promoResult?.valid) return 0;
-    if (promoResult.discountType === 'percent') {
-      return Math.round(subtotal * (promoResult.discountValue ?? 0) / 100 * 100) / 100;
-    }
-    if (promoResult.discountType === 'fixed') {
-      return Math.min(promoResult.discountValue ?? 0, subtotal);
-    }
-    return promoResult.discountAmount ?? 0;
-  })();
-  const discountedSubtotal = subtotal - discount;
+  const finalDiscount = validation?.discount ?? discount;
+  const discountedSubtotal = subtotal - finalDiscount;
   const finalShipping = validation?.shippingCost ?? SHIPPING_COST;
-  // Total = sous-total remisé (TTC) + livraison
   const finalTotal = validation?.total ?? (discountedSubtotal + finalShipping);
-
   const appliedPromo = validation?.promoCode ?? (promoResult?.valid ? promoResult.code : undefined);
 
   return (
@@ -112,13 +94,13 @@ export function CartSummary({
             <span className="font-mono text-sm text-foreground/75 tracking-widest">SOUS-TOTAL</span>
             <span className="font-mono text-sm text-primary font-bold">{subtotal.toFixed(2)}€</span>
           </div>
-          {discount > 0 && (
+          {finalDiscount > 0 && (
             <div className="flex justify-between items-center">
               <span className="font-mono text-sm text-primary tracking-widest flex items-center gap-1">
                 <Tag size={10} />
                 {appliedPromo ?? 'PROMO'}
               </span>
-              <span className="font-mono text-sm text-primary font-bold">-{discount.toFixed(2)}€</span>
+              <span className="font-mono text-sm text-primary font-bold">-{finalDiscount.toFixed(2)}€</span>
             </div>
           )}
           <div className="flex justify-between items-center">
@@ -175,7 +157,7 @@ export function CartSummary({
                   value={promoInput}
                   onChange={(e) => {
                     setPromoInput(e.target.value.toUpperCase());
-                    if (promoResult) setPromoResult(null);
+                    if (promoError) setPromoError(null);
                   }}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleApplyPromo(); }}
                   placeholder="MANDIBULA10"
@@ -199,9 +181,9 @@ export function CartSummary({
           )}
 
           {/* Message d'erreur promo */}
-          {promoResult && !promoResult.valid && (
+          {promoError && (
             <p className="font-mono text-sm text-destructive/80 tracking-widest">
-              ▸ {promoResult.error}
+              ▸ {promoError}
             </p>
           )}
         </div>

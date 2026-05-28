@@ -2,29 +2,178 @@
 
 import { useCartContext } from "@/context/CartContext";
 import { useSession } from "@/lib/auth.client";
-import { AlertTriangle, CreditCard, Loader2, Lock } from "lucide-react";
+import { AlertTriangle, CreditCard, Loader2, Lock, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 type PaymentMethod = "SUM_UP" | "PAYPAL" | "BANK_TRANSFER";
 
+interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+interface SavedAddress {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
 function CheckoutContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { items, subtotal } = useCartContext();
+  const { items, subtotal, promoResult, discount } = useCartContext();
 
   const [mounted, setMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("SUM_UP");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  const shippingCost = 0;
-  const total = subtotal + shippingCost;
+  // Décompose le nom complet (best effort) en prénom + nom
+  const fullName = session?.user?.name ?? '';
+  const nameParts = fullName.trim().split(' ');
+  const defaultFirstName = nameParts[0] ?? '';
+  const defaultLastName = nameParts.slice(1).join(' ');
 
-  // Éviter l'erreur d'hydration SSR
+  const [shipping, setShipping] = useState<ShippingAddress>({
+    firstName: defaultFirstName,
+    lastName: defaultLastName,
+    email: session?.user?.email ?? '',
+    phone: '',
+    street: '',
+    city: '',
+    postalCode: '',
+    country: 'France',
+  });
+
+  const SHIPPING_COST = 5.99;
+  const discountedSubtotal = subtotal - discount;
+  const total = discountedSubtotal + SHIPPING_COST;
+
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Pré-remplir depuis les données de session (au cas où pas encore disponible au 1er render)
+    setShipping(prev => ({
+      ...prev,
+      firstName: prev.firstName || defaultFirstName,
+      lastName: prev.lastName || defaultLastName,
+      email: prev.email || session?.user?.email || '',
+    }));
+  }, [session?.user]);
+
+  // Charger les adresses sauvegardées
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch('/api/addresses', { credentials: 'include' })
+      .then(r => r.json())
+      .then(({ addresses }: { addresses: SavedAddress[] }) => {
+        setSavedAddresses(addresses ?? []);
+        // Pré-remplir avec la première adresse si disponible
+        if (addresses?.length > 0) {
+          const first = addresses[0];
+          setSelectedAddressId(first.id);
+          setShipping(prev => ({
+            ...prev,
+            street: first.street,
+            city: first.city,
+            postalCode: first.postalCode,
+            country: first.country || 'France',
+          }));
+        }
+      })
+      .catch(() => {});
+  }, [session?.user]);
+
+  const handleSelectSavedAddress = (addr: SavedAddress) => {
+    setSelectedAddressId(addr.id);
+    setShipping(prev => ({
+      ...prev,
+      street: addr.street,
+      city: addr.city,
+      postalCode: addr.postalCode,
+      country: addr.country || 'France',
+    }));
+  };
+
+  const shippingField = (
+    field: keyof ShippingAddress,
+    label: string,
+    placeholder: string,
+    required = true,
+    type = 'text'
+  ) => (
+    <div className="space-y-1">
+      <label htmlFor={`shipping-${field}`} className="font-mono text-xs text-primary/60 uppercase tracking-widest">
+        {label}{required && ' *'}
+      </label>
+      <input
+        id={`shipping-${field}`}
+        type={type}
+        value={shipping[field]}
+        onChange={e => setShipping(prev => ({ ...prev, [field]: e.target.value }))}
+        placeholder={placeholder}
+        required={required}
+        className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-primary/70 transition-colors"
+        style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+      />
+    </div>
+  );
+
+  // TODO: remplacer cette liste en dur par une source externe
+  // Options : bibliothèque `country-list` / `i18n-iso-countries`, API REST Countries (https://restcountries.com), ou constante partagée dans lib/countries.ts
+  const COUNTRIES = [
+    { code: 'FR', label: 'France' },
+    { code: 'BE', label: 'Belgique' },
+    { code: 'CH', label: 'Suisse' },
+    { code: 'LU', label: 'Luxembourg' },
+    { code: 'MC', label: 'Monaco' },
+    { code: '---', label: '─────────────' },
+    { code: 'DE', label: 'Allemagne' },
+    { code: 'AT', label: 'Autriche' },
+    { code: 'ES', label: 'Espagne' },
+    { code: 'IT', label: 'Italie' },
+    { code: 'NL', label: 'Pays-Bas' },
+    { code: 'PT', label: 'Portugal' },
+    { code: 'GB', label: 'Royaume-Uni' },
+    { code: 'IE', label: 'Irlande' },
+    { code: 'DK', label: 'Danemark' },
+    { code: 'SE', label: 'Suède' },
+    { code: 'NO', label: 'Norvège' },
+    { code: 'FI', label: 'Finlande' },
+    { code: 'PL', label: 'Pologne' },
+    { code: 'CZ', label: 'République tchèque' },
+    { code: 'SK', label: 'Slovaquie' },
+    { code: 'HU', label: 'Hongrie' },
+    { code: 'RO', label: 'Roumanie' },
+    { code: 'BG', label: 'Bulgarie' },
+    { code: 'HR', label: 'Croatie' },
+    { code: 'SI', label: 'Slovénie' },
+    { code: 'GR', label: 'Grèce' },
+    { code: 'CY', label: 'Chypre' },
+    { code: 'MT', label: 'Malte' },
+    { code: 'EE', label: 'Estonie' },
+    { code: 'LV', label: 'Lettonie' },
+    { code: 'LT', label: 'Lituanie' },
+    { code: '---2', label: '─────────────' },
+    { code: 'CA', label: 'Canada' },
+    { code: 'US', label: 'États-Unis' },
+    { code: 'AU', label: 'Australie' },
+    { code: 'JP', label: 'Japon' },
+  ];
+
+  const isShippingComplete = shipping.firstName && shipping.lastName && shipping.email
+    && shipping.street && shipping.city && shipping.postalCode && shipping.country;
 
   const handlePayment = async () => {
     if (!session?.user) {
@@ -37,11 +186,16 @@ function CheckoutContent() {
       return;
     }
 
+    if (!isShippingComplete) {
+      setError("Veuillez remplir tous les champs de livraison obligatoires");
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
     try {
-      // 1. Créer la commande
+      // 1. Créer la commande avec l'adresse de livraison
       const orderResponse = await fetch('/api/orders', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,6 +203,9 @@ function CheckoutContent() {
         body: JSON.stringify({
           items: items.map(item => ({ variantId: item.variantId, quantity: item.quantity })),
           paymentMethod,
+          shippingAddress: `${shipping.firstName} ${shipping.lastName}\n${shipping.street}\n${shipping.postalCode} ${shipping.city}\n${shipping.country}`,
+          customerEmail: shipping.email,
+          customerPhone: shipping.phone,
         }),
       });
 
@@ -169,9 +326,17 @@ function CheckoutContent() {
                   <span className="text-muted-foreground uppercase tracking-wide">Sous-total</span>
                   <span className="text-foreground tabular-nums">{subtotal.toFixed(2)} €</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-sm font-mono">
+                    <span className="text-primary uppercase tracking-wide">
+                      {promoResult?.code ?? 'Remise'}
+                    </span>
+                    <span className="text-primary tabular-nums">-{discount.toFixed(2)} €</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-mono">
-                  <span className="text-muted-foreground uppercase tracking-wide">Frais de port</span>
-                  <span className="text-foreground tabular-nums">{shippingCost.toFixed(2)} €</span>
+                  <span className="text-muted-foreground uppercase tracking-wide">Livraison</span>
+                  <span className="text-foreground tabular-nums">{SHIPPING_COST.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-xl font-black pt-3 border-t border-primary/50">
                   <span className="uppercase tracking-wider text-primary">Total</span>
@@ -182,6 +347,104 @@ function CheckoutContent() {
               </div>
             </div>
           </div>
+        <div
+          className="relative border border-primary/30 bg-black/80 backdrop-blur-md overflow-hidden"
+          style={{ clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)' }}
+        >
+          <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(146,204,10,1) 0px, rgba(146,204,10,1) 1px, transparent 1px, transparent 4px)' }}
+          />
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-primary/5">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span className="ml-2 font-mono text-xs text-primary/60 tracking-widest uppercase">
+              SHIPPING :: DELIVERY_ADDRESS
+            </span>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <h2 className="text-lg font-black uppercase tracking-wider text-primary/90">
+              Adresse de livraison
+            </h2>
+
+            {/* Adresses sauvegardées */}
+            {savedAddresses.length > 0 && (
+              <div className="space-y-2">
+                <p className="font-mono text-xs text-primary/50 uppercase tracking-widest">Adresses enregistrées</p>
+                <div className="space-y-2">
+                  {savedAddresses.map(addr => (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      onClick={() => handleSelectSavedAddress(addr)}
+                      className={`w-full text-left px-3 py-2 border font-mono text-sm transition-all ${
+                        selectedAddressId === addr.id
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-primary/20 text-foreground/70 hover:border-primary/50'
+                      }`}
+                      style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
+                    >
+                      {addr.street}, {addr.postalCode} {addr.city}, {addr.country}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedAddressId(null);
+                      setShipping(prev => ({ ...prev, street: '', city: '', postalCode: '', country: 'France' }));
+                    }}
+                    className={`w-full text-left px-3 py-2 border font-mono text-sm transition-all ${
+                      selectedAddressId === null
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-primary/20 text-foreground/70 hover:border-primary/50'
+                    }`}
+                    style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
+                  >
+                    + Nouvelle adresse
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Formulaire */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {shippingField('firstName', 'Prénom', 'Jean')}
+              {shippingField('lastName', 'Nom', 'Dupont')}
+              {shippingField('email', 'Email', 'jean@exemple.fr', true, 'email')}
+              {shippingField('phone', 'Téléphone', '+33 6 00 00 00 00', false, 'tel')}
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {shippingField('street', 'Adresse', '12 rue des Invertébrés')}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {shippingField('postalCode', 'Code postal', '75001')}
+              {shippingField('city', 'Ville', 'Paris')}
+              <div className="space-y-1">
+                <label htmlFor="shipping-country" className="font-mono text-xs text-primary/60 uppercase tracking-widest">
+                  Pays *
+                </label>
+                <select
+                  id="shipping-country"
+                  value={shipping.country}
+                  onChange={e => setShipping(prev => ({ ...prev, country: e.target.value }))}
+                  required
+                  className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground focus:outline-none focus:border-primary/70 transition-colors appearance-none cursor-pointer"
+                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                >
+                  {COUNTRIES.map(c => (
+                    <option
+                      key={c.code}
+                      value={c.code.startsWith('---') ? '' : c.label}
+                      disabled={c.code.startsWith('---')}
+                    >
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div
           className="relative border border-primary/30 bg-black/80 backdrop-blur-md overflow-hidden"
           style={{ clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)' }}
@@ -310,7 +573,7 @@ function CheckoutContent() {
           </button>
           <button
             onClick={handlePayment}
-            disabled={isProcessing}
+            disabled={isProcessing || !isShippingComplete}
             className="flex-1 px-8 py-3 font-black uppercase tracking-wider text-sm bg-primary text-black hover:shadow-[0_0_20px_rgba(216,249,153,0.5)] hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
           >
