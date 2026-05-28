@@ -29,7 +29,6 @@ export function CartSummary({
   onCheckout,
   isCheckoutDisabled,
 }: CartSummaryProps) {
-  const TAX_RATE = 0.2;
   const SHIPPING_COST = 5.99;
 
   // ── Promo state ──
@@ -54,15 +53,22 @@ export function CartSummary({
   };
 
   // ── Calculs ──
-  const discount = validation?.discount ?? (promoResult?.valid ? (promoResult.discountAmount ?? 0) : 0);
+  // Les prix sont TTC : la TVA est déjà incluse dans le sous-total
+  // Le discount est recalculé en live sur le subtotal courant si un code promo est actif
+  const discount = validation?.discount ?? (() => {
+    if (!promoResult?.valid) return 0;
+    if (promoResult.discountType === 'percent') {
+      return Math.round(subtotal * (promoResult.discountValue ?? 0) / 100 * 100) / 100;
+    }
+    if (promoResult.discountType === 'fixed') {
+      return Math.min(promoResult.discountValue ?? 0, subtotal);
+    }
+    return promoResult.discountAmount ?? 0;
+  })();
   const discountedSubtotal = subtotal - discount;
-  const tax = Math.round(discountedSubtotal * TAX_RATE * 100) / 100;
-  const finalTax = validation?.tax ?? tax;
   const finalShipping = validation?.shippingCost ?? SHIPPING_COST;
-  const finalTotal = validation?.total ?? (discountedSubtotal + finalTax + finalShipping);
-
-  const budgetMax = 500;
-  const budgetPct = Math.min((finalTotal / budgetMax) * 100, 100);
+  // Total = sous-total remisé (TTC) + livraison
+  const finalTotal = validation?.total ?? (discountedSubtotal + finalShipping);
 
   const appliedPromo = validation?.promoCode ?? (promoResult?.valid ? promoResult.code : undefined);
 
@@ -116,10 +122,6 @@ export function CartSummary({
             </div>
           )}
           <div className="flex justify-between items-center">
-            <span className="font-mono text-sm text-foreground/75 tracking-widest">TVA (20%)</span>
-            <span className="font-mono text-sm text-primary font-bold">{finalTax.toFixed(2)}€</span>
-          </div>
-          <div className="flex justify-between items-center">
             <span className="font-mono text-sm text-foreground/75 tracking-widest">LIVRAISON</span>
             <span className="font-mono text-sm text-primary font-bold">{finalShipping.toFixed(2)}€</span>
           </div>
@@ -134,20 +136,6 @@ export function CartSummary({
           <span className="font-black text-3xl text-primary drop-shadow-[0_0_8px_rgba(216,249,153,0.4)]">
             {finalTotal.toFixed(2)}€
           </span>
-        </div>
-
-        {/* Barre de progression budget */}
-        <div className="space-y-1">
-          <div
-            className="h-1 w-full bg-primary/10 overflow-hidden"
-            style={{ clipPath: 'polygon(3px 0, 100% 0, 100% 100%, 0 100%, 0 3px)' }}
-          >
-            <div
-              className="h-full bg-linear-to-r from-primary/60 to-primary transition-all duration-700"
-              style={{ width: `${budgetPct}%` }}
-            />
-          </div>
-          <p className="font-mono text-sm text-primary/55 text-right tracking-widest">{budgetPct.toFixed(0)}% / budget</p>
         </div>
 
         {/* ── BLOC CODE PROMO ── */}
