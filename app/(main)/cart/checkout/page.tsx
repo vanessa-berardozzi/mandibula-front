@@ -206,6 +206,8 @@ function CheckoutContent() {
           shippingAddress: `${shipping.firstName} ${shipping.lastName}\n${shipping.street}\n${shipping.postalCode} ${shipping.city}\n${shipping.country}`,
           customerEmail: shipping.email,
           customerPhone: shipping.phone,
+          discount,
+          promoCode: promoResult?.code,
         }),
       });
 
