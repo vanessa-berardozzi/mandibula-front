@@ -1,37 +1,10 @@
 "use client";
 
-import { AccountSettings, OrderHistory, SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
+import { AccountSettings, SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOut, useSession } from "@/lib/auth.client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-// ── Types API ─────────────────────────────────────────────────────────────────
-
-interface ApiOrderItem {
-  id: string;
-  quantity: number;
-  variant: { product: { id: string; name: string; images: string[] } };
-}
-
-interface ApiOrder {
-  id: string;
-  status: string;
-  paymentStatus: string;
-  total: string | number;
-  createdAt: string;
-  orderItems: ApiOrderItem[];
-}
-
-// ── Mapping statut API → label FR ────────────────────────────────────────────
-
-function mapStatus(order: ApiOrder): "Livré" | "En cours" | "Annulé" | "En préparation" | "Paiement en attente" {
-  if (order.paymentStatus === "PAID") return "Livré";
-  if (order.status === "CANCELLED" || order.paymentStatus === "FAILED") return "Annulé";
-  if (order.paymentStatus === "PENDING") return "Paiement en attente";
-  if (order.status === "CONFIRMED") return "En cours";
-  return "En préparation";
-}
+import { useEffect } from "react";
 
 const MOCK_USER = {
   userName: "MandibulaDemo",
@@ -41,31 +14,6 @@ const MOCK_USER = {
   level: 8,
   loyaltyPoints: 2450,
 };
-
-const MOCK_ADDRESSES = [
-  {
-    id: "1",
-    label: "Forteresse principale",
-    fullName: "Jungle Survivor",
-    street: "123 Rue de la Végétation",
-    city: "Amazonis",
-    postalCode: "69000",
-    country: "Jungle Primaire",
-    phone: "+33 6 12 34 56 78",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    label: "Bunker de secours",
-    fullName: "Jungle Survivor",
-    street: "456 Avenue des Fougères",
-    city: "Neo-Tropica",
-    postalCode: "75000",
-    country: "Jungle Primaire",
-    phone: "+33 6 98 76 54 32",
-    isDefault: false,
-  },
-];
 
 const MOCK_SETTINGS = [
   {
@@ -78,16 +26,7 @@ const MOCK_SETTINGS = [
     type: "button" as const,
     status: true,
   },
-  {
-    id: "2fa",
-    label: "Authentification à 2 facteurs",
-    description: "Sécurisez votre compte avec 2FA",
-    icon: "🔐",
-    action: () => console.log("Toggle 2FA"),
-    actionLabel: "Activer",
-    type: "button" as const,
-    status: false,
-  },
+  
   {
     id: "newsletter",
     label: "Infolettre & Promotions",
@@ -112,8 +51,6 @@ const MOCK_SETTINGS = [
 export default function ProfilePage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
-  const [orders, setOrders] = useState<ApiOrder[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
 
   const handleSignOut = async () => {
     await signOut();
@@ -126,15 +63,6 @@ export default function ProfilePage() {
     }
   }, [isPending, session, router]);
 
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch("/api/orders", { credentials: "include" })
-      .then((r) => r.json())
-      .then((data: ApiOrder[]) => setOrders(Array.isArray(data) ? data : []))
-      .catch(() => setOrders([]))
-      .finally(() => setOrdersLoading(false));
-  }, [session?.user]);
-
   if (isPending || !session?.user) {
     return (
       <main className="min-h-screen pb-12">
@@ -145,29 +73,12 @@ export default function ProfilePage() {
     );
   }
 
-  // Calcul des stats depuis les vraies commandes
-  const totalSpent = orders
-    .filter((o) => o.paymentStatus === "PAID")
-    .reduce((sum, o) => sum + Number(o.total), 0);
-  const pendingCount = orders.filter((o) => o.paymentStatus === "PENDING").length;
-
   const stats = [
-    { label: "Commandes", value: ordersLoading ? "..." : String(orders.length), icon: "📦", color: "primary" as const },
-    { label: "Dépense totale", value: ordersLoading ? "..." : `${totalSpent.toFixed(2)}€`, icon: "💰", color: "secondary" as const },
-    { label: "En attente", value: ordersLoading ? "..." : String(pendingCount), icon: "⏳", color: "accent" as const },
-    { label: "Réductions actives", value: "0", icon: "🎟️", color: "primary" as const },
+    { label: "Commandes", value: "...", icon: "📦", color: "primary" as const },
+    { label: "Dépense totale", value: "...", icon: "💰", color: "secondary" as const },
+    { label: "Niveau", value: String(MOCK_USER.level), icon: "⭐", color: "accent" as const },
+    { label: "Points de fidélité", value: String(MOCK_USER.loyaltyPoints), icon: "🎟️", color: "primary" as const },
   ];
-
-  // Mapping API → format OrderHistory
-  const mappedOrders = orders.map((o) => ({
-    id: o.id,
-    date: o.createdAt,
-    orderNumber: `#${o.id.slice(0, 8).toUpperCase()}`,
-    total: Number(o.total),
-    status: mapStatus(o),
-    items: o.orderItems.reduce((sum, item) => sum + item.quantity, 0),
-    canRetry: o.paymentStatus === "PENDING",
-  }));
 
   const profileHeaderData = {
     ...MOCK_USER,
@@ -184,14 +95,9 @@ export default function ProfilePage() {
         {/* Statistiques utilisateur */}
         <UserStats stats={stats} />
 
-        {/* Historique des commandes */}
-        <div className="mb-8">
-          <OrderHistory orders={mappedOrders} />
-        </div>
-
         {/* Section adresses et paramètres - Grille responsive */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <SavedAddresses addresses={MOCK_ADDRESSES} />
+          <SavedAddresses />
           <AccountSettings settings={MOCK_SETTINGS} />
         </div>
 

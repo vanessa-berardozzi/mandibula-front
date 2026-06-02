@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { OrderDetailModal } from "./OrderDetailModal";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ interface OrderItem {
 
 interface OrderHistoryProps {
   orders: OrderItem[];
+  onDeleteOrder?: (orderId: string) => Promise<void>;
 }
 
 const getStatusColor = (status: string) => {
@@ -71,8 +73,47 @@ function RetryButton({ orderId }: { orderId: string }) {
   );
 }
 
-export function OrderHistory({ orders }: OrderHistoryProps) {
+function DeleteButton({ orderId, onDelete }: { orderId: string; onDelete: (id: string) => Promise<void> }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirm("Êtes-vous sûr de vouloir annuler cette commande ? Cette action est irréversible.")) return;
+    
+    setLoading(true);
+    try {
+      await onDelete(orderId);
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      size="sm"
+      onClick={handleDelete}
+      disabled={loading}
+      className="bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/50 rounded-sm text-xs h-8 gap-1"
+    >
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+      Annuler
+    </Button>
+  );
+}
+
+export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const sortedOrders = [...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleDelete = async (orderId: string) => {
+    if (!onDeleteOrder) return;
+    try {
+      await onDeleteOrder(orderId);
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
+  };
 
   return (
     <Card className="border-primary/30 bg-card/30 backdrop-blur">
@@ -128,10 +169,16 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
 
                   <div className="md:col-span-1 flex gap-2 justify-end">
                     {order.canRetry ? (
-                      <RetryButton orderId={order.id} />
+                      <div className="flex gap-2">
+                        <RetryButton orderId={order.id} />
+                        {onDeleteOrder && (
+                          <DeleteButton orderId={order.id} onDelete={handleDelete} />
+                        )}
+                      </div>
                     ) : (
                       <Button
                         size="sm"
+                        onClick={() => setSelectedOrderId(order.id)}
                         className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-xs h-8"
                       >
                         Détails
@@ -144,6 +191,14 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
           </div>
         )}
       </div>
+
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          isOpen={!!selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
+      )}
     </Card>
   );
 }
