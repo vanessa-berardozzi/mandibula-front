@@ -15,8 +15,8 @@ interface CartContextType {
   discount: number;
   applyPromo: (code: string) => Promise<PromoValidationResponse>;
   removePromo: () => void;
-  addItem: (variantId: string, quantity?: number, price?: number) => Promise<void>;
-  updateQuantity: (variantId: string, quantity: number) => Promise<void>;
+  addItem: (variantId: string, quantity?: number, price?: number) => Promise<{ error?: string }>;
+  updateQuantity: (variantId: string, quantity: number) => Promise<{ error?: string }>;
   removeItem: (variantId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   validateCart: () => Promise<CartValidationResponse | null>;

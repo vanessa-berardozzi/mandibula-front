@@ -108,6 +108,7 @@ export function TradingProductCard({
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
   // ── Effet tilt 3D ──
   const cardRef = useRef<HTMLDivElement>(null);
@@ -138,15 +139,16 @@ export function TradingProductCard({
     e.stopPropagation();
     if (!variantId || !isInStock) return;
     setIsAdding(true);
-    try {
-      await addItem(variantId, 1, price);
+    setStockError(null);
+    const result = await addItem(variantId, 1, price);
+    if (result?.error) {
+      setStockError(result.error);
+      setTimeout(() => setStockError(null), 3000);
+    } else {
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-    } finally {
-      setIsAdding(false);
     }
+    setIsAdding(false);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -404,8 +406,8 @@ export function TradingProductCard({
               style={{ borderTop: `1px solid ${rc.frameColor}20` }}
             >
               <span className="text-[10px] font-mono font-semibold uppercase tracking-wide"
-                style={{ color: isInStock ? "rgba(255,255,255,0.6)" : "#cc1515" }}>
-                {isInStock ? `◈ ${stock} en stock` : "◈ épuisé"}
+                style={{ color: stockError ? "#f87171" : isInStock ? "rgba(255,255,255,0.6)" : "#cc1515" }}>
+                {stockError ? `⚠ ${stockError}` : isInStock ? `◈ ${stock} en stock` : "◈ épuisé"}
               </span>
               <span className="text-[9px] font-mono opacity-60 text-white">MDB •◆</span>
             </div>

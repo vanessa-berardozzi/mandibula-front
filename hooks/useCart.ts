@@ -185,8 +185,12 @@ export function useCart() {
    * Ajoute un produit au panier (local immédiat + sync serveur en background)
    */
   const addItem = useCallback(
-    async (variantId: string, quantity: number = 1, price?: number) => {
+    async (variantId: string, quantity: number = 1, price?: number): Promise<{ error?: string }> => {
+      let previousItems: LocalCartItem[] = [];
+
+      // Optimistic update
       setState((prev) => {
+        previousItems = prev.items;
         const existing = prev.items.find((i) => i.variantId === variantId);
         const newItems = existing
           ? prev.items.map((i) =>
@@ -198,7 +202,6 @@ export function useCart() {
         return { ...prev, items: newItems, ...totals };
       });
 
-      // Sync serveur en background (connecté ou anonyme)
       setState((prev) => ({ ...prev, isSyncing: true }));
       try {
         const response = await fetch(`${API_BASE}/items`, {
@@ -207,9 +210,21 @@ export function useCart() {
           body: JSON.stringify({ variantId, quantity }),
           credentials: 'include',
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          const errorMsg = data.error || `Erreur ${response.status}`;
+          // Annuler l'optimistic update
+          setState((prev) => {
+            const totals = calculateTotals(previousItems);
+            saveToLocalStorage(previousItems);
+            return { ...prev, items: previousItems, ...totals };
+          });
+          return { error: errorMsg };
+        }
+        return {};
       } catch (error) {
         console.error('Error syncing add to server:', error);
+        return { error: 'Erreur réseau' };
       } finally {
         setState((prev) => ({ ...prev, isSyncing: false }));
       }
@@ -250,12 +265,16 @@ export function useCart() {
    * Met à jour la quantité d'un produit
    */
   const updateQuantity = useCallback(
-    async (variantId: string, quantity: number) => {
+    async (variantId: string, quantity: number): Promise<{ error?: string }> => {
       if (quantity === 0) {
-        return removeItem(variantId);
+        await removeItem(variantId);
+        return {};
       }
 
+      let previousItems: LocalCartItem[] = [];
+
       setState((prev) => {
+        previousItems = prev.items;
         const newItems = prev.items.map((i) =>
           i.variantId === variantId ? { ...i, quantity } : i
         );
@@ -272,9 +291,21 @@ export function useCart() {
           body: JSON.stringify({ quantity }),
           credentials: 'include',
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          const errorMsg = data.error || `Erreur ${response.status}`;
+          // Annuler l'optimistic update
+          setState((prev) => {
+            const totals = calculateTotals(previousItems);
+            saveToLocalStorage(previousItems);
+            return { ...prev, items: previousItems, ...totals };
+          });
+          return { error: errorMsg };
+        }
+        return {};
       } catch (error) {
         console.error('Error syncing update to server:', error);
+        return { error: 'Erreur réseau' };
       } finally {
         setState((prev) => ({ ...prev, isSyncing: false }));
       }

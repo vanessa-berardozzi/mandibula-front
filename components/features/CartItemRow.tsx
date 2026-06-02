@@ -23,6 +23,7 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
   const { updateQuantity, removeItem } = useCartContext();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
   if (!product) return null;
 
@@ -31,8 +32,13 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
   const handleQuantityChange = async (newQty: number) => {
     if (newQty < 1 || newQty > maxQty) return;
     setIsUpdating(true);
+    setStockError(null);
     try {
-      await updateQuantity(item.variantId, newQty);
+      const result = await updateQuantity(item.variantId, newQty);
+      if (result?.error) {
+        setStockError(result.error);
+        setTimeout(() => setStockError(null), 4000);
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -109,27 +115,34 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
       </div>
 
       {/* Contrôle quantité */}
-      <div
-        className="shrink-0 flex items-center border border-primary/60 bg-black/80"
-        style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-      >
-        <button
-          onClick={() => handleQuantityChange(item.quantity - 1)}
-          disabled={isUpdating || item.quantity <= 1}
-          className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-30 transition-all"
+      <div className="shrink-0 flex flex-col items-center gap-0.5">
+        <div
+          className="flex items-center border border-primary/60 bg-black/80"
+          style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
         >
-          <Minus size={12} />
-        </button>
-        <span className={`w-10 text-center font-mono font-bold text-base text-primary ${isUpdating ? 'animate-pulse' : ''}`}>
-          {item.quantity}
-        </span>
-        <button
-          onClick={() => handleQuantityChange(item.quantity + 1)}
-          disabled={isUpdating || item.quantity >= maxQty}
-          className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-30 transition-all"
-        >
-          <Plus size={12} />
-        </button>
+          <button
+            onClick={() => handleQuantityChange(item.quantity - 1)}
+            disabled={isUpdating || item.quantity <= 1}
+            className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-30 transition-all"
+          >
+            <Minus size={12} />
+          </button>
+          <span className={`w-10 text-center font-mono font-bold text-base text-primary ${isUpdating ? 'animate-pulse' : ''}`}>
+            {item.quantity}
+          </span>
+          <button
+            onClick={() => handleQuantityChange(item.quantity + 1)}
+            disabled={isUpdating || item.quantity >= maxQty}
+            className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-30 transition-all"
+          >
+            <Plus size={12} />
+          </button>
+        </div>
+        {stockError && (
+          <span className="text-[9px] text-red-400 font-mono uppercase tracking-wider text-center max-w-30 leading-tight">
+            {stockError}
+          </span>
+        )}
       </div>
 
       {/* Prix total */}

@@ -80,6 +80,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -105,15 +106,16 @@ export default function ProductDetailPage() {
     if (!selectedVariant || availableStock === 0) return;
 
     setIsAdding(true);
-    try {
-      await addItem(selectedVariant.id, quantity, parseFloat(selectedVariant.price));
+    setStockError(null);
+    const result = await addItem(selectedVariant.id, quantity, parseFloat(selectedVariant.price));
+    if (result?.error) {
+      setStockError(result.error);
+      setTimeout(() => setStockError(null), 3000);
+    } else {
       setAdded(true);
       setTimeout(() => setAdded(false), 2500);
-    } catch (err) {
-      console.error('Erreur ajout panier:', err);
-    } finally {
-      setIsAdding(false);
     }
+    setIsAdding(false);
   };
 
   // ── États de chargement ──
@@ -336,6 +338,10 @@ export default function ProductDetailPage() {
                   <><ShoppingCart className="w-3 h-3 mr-2" />Ajouter au panier</>
                 )}
               </Button>
+
+              {stockError && (
+                <p className="text-xs text-red-400 font-mono text-center animate-pulse">{stockError}</p>
+              )}
 
               <div className="pt-2 mt-2 border-t border-primary/30 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground uppercase tracking-wider">Total</span>

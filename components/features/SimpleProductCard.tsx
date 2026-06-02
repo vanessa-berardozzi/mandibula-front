@@ -34,6 +34,7 @@ export function SimpleProductCard({
   const [added, setAdded] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,15 +42,16 @@ export function SimpleProductCard({
     if (!variantId || !isInStock) return;
 
     setIsAdding(true);
-    try {
-      await addItem(variantId, 1, price);
+    setStockError(null);
+    const result = await addItem(variantId, 1, price);
+    if (result?.error) {
+      setStockError(result.error);
+      setTimeout(() => setStockError(null), 3000);
+    } else {
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-    } finally {
-      setIsAdding(false);
     }
+    setIsAdding(false);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -259,6 +261,14 @@ export function SimpleProductCard({
                 <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                 <span className="text-[10px] text-orange-400/90 font-mono uppercase tracking-wider">
                   Stock limité
+                </span>
+              </div>
+            )}
+            {stockError && (
+              <div className="mt-1.5 flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                <span className="text-[10px] text-red-400 font-mono uppercase tracking-wider">
+                  {stockError}
                 </span>
               </div>
             )}
