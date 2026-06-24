@@ -216,6 +216,7 @@ export default function ProductDetailPage() {
                   imageUrl={product.images[0] ?? '/boite.png'}
                   href={`/product/${product.id}`}
                   variantId={selectedVariant?.id}
+                  productId={product.id}
                   categorySlug={product.category?.slug}
                   priority
                 />

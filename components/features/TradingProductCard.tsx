@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartContext } from "@/context/CartContext";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Check, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -85,6 +86,7 @@ interface TradingProductCardProps {
   imageUrl?: string;
   href?: string;
   variantId?: string;
+  productId?: string;
   priority?: boolean;
   categorySlug?: string;
 }
@@ -96,6 +98,7 @@ export function TradingProductCard({
   imageUrl,
   href = "/product",
   variantId,
+  productId,
   priority = false,
   categorySlug,
 }: TradingProductCardProps) {
@@ -105,10 +108,12 @@ export function TradingProductCard({
   const ta   = TIER_ANIM[tier];
 
   const { addItem } = useCartContext();
+  const { isFavorite, toggle } = useFavorites();
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
+
+  const wishlisted = productId ? isFavorite(productId) : false;
 
   // ── Effet tilt 3D ──
   const cardRef = useRef<HTMLDivElement>(null);
@@ -154,7 +159,7 @@ export function TradingProductCard({
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setWishlisted((prev) => !prev);
+    if (productId) toggle(productId);
   };
 
   const cardContent = (

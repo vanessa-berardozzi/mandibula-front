@@ -101,6 +101,7 @@ export default async function CategoryPage({
                     imageUrl={product.images[0]}
                     href={`/product/${product.id}`}
                     variantId={defaultVariant?.id}
+                    productId={product.id}
                     priority={index === 0}
                     categoryName={data.category.name}
                   />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartContext } from "@/context/CartContext";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Check, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ interface SimpleProductCardProps {
   imageUrl?: string;
   href?: string;
   variantId?: string;
+  productId?: string;
   priority?: boolean;
   categoryName?: string;
 }
@@ -24,17 +26,20 @@ export function SimpleProductCard({
   imageUrl,
   href = "/product",
   variantId,
+  productId,
   priority = false,
   categoryName,
 }: SimpleProductCardProps) {
   const isInStock = stock > 0;
   const { addItem } = useCartContext();
+  const { isFavorite, toggle } = useFavorites();
 
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
+
+  const wishlisted = productId ? isFavorite(productId) : false;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,7 +62,7 @@ export function SimpleProductCard({
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setWishlisted((prev) => !prev);
+    if (productId) toggle(productId);
   };
 
   return (

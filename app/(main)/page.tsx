@@ -113,6 +113,7 @@ export default function LandingPage() {
                   imageUrl={product.images[0]}
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}
+                  productId={product.id}
                   priority={index < 3}
                   categoryName={product.category?.name}
                 />

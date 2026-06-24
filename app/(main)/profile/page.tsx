@@ -1,8 +1,11 @@
 "use client";
 
+import { SimpleProductCard } from "@/components/features/SimpleProductCard";
 import { AccountSettings, SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useFavorites } from "@/hooks/useFavorites";
 import { signOut, useSession } from "@/lib/auth.client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -51,6 +54,7 @@ const MOCK_SETTINGS = [
 export default function ProfilePage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const { items: favorites, isLoading: favLoading } = useFavorites();
 
   const handleSignOut = async () => {
     await signOut();
@@ -101,7 +105,7 @@ export default function ProfilePage() {
           <AccountSettings settings={MOCK_SETTINGS} />
         </div>
 
-        {/* Section favori/wishlist (bonus) */}
+        {/* Section favoris */}
         <Card className="border-primary/30 bg-card/30 backdrop-blur">
           <CardHeader>
             <CardTitle className="text-primary">Liste de Souhait</CardTitle>
@@ -109,12 +113,41 @@ export default function ProfilePage() {
           </CardHeader>
 
           <div className="px-6 pb-6">
-            <div className="py-8 text-center text-muted-foreground">
-              <p className="mb-4">Aucun article dans votre liste de souhait</p>
-              <button className="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-sm font-semibold transition-colors">
-                Explorer les produits
-              </button>
-            </div>
+            {favLoading ? (
+              <div className="py-8 text-center text-muted-foreground text-sm">Chargement...</div>
+            ) : favorites.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                <p className="mb-4">Aucun article dans votre liste de souhait</p>
+                <Link
+                  href="/"
+                  className="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-sm font-semibold transition-colors"
+                >
+                  Explorer les produits
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-2">
+                {favorites.map(({ product }) => {
+                  const firstVariant = product.variants[0];
+                  const stock = firstVariant
+                    ? firstVariant.stock - firstVariant.reservedStock
+                    : 0;
+                  return (
+                    <SimpleProductCard
+                      key={product.id}
+                      productId={product.id}
+                      title={product.name}
+                      price={parseFloat(product.price)}
+                      stock={stock}
+                      imageUrl={product.images[0]}
+                      href={`/product/${product.id}`}
+                      variantId={firstVariant?.id}
+                      categoryName={product.category.name}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         </Card>
 
