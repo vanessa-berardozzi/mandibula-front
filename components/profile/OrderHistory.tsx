@@ -3,9 +3,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { OrderDetailModal } from "./OrderDetailModal";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { OrderDetailModal } from "./OrderDetailModal";
 
 interface OrderItem {
   id: string;

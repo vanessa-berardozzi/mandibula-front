@@ -1,8 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -190,7 +189,7 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
                       className="p-3 bg-accent/15 border border-primary/20 rounded-sm flex items-start gap-3"
                     >
                       {item.variant.product.images?.[0] && (
-                        <div className="w-12 h-12 bg-accent/30 rounded-sm flex-shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 bg-accent/30 rounded-sm shrink-0 overflow-hidden">
                           <img
                             src={item.variant.product.images[0]}
                             alt={item.variant.product.name}
@@ -203,7 +202,7 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
                         <p className="text-xs font-medium text-foreground">{item.variantName}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Quantité: {item.quantity}</p>
                       </div>
-                      <div className="flex-shrink-0 text-right">
+                      <div className="shrink-0 text-right">
                         <p className="text-xs font-semibold text-primary">
                           {(Number(item.price) * item.quantity).toFixed(2)}€
                         </p>
