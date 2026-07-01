@@ -22,7 +22,11 @@ export function useUserAvatar(): UseAvatarReturn {
   const { data: session, isPending } = useSession();
 
   const userName = session?.user?.name || "User";
-  const avatarUrl = session?.user?.image || null;
+  // pictureProfile (upload Cloudinary) prime sur image (OAuth provider)
+  const avatarUrl =
+    (session?.user as { pictureProfile?: string } | undefined)?.pictureProfile ||
+    session?.user?.image ||
+    null;
   const isAuthenticated = !!session?.user;
 
   const renderImage = (className: string, width = 112, height = 112) => {

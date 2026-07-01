@@ -2,6 +2,7 @@
 
 import { UserAvatar } from "@/components/shared";
 import { Button } from "@/components/ui/button";
+import { EditProfileSheet } from "./EditProfileSheet";
 
 interface UserProfileHeaderProps {
   userName: string;
@@ -16,7 +17,6 @@ export function UserProfileHeader({
   userName,
   email,
   memberSince,
-  level,
   loyaltyPoints,
   onSignOut,
 }: UserProfileHeaderProps) {
@@ -55,9 +55,7 @@ export function UserProfileHeader({
                 />
               </div>
               {/* Badge niveau */}
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center font-bold border-2 border-primary shadow-lg">
-                L{level}
-              </div>
+             
             </div>
 
             {/* Infos texte */}
@@ -79,11 +77,13 @@ export function UserProfileHeader({
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-2 w-full md:w-auto">
-            <Button 
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm border border-primary/50 font-semibold"
-            >
-              Modifier Profil
-            </Button>
+            <EditProfileSheet>
+              <Button 
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm border border-primary/50 font-semibold"
+              >
+                Modifier Profil
+              </Button>
+            </EditProfileSheet>
             <Button 
               variant="outline" 
               className="border-primary text-primary hover:bg-primary/10 rounded-sm font-semibold"

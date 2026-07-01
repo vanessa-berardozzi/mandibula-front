@@ -41,8 +41,7 @@ export function UserStats({ stats }: UserStatsProps) {
 
           <div className="space-y-2">
             <div className={`text-2xl ${getColorClass(stat.color)}`}>{stat.icon}</div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-            <p className={`text-xl font-bold ${getColorClass(stat.color)}`}>{stat.value}</p>
+            <p className="text-xs text-muted-foreground uppercase">{stat.label}</p>
           </div>
         </div>
       ))}

@@ -41,11 +41,15 @@ export async function handler(req: NextRequest) {
       body = await req.arrayBuffer()
     }
 
-    // Faire la requête au backend (sans ajouter credentials: 'include')
+    // Faire la requête au backend
+    // redirect: 'manual' = ne pas suivre les 302 automatiquement.
+    // Sans ça, fetch suit le redirect et peut recevoir une réponse avec des
+    // headers énormes (Set-Cookie base64) → HPE_HEADER_OVERFLOW.
     const response = await fetch(backendUrl, {
       method: req.method,
       headers,
       body,
+      redirect: 'manual',
     })
 
     // Copier la réponse du backend

@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'scontent.xx.fbcdn.net', // Facebook CDN avatars
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // TODO: peut être restreint en ajoutant pathname: '/votre_cloud_name/**'
+      },
     ],
   },
   async rewrites() {
@@ -63,6 +67,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/addresses",
         destination: `${backendUrl}/api/addresses`,
+      },
+      {
+        source: "/api/upload/:path*",
+        destination: `${backendUrl}/api/upload/:path*`,
       },
     ]
   },

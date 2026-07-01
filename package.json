@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_OPTIONS=--max-http-header-size=131072 next dev",
     "dev:staging": "dotenv -e .env.staging -- next dev",
     "build": "next build",
     "start": "next start",
@@ -34,6 +34,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.27",
+    "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.1.1",

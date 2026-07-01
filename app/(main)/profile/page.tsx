@@ -1,7 +1,7 @@
 "use client";
 
 import { SimpleProductCard } from "@/components/features/SimpleProductCard";
-import { AccountSettings, SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
+import { SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFavorites } from "@/hooks/useFavorites";
 import { signOut, useSession } from "@/lib/auth.client";
@@ -84,10 +84,17 @@ export default function ProfilePage() {
     { label: "Points de fidélité", value: String(MOCK_USER.loyaltyPoints), icon: "🎟️", color: "primary" as const },
   ];
 
+  const memberSince = session.user.createdAt
+    ? new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(
+        new Date(session.user.createdAt)
+      )
+    : MOCK_USER.memberSince;
+
   const profileHeaderData = {
     ...MOCK_USER,
-    userName: session.user.name || MOCK_USER.userName,
+    userName: session.user.name,
     email: session.user.email,
+    memberSince,
   };
 
   return (
@@ -102,7 +109,7 @@ export default function ProfilePage() {
         {/* Section adresses et paramètres - Grille responsive */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <SavedAddresses />
-          <AccountSettings settings={MOCK_SETTINGS} />
+         {/* <AccountSettings settings={MOCK_SETTINGS} /> */}
         </div>
 
         {/* Section favoris */}
