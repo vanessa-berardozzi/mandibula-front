@@ -3,8 +3,6 @@
 import { useSession } from '@/lib/auth.client';
 import { useCallback, useEffect, useState } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-
 export interface WishlistProduct {
   id: string;
   name: string;
@@ -35,7 +33,7 @@ export function useFavorites() {
     if (!isLoggedIn) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/wishlist`, { credentials: 'include' });
+      const res = await fetch(`/api/wishlist`, { credentials: 'include' });
       if (res.ok) setItems(await res.json());
     } finally {
       setIsLoading(false);
@@ -63,7 +61,7 @@ export function useFavorites() {
       }
 
       const method = alreadyFav ? 'DELETE' : 'POST';
-      const res = await fetch(`${API_BASE}/api/wishlist/${productId}`, {
+      const res = await fetch(`/api/wishlist/${productId}`, {
         method,
         credentials: 'include',
       });
