@@ -23,7 +23,7 @@ async function makeProxyRequest(req: NextRequest, method: string) {
   const backendUrl = buildBackendUrl(req);
   const cookieHeader = req.headers.get('cookie');
 
-  console.log('[Wishlist Proxy]', { method, backendUrl, hasCookie: !!cookieHeader });
+ 
 
   try {
     const headers = new Headers(req.headers);
@@ -47,7 +47,6 @@ async function makeProxyRequest(req: NextRequest, method: string) {
     });
 
     const data = await res.json();
-    console.log('[Wishlist Proxy Response]', { status: res.status });
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('[Wishlist Proxy Error]', error);

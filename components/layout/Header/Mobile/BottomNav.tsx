@@ -1,9 +1,9 @@
 'use client';
 import { useCartContext } from "@/context/CartContext";
 import { useSession } from "@/lib/auth.client";
-import { Bug, Home, Search, ShoppingCart, User } from 'lucide-react';
+import { Bug, Home, Search, ShoppingCart, User, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -11,6 +11,8 @@ export function BottomNav() {
   const { data: session } = useSession();
   const { itemCount } = useCartContext();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const activeTab = useMemo(() => {
     if (pathname === '/') return 'home';
@@ -21,10 +23,24 @@ export function BottomNav() {
     return 'home';
   }, [pathname]);
 
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    if ('key' in e && e.key !== 'Enter') return;
+    if (searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+      setSearchOpen(false);
+      setSearchValue("");
+    }
+  };
+
+  const openSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => searchInputRef.current?.focus(), 0);
+  };
+
   const navItems = [
     { id: 'home',       icon: Home,         label: 'Accueil',    action: 'link'  as const, href: '/' },
     { id: 'categories', icon: Bug,          label: 'Catégories', action: 'link'  as const, href: '/categories' },
-    { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const, handler: () => setSearchOpen(true) },
+    { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const, handler: openSearch },
     { id: 'cart',       icon: ShoppingCart, label: 'Panier',     action: 'link'  as const, href: '/cart', badge: itemCount },
     { id: 'profile',    icon: User,         label: 'Profil',     action: 'link'  as const, href: session?.user ? '/profile' : '/login' },
   ];
@@ -120,16 +136,53 @@ export function BottomNav() {
         <div className="absolute top-1 right-1 w-2 h-2 border-r-2 border-t-2 border-primary/40" />
       </nav>
       
-      {/* TODO: Ajouter SearchModal quand prêt */}
+      {/* Modal de recherche */}
       {searchOpen && (
         <div 
-          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex flex-col"
           onClick={() => setSearchOpen(false)}
         >
-          <div className="flex items-start justify-center pt-20 px-4">
+          <div 
+            className="flex-1 flex items-start justify-center pt-20 px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="w-full max-w-md p-6 bg-black/95 border border-primary/30 rounded-lg">
-              <p className="text-primary text-center font-mono">
-                Recherche en cours de développement...
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-primary font-mono text-sm tracking-widest">RECHERCHER</h3>
+                <button
+                  onClick={() => setSearchOpen(false)}
+                  aria-label="Fermer"
+                  className="p-1 hover:bg-primary/10 rounded transition-all"
+                >
+                  <X className="w-5 h-5 text-primary/60 hover:text-primary" />
+                </button>
+              </div>
+
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary/60" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyDown={handleSearchSubmit}
+                  placeholder="Rechercher un produit..."
+                  className="w-full pl-10 pr-4 py-3 bg-black/40 border border-primary/30 rounded-lg text-foreground placeholder:text-primary/40 focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                  autoFocus
+                />
+              </div>
+
+              {searchValue && (
+                <button
+                  onClick={handleSearchSubmit}
+                  className="w-full px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/40 rounded-lg text-primary text-sm font-mono transition-all"
+                >
+                  Rechercher
+                </button>
+              )}
+
+              <p className="text-primary/50 text-xs mt-4 text-center font-mono">
+                Appuyez sur Entrée pour rechercher
               </p>
             </div>
           </div>

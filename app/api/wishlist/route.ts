@@ -10,7 +10,7 @@ async function makeProxyRequest(req: NextRequest, method: string) {
   }/api/wishlist`;
 
   const cookieHeader = req.headers.get('cookie');
-  console.log('[Wishlist Proxy Root]', { method, backendUrl, hasCookie: !!cookieHeader });
+  
 
   try {
     const headers = new Headers(req.headers);
@@ -33,7 +33,6 @@ async function makeProxyRequest(req: NextRequest, method: string) {
     });
 
     const data = await res.json();
-    console.log('[Wishlist Proxy Root Response]', { status: res.status });
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('[Wishlist Proxy Root Error]', error);

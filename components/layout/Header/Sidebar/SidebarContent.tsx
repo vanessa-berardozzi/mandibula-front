@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth.client";
 import { Bug, ChevronDown, ChevronRight, Home, Package, Search, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 // Configuration des sections de navigation
 const navigationItems = [
@@ -26,9 +27,11 @@ interface ApiCategory { id: string; name: string; slug: string; children: ApiSub
 
 export function SidebarContent() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/products/categories/all")
@@ -39,6 +42,20 @@ export function SidebarContent() {
 
   const toggleCategory = (categoryId: string) => {
     setOpenCategory(openCategory === categoryId ? null : categoryId);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+      setSearchValue("");
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+      setSearchValue("");
+    }
   };
 
   return (
@@ -58,16 +75,30 @@ export function SidebarContent() {
 
       {/* Barre de recherche */}
       <div className="px-4 pt-4 pb-2">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary/60 group-hover:text-primary transition-colors" />
-          <Input
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Rechercher..."
-            aria-label="Rechercher une catégorie"
-            className="pl-10 bg-black/40 border-primary/20 text-foreground placeholder:text-primary/40 focus:border-primary/50 hover:border-primary/40 transition-all"
-          />
+        <div className="relative group flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary/60 group-hover:text-primary transition-colors" />
+            <Input
+              ref={searchInputRef}
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="Rechercher..."
+              aria-label="Rechercher un produit"
+              className="pl-10 bg-black/40 border-primary/20 text-foreground placeholder:text-primary/40 focus:border-primary/50 hover:border-primary/40 transition-all"
+            />
+          </div>
+          {searchValue && (
+            <button
+              onClick={handleSearchSubmit}
+              aria-label="Valider la recherche"
+              className="p-2 hover:bg-primary/10 rounded transition-all"
+              title="Rechercher"
+            >
+              <Search className="w-4 h-4 text-primary hover:text-primary/80" />
+            </button>
+          )}
         </div>
       </div>
 

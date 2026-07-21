@@ -6,6 +6,6 @@ export type AuthProvider = "google" | "discord" | "facebook";
 export function loginWithProvider(provider: AuthProvider) {
   // Ici, on branchera la logique d'auth réelle (redirection OAuth, etc.)
   // Pour l'instant, on laisse en dur
-  // eslint-disable-next-line no-console
+
   console.log(`Login avec le provider : ${provider}`);
 }

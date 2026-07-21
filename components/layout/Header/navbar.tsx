@@ -7,7 +7,7 @@ import { Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * Avatar utilisateur pour la navbar - version ronde et petite
@@ -73,6 +73,24 @@ function CartLink() {
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
+  const router = useRouter()
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`)
+      setIsSearchOpen(false)
+      setSearchValue("")
+    }
+  }
+
+  const handleSearchSubmit = () => {
+    if (searchValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`)
+      setIsSearchOpen(false)
+      setSearchValue("")
+    }
+  }
 
   return (
     <nav aria-label="Navigation principale">
@@ -97,20 +115,38 @@ export function Navbar() {
           {isSearchOpen ? (
             <div className="flex items-center gap-2">
               <Input
+                ref={searchInputRef}
                 type="text"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleSearch}
                 placeholder="Rechercher..."
                 autoFocus
                 aria-label="Rechercher dans le site"
                 className="w-50 px-4 py-2 rounded-md border-neon-glow"
               />
-              <button onClick={() => setIsSearchOpen(false)} aria-label="Fermer la recherche">
+              <button
+                onClick={handleSearchSubmit}
+                aria-label="Valider la recherche"
+                className="p-2 hover:bg-primary/10 rounded transition-all"
+              >
+                <Search className="w-5 h-5 text-primary hover:text-primary/80" />
+              </button>
+              <button
+                onClick={() => {
+                  setIsSearchOpen(false)
+                  setSearchValue("")
+                }}
+                aria-label="Fermer la recherche"
+              >
                 <X className="w-6 h-6 icon-foreground icon-neon-hover" />
               </button>
             </div>
           ) : (
-            <button onClick={() => setIsSearchOpen(true)} aria-label="Recherche">
+            <button onClick={() => {
+              setIsSearchOpen(true)
+              setTimeout(() => searchInputRef.current?.focus(), 0)
+            }} aria-label="Recherche">
               <Search className="w-6 h-6 icon-foreground icon-neon-hover" />
             </button>
           )}
