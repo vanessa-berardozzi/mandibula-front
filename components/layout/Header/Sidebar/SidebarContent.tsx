@@ -261,7 +261,8 @@ export function SidebarContent() {
         </div>
 
         {/* SECTION COMPTE - visible uniquement si connecté */}
-        {session?.user && <div className="space-y-2">
+        {session?.user && (
+          <div className="space-y-2" suppressHydrationWarning>
           {/* Titre de section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
@@ -296,7 +297,8 @@ export function SidebarContent() {
               );
             })}
           </div>
-        </div>}
+        </div>
+        )}
       </div>
 
       {/* Footer avec info système */}

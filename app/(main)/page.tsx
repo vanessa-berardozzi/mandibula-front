@@ -1,5 +1,6 @@
 "use client";
 
+import { HeroSection } from "@/components/features/HeroSection";
 import { SimpleProductCard } from "@/components/features/SimpleProductCard";
 import { useEffect, useState } from "react";
 
@@ -46,88 +47,66 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="min-h-screen pb-12">
-      {/* Header hero avec cadre néon */}
-      <div className="w-full px-4 md:px-8 pb-8">
-        <div className="relative mb-8">
-          <div
-            className="relative p-8 md:p-12 bg-card/15 backdrop-blur-md border-2 border-primary/60 rounded-sm shadow-[0_0_30px_rgba(202,226,197,0.4)]"
-            style={{
-              clipPath: "polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px)",
-            }}
-          >
-            {/* Coins décoratifs */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary" />
+    <main className="min-h-screen w-full">
+      <HeroSection />
 
-            {/* Lignes d'accent */}
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-primary to-transparent opacity-70" />
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-primary to-transparent opacity-70" />
+      {/* ============================================
+          PRODUCTS SECTION
+          ============================================ */}
+      <section className="w-full px-4 md:px-8 py-12 md:py-16">
+        <div className="max-w-6xl mx-auto">
+          {isLoading && (
+            <p className="text-center font-mono text-primary/60 text-sm tracking-widest animate-pulse">
+              CHARGEMENT DES SPÉCIMENS...
+            </p>
+          )}
+          {error && (
+            <p className="text-center text-destructive font-mono text-sm">
+              Erreur : {error}
+            </p>
+          )}
+          {!isLoading && !error && products.length === 0 && (
+            <p className="text-center font-mono text-primary/40 text-sm">
+              Aucun produit disponible.
+            </p>
+          )}
 
-            <div className="relative">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground mb-3 uppercase tracking-tight">
-                Mandibula{" "}
-                <span className="text-primary drop-shadow-[0_0_10px_rgba(202,226,197,0.6)]">
-                  Shop
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl font-medium">
-                Boutique spécialisée en isopodes, blattes et invertébrés pour terrariums !
-              </p>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+            {products.map((product, index) => {
+              const defaultVariant = product.variants[0];
+              return (
+                <div
+                  key={product.id}
+                  style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.05}s backwards` }}
+                >
+                  <SimpleProductCard
+                    title={product.name}
+                    price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
+                    stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
+                    imageUrl={product.images[0]}
+                    href={`/product/${product.id}`}
+                    variantId={defaultVariant?.id}
+                    productId={product.id}
+                    priority={index < 3}
+                    categoryName={product.category?.name}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Section produits */}
-      <div className="w-full max-w-500 mx-auto px-4 md:px-8 xl:px-16 2xl:px-24">
-        {isLoading && (
-          <p className="text-center font-mono text-primary/60 text-sm tracking-widest animate-pulse">
-            CHARGEMENT DES SPÉCIMENS...
-          </p>
-        )}
-        {error && (
-          <p className="text-center text-destructive font-mono text-sm">
-            Erreur : {error}
-          </p>
-        )}
-        {!isLoading && !error && products.length === 0 && (
-          <p className="text-center font-mono text-primary/40 text-sm">
-            Aucun produit disponible.
-          </p>
-        )}
-        <div className="grid grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-5">
-          {products.map((product, index) => {
-            const defaultVariant = product.variants[0];
-            return (
-              <div
-                key={product.id}
-                style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.05}s backwards` }}
-              >
-                <SimpleProductCard
-                  title={product.name}
-                  price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
-                  stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
-                  imageUrl={product.images[0]}
-                  href={`/product/${product.id}`}
-                  variantId={defaultVariant?.id}
-                  productId={product.id}
-                  priority={index < 3}
-                  categoryName={product.category?.name}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Animation CSS */}
       <style jsx>{`
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
         }
       `}</style>
     </main>
