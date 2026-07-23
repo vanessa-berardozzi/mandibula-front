@@ -212,7 +212,7 @@ function OrderConfirmationContent() {
             {/* CTA */}
             <div className="flex gap-3">
               <button
-                onClick={() => router.push("/profile/orders")}
+                onClick={() => router.push("/orders")}
                 className="flex-1 px-4 py-3 border border-border/50 text-muted-foreground rounded-sm hover:border-primary/40 hover:text-foreground transition-all text-sm font-medium flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />

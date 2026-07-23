@@ -132,7 +132,7 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
             {sortedOrders.map((order) => (
               <div
                 key={order.id}
-                className="relative p-4 bg-accent/15 border border-primary/20 rounded-sm hover:border-primary/50 transition-colors"
+                className="relative p-3 sm:p-4 bg-accent/15 border border-primary/20 rounded-sm hover:border-primary/50 transition-colors"
                 style={{
                   clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)"
                 }}
@@ -140,7 +140,59 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary/50" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary/50" />
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                {/* Mobile layout (stacked) */}
+                <div className="flex flex-col gap-3 sm:hidden">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Commande</p>
+                      <p className="text-sm font-bold text-primary font-mono">{order.orderNumber}</p>
+                    </div>
+                    <Badge className={`${getStatusColor(order.status)} border shrink-0`}>
+                      {order.status}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">Date</p>
+                      <p className="text-foreground">{new Date(order.date).toLocaleDateString("fr-FR")}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">Total</p>
+                      <p className="font-semibold text-primary">{order.total.toFixed(2)}€</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">Articles</p>
+                      <p className="text-foreground">{order.items} article(s)</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 w-full pt-2">
+                    {order.canRetry ? (
+                      <>
+                        <div className="flex-1">
+                          <RetryButton orderId={order.id} />
+                        </div>
+                        {onDeleteOrder && (
+                          <div className="flex-1">
+                            <DeleteButton orderId={order.id} onDelete={handleDelete} />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => setSelectedOrderId(order.id)}
+                        className="w-full bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-xs h-8"
+                      >
+                        Détails
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Desktop layout (grid) */}
+                <div className="hidden sm:grid grid-cols-1 md:grid-cols-12 gap-3 lg:gap-4 items-center">
                   <div className="md:col-span-3">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Commande</p>
                     <p className="text-sm font-bold text-primary font-mono">{order.orderNumber}</p>
@@ -156,9 +208,9 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
                     <p className="text-sm font-semibold text-primary">{order.total.toFixed(2)}€</p>
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-1">
                     <p className="text-xs text-muted-foreground uppercase">Articles</p>
-                    <p className="text-sm text-foreground">{order.items} article(s)</p>
+                    <p className="text-sm text-foreground">{order.items}</p>
                   </div>
 
                   <div className="md:col-span-2">
@@ -167,14 +219,14 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
                     </Badge>
                   </div>
 
-                  <div className="md:col-span-1 flex gap-2 justify-end">
+                  <div className="md:col-span-2 flex flex-wrap gap-2 justify-end">
                     {order.canRetry ? (
-                      <div className="flex gap-2">
+                      <>
                         <RetryButton orderId={order.id} />
                         {onDeleteOrder && (
                           <DeleteButton orderId={order.id} onDelete={handleDelete} />
                         )}
-                      </div>
+                      </>
                     ) : (
                       <Button
                         size="sm"
