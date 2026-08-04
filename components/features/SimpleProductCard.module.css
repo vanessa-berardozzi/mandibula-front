@@ -1,0 +1,167 @@
+.product-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.product-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+}
+
+/* Coins pointillés façon "scan", purement décoratifs */
+.product-card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  z-index: 5;
+  border: 1px dashed rgba(71, 255, 131, 0.25);
+  pointer-events: none;
+  transition: border-color 0.25s ease;
+}
+
+.product-card:hover::before {
+  border-color: rgba(71, 255, 131, 0.55);
+}
+
+.product-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  background: rgba(5, 9, 7, 0.75);
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.product-card__chip-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.product-card__node {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 30;
+  display: flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(5, 9, 7, 0.75);
+  color: var(--muted-foreground);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.product-card__node[data-active="true"] {
+  border-color: #ff4d6d;
+  color: #ff4d6d;
+}
+
+.product-card__image {
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-card__image {
+  transform: scale(1.06);
+}
+
+.product-card__footer {
+  position: relative;
+  z-index: 10;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--line);
+  background: rgba(5, 9, 7, 0.7);
+}
+
+.product-card__title {
+  margin: 0 0 8px;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.product-card__price {
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.product-card__currency {
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.product-card__add {
+  display: flex;
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.product-card__add[data-state="added"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.product-card__add[data-state="disabled"] {
+  border-color: var(--line);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.product-card__spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: product-card-spin 0.7s linear infinite;
+}
+
+@keyframes product-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.product-card__notice {
+  margin: 8px 0 0;
+  color: #f5a524;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.product-card__notice--error {
+  color: #f04444;
+}

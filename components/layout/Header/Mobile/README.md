@@ -53,7 +53,7 @@ Menu slide-in depuis la gauche avec :
 ## 🔧 Responsive
 
 - **Mobile** (< 768px) : MobileNavbar + BottomNav
-- **Desktop** (≥ 768px) : Navbar + Sidebar
+- **Desktop** (≥ 768px) : Navbar (plus de Sidebar, navigation entièrement portée par la navbar)
 
 Le layout s'adapte automatiquement via le hook `useIsMobile()`.
 

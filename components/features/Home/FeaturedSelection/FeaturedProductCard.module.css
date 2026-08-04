@@ -1,0 +1,142 @@
+.product-card {
+  position: relative;
+  display: block;
+  background: #fff;
+  border: 1px solid #dfe4df;
+}
+
+.product-category-chip {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: #f1f1eb;
+  color: #188f3d;
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.product-category-chip i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #188f3d;
+}
+
+.product-card-node {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  height: 26px;
+  width: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #dfe4df;
+  background: #fff;
+  color: #9aa59e;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.product-card-node[data-active="true"] {
+  border-color: #ff4d6d;
+  color: #ff4d6d;
+}
+
+.product-image {
+  position: relative;
+  aspect-ratio: 1.22;
+  overflow: hidden;
+  background: #dfe4de;
+}
+
+.product-image :global(img) {
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image :global(img) {
+  transform: scale(1.035);
+}
+
+.product-info {
+  padding: 19px;
+}
+
+.product-info > p {
+  margin: 0 0 9px;
+  color: #768078;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.product-info h3 {
+  min-height: 44px;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.22;
+  color: #111713;
+}
+
+.product-bottom {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e6e9e6;
+}
+
+.product-bottom > span {
+  display: flex;
+  flex-direction: column;
+  color: #111713;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.product-bottom small {
+  margin-bottom: 4px;
+  color: #808981;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.product-add {
+  display: flex;
+  height: 32px;
+  width: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #188f3d;
+  background: transparent;
+  color: #188f3d;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.product-add[data-state="added"] {
+  background: #188f3d;
+  color: #fff;
+}
+
+.product-add[data-state="disabled"] {
+  border-color: #dfe4df;
+  color: #b7bdb8;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

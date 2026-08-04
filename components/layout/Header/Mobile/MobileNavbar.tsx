@@ -17,7 +17,7 @@ export function MobileNavbar() {
       aria-label="Navigation mobile principale" 
       className="relative"
     >
-      <div className="flex items-center justify-between w-full bg-black/40 backdrop-blur-lg px-4 py-3 border-b border-primary/20 shadow-lg">
+      <div className="flex h-16 items-center justify-between w-full border-b border-line bg-[rgba(5,9,7,0.95)] px-4 backdrop-blur-xl">
         
         {/* Burger Menu à gauche avec effet néon pulsant */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -44,18 +44,21 @@ export function MobileNavbar() {
         </Sheet>
 
         {/* Logo centré */}
-        <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="block">
-            <div className="w-10 h-10 flex items-center justify-center">
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center">
               <Image
-                src="/logo_lg_neon.png"
+                src="/mandibula-logo.png"
                 alt="Mandibula Logo"
-                width={40}
-                height={40}
-                style={{ width: '40px', height: 'auto' }}
+                width={36}
+                height={36}
+                style={{ width: '36px', height: 'auto' }}
                 priority
               />
             </div>
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-primary">
+              Mandibula
+            </span>
           </Link>
         </div>
 

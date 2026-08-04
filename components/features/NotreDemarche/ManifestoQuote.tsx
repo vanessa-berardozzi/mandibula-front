@@ -1,0 +1,14 @@
+import styles from "./ManifestoQuote.module.css";
+
+// Citation de clôture pleine largeur, identique au bandeau "manifesto" de la maquette.
+export function ManifestoQuote() {
+  return (
+    <section className={styles["manifesto"]}>
+      <p>
+        Built for Insects,
+        <br />
+        <em>Designed for You.</em>
+      </p>
+    </section>
+  );
+}

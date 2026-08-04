@@ -1,7 +1,11 @@
 import type { Metadata } from "next"
-import Image from "next/image"
+import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./providers"
+
+// Polices exposées en variables CSS et mappées vers --font-sans/--font-mono dans globals.css
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })
 
 export const metadata: Metadata = {
 	title: "Mandibula Shop - Boutique en ligne d'isopodes et blattes",
@@ -24,6 +28,7 @@ export const metadata: Metadata = {
 		description: "Boutique en ligne spécialisée dans la vente d'isopodes, blattes et accessoires pour terrariums.",
 		images: [
 			{
+				//todo: mettre à jour l'adresse de l'image Open Graph avec la bonne URL
 				url: "https://mandibula.shop/og-image.png",
 				width: 1200,
 				height: 630,
@@ -31,13 +36,8 @@ export const metadata: Metadata = {
 			},
 		],
 	},
-	twitter: {
-		card: "summary_large_image",
-		title: "Mandibula Shop",
-		description: "Boutique en ligne d'isopodes et blattes",
-		creator: "@mandibula",
-		images: ["https://mandibula.shop/twitter-image.png"],
-	},
+
+	
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -58,20 +58,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				{/* Sitemap et Robots */}
 				<link rel="sitemap" href="/sitemap.xml" />
 			</head>
-			<body>
-				<Providers>
-					<div className="fixed inset-0 -z-10">
-						<Image
-							src="/fond_jungle.png"
-							alt="Fond jungle apocalyptique"
-							fill
-							className="object-cover"
-							priority
-						/>
-					</div>
-					
-					{children}
-				</Providers>
+			<body className={`${geistSans.variable} ${geistMono.variable}`}>
+				<Providers>{children}</Providers>
 			</body>
 		</html>
 	)

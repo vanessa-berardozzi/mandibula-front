@@ -1,0 +1,208 @@
+/* Port exact de .announcement (maquette).
+   Valeurs en px « en dur » : l'entête html { font-size: 125% } du projet
+   fausserait les dimensions si on utilisait les utilitaires Tailwind (rem). */
+.shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: 2.5rem;
+  padding: 6px clamp(18px, 5vw, 75px);
+  background: #050907;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.34);
+  color: #72a981;
+  font-family: monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.shell strong {
+  color: #47ff83;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .shell {
+    min-height: 2.5rem;
+    padding: 6px 1rem;
+    justify-content: center;
+    letter-spacing: 0.09em;
+  }
+
+  .shell > span {
+    display: none;
+  }
+
+  .shell strong {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+/* État d'alerte (status="PAUSED"), porté depuis .announcement.paused de la maquette. */
+.paused {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 50px;
+  padding: 9px clamp(112px, 14vw, 220px);
+  border-color: rgba(255, 44, 50, 0.34);
+  background: transparent;
+  color: #fff4df;
+}
+
+.paused::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: rgba(190, 8, 16, 0.18);
+  animation: alertPulse 3.4s ease-in-out infinite;
+}
+
+/* Repère technique décoratif en fond de bandeau */
+.paused::after {
+  content: "SYS//LIVE-SHIPMENT  •  01";
+  position: absolute;
+  z-index: 2;
+  right: clamp(112px, 14vw, 220px);
+  bottom: 2px;
+  color: rgba(255, 218, 0, 0.7);
+  font: 700 0.4rem/1 monospace;
+  letter-spacing: 0.16em;
+}
+
+.paused strong {
+  position: relative;
+  z-index: 3;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.42);
+}
+
+.paused > span {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes alertPulse {
+  0%, 100% {
+    background-color: rgba(190, 8, 16, 0.12);
+    box-shadow: inset 0 0 6px rgba(255, 0, 0, 0.04);
+  }
+  50% {
+    background-color: rgba(210, 10, 20, 0.34);
+    box-shadow: inset 0 0 22px rgba(255, 0, 0, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paused::before {
+    animation: none;
+    background-color: rgba(190, 8, 16, 0.23);
+  }
+}
+
+.warningSign {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  color: #111;
+  background: #ffda00;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.warningSign::after {
+  content: "";
+  position: absolute;
+  inset: 3px 3px 2px;
+  border: 1.5px solid #171500;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.warningSign i {
+  position: relative;
+  z-index: 1;
+  padding-top: 6px;
+  font: 900 12px/1 Arial, sans-serif;
+  font-style: normal;
+}
+
+.warningTape {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  width: clamp(86px, 10vw, 150px);
+  height: calc(100% - 10px);
+  pointer-events: none;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(7px, 1vw, 13px);
+}
+
+.warningTape s {
+  display: block;
+  width: clamp(12px, 1.55vw, 22px);
+  height: 100%;
+  flex: 0 0 auto;
+  background: #ffda00;
+  transform: skewX(-22deg);
+  text-decoration: none;
+  box-shadow: 0 0 10px rgba(255, 218, 0, 0.18);
+}
+
+.tapeLeft {
+  left: clamp(12px, 3vw, 46px);
+}
+
+.tapeRight {
+  right: clamp(12px, 3vw, 46px);
+}
+
+@media (max-width: 760px) {
+  .paused {
+    min-height: 36px;
+    padding: 7px 66px;
+  }
+
+  .paused > span,
+  .paused::after {
+    display: none;
+  }
+
+  .warningTape {
+    top: 3px;
+    width: 46px;
+    height: calc(100% - 6px);
+    gap: 5px;
+  }
+
+  .warningTape s {
+    width: 8px;
+    transform: skewX(-18deg);
+  }
+
+  .tapeLeft {
+    left: 5px;
+  }
+
+  .tapeRight {
+    right: 5px;
+  }
+
+  .warningSign {
+    width: 21px;
+    height: 19px;
+  }
+
+  .warningSign i {
+    padding-top: 5px;
+    font-size: 10px;
+  }
+}

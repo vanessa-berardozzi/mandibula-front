@@ -10,13 +10,8 @@ export default function Header() {
 
 	return (
 		<header className="w-full fixed top-0 left-0 z-50 ">
-			{/* Bannière d'information importante */}
-			<Banner
-				message="
-🌡️ Information importante – Expéditions de vivants 
-"
-				className="justify-center text-center px-4 py-2"
-			/>
+			{/* Bandeau d'information système */}
+			<Banner message="Expéditions du vivant adaptées à la météo Températures trop fortes pour les envois Nos nouveaux substrats sont disponibles ! 💚" />
 			{/* Afficher MobileNavbar sur mobile, Navbar sur desktop */}
 			{isMobile ? <MobileNavbar /> : <Navbar />}
 		</header>

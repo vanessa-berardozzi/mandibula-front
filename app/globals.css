@@ -9,68 +9,86 @@
    ============================================ */
 :root {
   /* ============================================
-     PALETTE JUNGLE NÉON FUTURISTE — WCAG AA
-     Tous les ratios de contraste ≥ 4.5:1 (texte)
-     et ≥ 3:1 (composants UI / non-texte)
+     PALETTE "BIOSYSTEM" — vert jungle sur noir.
+     Valeurs synchronisées 1:1 avec la maquette client
+     (mandibula-site/app/globals.css : --green, --green-deep,
+     --ink, --muted, --surface, --surface-soft, --line).
+     Modifier UNIQUEMENT ces variables pour changer la
+     charte graphique globale du site (source de vérité unique).
      ============================================ */
 
   /* --- GÉNÉRAL --- */
   --radius: 0.625rem;
-  --background: transparent; /* Image fond_jungle.png fixée en position */
-  --foreground: #e4f7de;     /* Texte principal — 17:1 sur fond sombre ✓ */
+  --background: #070a08;   /* Noir jungle — fond de base, identique au body de la maquette */
+  --foreground: #f2f5f2;   /* Texte principal, quasi blanc (= --ink maquette) */
 
-  /* --- CARTES & POPOVERS ---
-     Vert forêt très foncé (thématique) — pas le gris neutre */
-  --card: #0d1f14;
-  --card-foreground: #f0faed;   /* Blanc mint — 16:1 sur card ✓ */
-  --popover: #0d1f14;
-  --popover-foreground: #f0faed;
+  /* --- CARTES & POPOVERS --- */
+  --card: #0c110e;         /* = --surface maquette */
+  --card-foreground: #f2f5f2;
+  --popover: #0c110e;
+  --popover-foreground: #f2f5f2;
 
   /* --- COULEURS PRINCIPALES ---
-     #39ff14 = vert néon déjà utilisé dans tous les effets de glow
-     → unification + meilleur contraste vs #cae2c5 précédent */
-  --primary: #5dbf7a;          /* Vert feuille jungle — ratio 7.9:1 sur bg sombre ✓ */
-  --primary-foreground: #060d02; /* Quasi-noir — 9:1 sur primary ✓ */
+     Vert signature Mandibula (CTA, liens actifs, glow) — = --green maquette */
+  --primary: #70f18b;
+  --primary-foreground: #071309;
 
-  /* Teal cyberpunk à la place du cyan saturé pur */
-  --secondary: #00d4aa;          /* Teal — ratio 10:1 sur bg sombre ✓ */
-  --secondary-foreground: #00150f; /* Très sombre — 10.8:1 sur secondary ✓ */
+  /* Vert profond — variante secondaire (hover, dégradés) — = --green-deep maquette */
+  --secondary: #1ea44b;
+  --secondary-foreground: #05170b;
 
   /* --- MUTED ---
-     Fond jungle foncé + texte sauge lisible et thématique */
-  --muted: #141c12;
-  --muted-foreground: #c0d8b8; /* Sauge clair — 11.6:1 sur muted ✓ */
+     = --surface-soft / --muted maquette */
+  --muted: #121a15;
+  --muted-foreground: #9aa59e;
 
   /* --- ACCENT ---
      Forêt profonde pour les hover states */
-  --accent: #0a2e19;
-  --accent-foreground: #5dbf7a; /* Vert feuille — 7.7:1 sur accent ✓ */
+  --accent: #0f2a19;
+  --accent-foreground: #70f18b;
 
-  /* --- DESTRUCTIVE ---
-     Rouge alerte moins saturé que #ff3b3b → meilleur contraste texte blanc */
+  /* --- DESTRUCTIVE --- */
   --destructive: #cc1515;
-  --destructive-foreground: #fff0f0; /* Blanc chaud — 5.6:1 sur destructive ✓ */
+  --destructive-foreground: #fff0f0;
 
   /* --- BORDURES & INPUTS ---
-     Bordure visible (vert jungle opaque) pour la perception UI (WCAG 1.4.11) */
-  --border: #2a5a3c;   /* Vert forêt visible — remplace l'invisible #19291f */
-  --input: #163c2a;
-  --ring: #5dbf7a;     /* Focus indicator vert jungle — WCAG 2.4.7 ✓ */
+     Traits subtils, proches du --line maquette (pas de bordure néon vive) */
+  --border: #1c2620;
+  --input: #10160f;
+  --ring: #70f18b;
 
-  /* --- SIDEBAR --- */
-  --sidebar: rgba(9, 21, 13, 0.75);  /* Fond semi-opaque sombre thématique */
-  --sidebar-foreground: #d4edd0;     /* Menthe douce — 14:1 sur sidebar ✓ */
-  --sidebar-primary: #39ff14;        /* Neon vert item actif — 14.3:1 sur #0a1a05 ✓ */
-  --sidebar-primary-foreground: #0a1a05;
-  --sidebar-accent: #0f3020;         /* Forêt sombre hover */
-  --sidebar-accent-foreground: #5dbf7a; /* Vert feuille hover — 8:1 sur sidebar-accent ✓ */
-  --sidebar-border: #1a3523;
-  --sidebar-ring: #5dbf7a;           /* Focus ring doux ✓ */
+  /* --- LIGNE SYSTÈME ---
+     Trait fin translucide utilisé partout (headers, cartes, grilles) — valeur exacte maquette */
+  --line: rgba(220, 255, 229, 0.12);
+    --system-line: rgba(71, 255, 131, 0.34);
+  /* Fond panneau semi-opaque (bandeaux, cartes flottantes, overlays) — valeur exacte maquette */
+  --panel: rgba(7, 15, 10, 0);
+
+  /* --- MENU OFF-CANVAS (Sheet mobile) --- */
+  --sidebar: rgba(7, 15, 10, 0.93);
+  --sidebar-foreground: #d4edd0;
+  --sidebar-primary: #70f18b;
+  --sidebar-primary-foreground: #071309;
+  --sidebar-accent: #0f3020;
+  --sidebar-accent-foreground: #70f18b;
+  --sidebar-border: #1c2620;
+  --sidebar-ring: #70f18b;
 }
 
 /* Taille de base augmentée pour confort de lecture (zoom ~125%) */
 html {
-  font-size: 125%; /* 20px au lieu de 16px — scale tous les rem Tailwind */
+  font-size: 100%; /* 20px au lieu de 16px — scale tous les rem Tailwind */
+}
+
+/* ============================================
+   FOND GLOBAL — grille technique discrète
+   Remplace l'ancienne image jungle plein écran fixe.
+   ============================================ */
+body {
+  background-color: var(--background);
+  
+  
+  font-family: var(--font-sans, "Arial Narrow", "Helvetica Neue", Arial, sans-serif);
 }
 
 /* ============================================
@@ -86,12 +104,12 @@ html {
 
 /* Effet néon pour texte au hover */
 .hover\:neon-glow:hover {
-  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14d3, 0 0 15px rgba(35, 179, 9, 0.856) ;
+  text-shadow: 0 0 5px #70f18b, 0 0 10px #70f18bd3, 0 0 15px rgba(30, 164, 75, 0.856) ;
 }
 
 /* Effet néon pour group hover */
 .group:hover .group-hover\:neon-glow {
-  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14d3, 0 0 15px rgba(35, 179, 9, 0.856) ;
+  text-shadow: 0 0 5px #70f18b, 0 0 10px #70f18bd3, 0 0 15px rgba(30, 164, 75, 0.856) ;
 }
 
 /* Effet néon pour icônes SVG au hover */
@@ -100,13 +118,13 @@ html {
 }
 
 .icon-neon-hover:hover {
-  filter: drop-shadow(0 0 5px #39ff14) drop-shadow(0 0 15px #7deb6a80) drop-shadow(0 0 10px #39ff14d5) ;
+  filter: drop-shadow(0 0 5px #70f18b) drop-shadow(0 0 15px #70f18b80) drop-shadow(0 0 10px #70f18bd5) ;
 }
 
 /* Effet néon pour bordures au hover */
 .hover\:border-neon-glow:hover {
-  box-shadow: 0 0 8px rgba(125, 235, 106, 0.7), 0 0 12px rgba(125, 235, 106, 0.4), inset 0 0 5px rgba(125, 235, 106, 0.25);
-  border-color: #39ff14;
+  box-shadow: 0 0 8px rgba(112, 241, 139, 0.7), 0 0 12px rgba(112, 241, 139, 0.4), inset 0 0 5px rgba(112, 241, 139, 0.25);
+  border-color: #70f18b;
 }
 
 /* ============================================
@@ -126,25 +144,25 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(57, 255, 20, 0.3), rgba(57, 255, 20, 0.15));
+  background: linear-gradient(180deg, rgba(112, 241, 139, 0.3), rgba(112, 241, 139, 0.15));
   border-radius: 10px;
-  border: 1px solid rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(112, 241, 139, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(57, 255, 20, 0.5), rgba(57, 255, 20, 0.25));
-  border-color: rgba(57, 255, 20, 0.3);
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+  background: linear-gradient(180deg, rgba(112, 241, 139, 0.5), rgba(112, 241, 139, 0.25));
+  border-color: rgba(112, 241, 139, 0.3);
+  box-shadow: 0 0 10px rgba(112, 241, 139, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, rgba(57, 255, 20, 0.6), rgba(57, 255, 20, 0.35));
+  background: linear-gradient(180deg, rgba(112, 241, 139, 0.6), rgba(112, 241, 139, 0.35));
 }
 
 /* Pour Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(57, 255, 20, 0.3) transparent;
+  scrollbar-color: rgba(112, 241, 139, 0.3) transparent;
 }
 
 /* Animation de pulsation lente pour glow */
@@ -169,10 +187,10 @@ html {
 /* Animation glow pour le logo */
 @keyframes glow-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 10px #39ff1460);
+    filter: drop-shadow(0 0 10px #70f18b60);
   }
   50% {
-    filter: drop-shadow(0 0 20px #39ff14) drop-shadow(0 0 30px #39ff1480);
+    filter: drop-shadow(0 0 20px #70f18b) drop-shadow(0 0 30px #70f18b80);
   }
 }
 
@@ -196,24 +214,24 @@ html {
 
 /* Badge gaming style */
 .gaming-badge {
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.6), 
-              0 0 20px rgba(57, 255, 20, 0.3);
+  box-shadow: 0 0 10px rgba(112, 241, 139, 0.6), 
+              0 0 20px rgba(112, 241, 139, 0.3);
 }
 
 /* Bordure hologramme */
 .hologram-border {
   box-shadow: 
-    inset 0 0 20px rgba(57, 255, 20, 0.1),
-    0 0 20px rgba(57, 255, 20, 0.2),
-    0 0 40px rgba(57, 255, 20, 0.1);
+    inset 0 0 20px rgba(112, 241, 139, 0.1),
+    0 0 20px rgba(112, 241, 139, 0.2),
+    0 0 40px rgba(112, 241, 139, 0.1);
 }
 
 /* Scan lines effect pour le menu */
 .scan-lines {
   background: repeating-linear-gradient(
     0deg,
-    rgba(57, 255, 20, 0.03) 0px,
-    rgba(57, 255, 20, 0.03) 1px,
+    rgba(112, 241, 139, 0.03) 0px,
+    rgba(112, 241, 139, 0.03) 1px,
     transparent 1px,
     transparent 2px
   );
@@ -292,7 +310,7 @@ html {
 .gaming-bottom-nav {
   box-shadow: 
     0 -4px 20px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(57, 255, 20, 0.2);
+    inset 0 1px 0 rgba(112, 241, 139, 0.2);
 }
 
 /* Item de navigation gaming */
@@ -314,22 +332,22 @@ html {
 
 /* Drop shadow néon */
 .drop-shadow-neon {
-  filter: drop-shadow(0 0 8px #39ff14) 
-          drop-shadow(0 0 12px #39ff1480);
+  filter: drop-shadow(0 0 8px #70f18b) 
+          drop-shadow(0 0 12px #70f18b80);
 }
 
 /* Text shadow néon */
 .text-shadow-neon {
-  text-shadow: 0 0 10px #39ff14, 
-               0 0 20px #39ff1480, 
-               0 0 30px #39ff1440;
+  text-shadow: 0 0 10px #70f18b, 
+               0 0 20px #70f18b80, 
+               0 0 30px #70f18b40;
 }
 
 /* Shadow néon glow */
 .shadow-neon-glow {
-  box-shadow: 0 0 10px #39ff14, 
-              0 0 20px #39ff1480, 
-              0 0 30px #39ff1440;
+  box-shadow: 0 0 10px #70f18b, 
+              0 0 20px #70f18b80, 
+              0 0 30px #70f18b40;
 }
 
 /* Animation brillance qui traverse (pour cards gaming) */
@@ -425,6 +443,10 @@ html {
    THÈME TAILWIND
    ============================================ */
 @theme inline {
+  /* Geist Sans/Mono chargées via next/font dans app/layout.tsx */
+  --font-sans: var(--font-geist-sans), "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -446,7 +468,10 @@ html {
   
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
+  --color-line: var(--line);
+  --color-panel: var(--panel);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -497,36 +522,36 @@ html {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(57, 255, 20, 0.65);
+  color: rgba(112, 241, 139, 0.65);
 }
 
 /* Inputs — fond sombre, focus subtil */
 .input-neon {
   background: rgba(5, 18, 10, 0.55) !important;
-  border-color: rgba(57, 255, 20, 0.12) !important;
+  border-color: rgba(112, 241, 139, 0.12) !important;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .input-neon:focus {
-  border-color: rgba(57, 255, 20, 0.38) !important;
-  box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.08) !important;
+  border-color: rgba(112, 241, 139, 0.38) !important;
+  box-shadow: 0 0 0 1px rgba(112, 241, 139, 0.08) !important;
   outline: none;
 }
 
 /* Bouton CTA — présence sans agressivité */
 .btn-neon-primary {
-  box-shadow: 0 2px 12px rgba(57, 255, 20, 0.12);
+  box-shadow: 0 2px 12px rgba(112, 241, 139, 0.12);
   transition: box-shadow 0.25s ease, transform 0.15s ease;
 }
 
 .btn-neon-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 20px rgba(57, 255, 20, 0.25), 0 0 40px rgba(57, 255, 20, 0.08);
+  box-shadow: 0 4px 20px rgba(112, 241, 139, 0.25), 0 0 40px rgba(112, 241, 139, 0.08);
   transform: translateY(-1px);
 }
 
 .btn-neon-primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 1px 8px rgba(57, 255, 20, 0.12);
+  box-shadow: 0 1px 8px rgba(112, 241, 139, 0.12);
 }
 
 /* ============================================
@@ -538,23 +563,430 @@ html {
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(13, 31, 20, 0.5);
-  border-left: 1px solid rgba(146, 204, 10, 0.1);
+  border-left: 1px solid rgba(112, 241, 139, 0.1);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(146, 204, 10, 0.3);
+  background: rgba(112, 241, 139, 0.3);
   border-radius: 4px;
   transition: background 0.2s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(146, 204, 10, 0.5);
+  background: rgba(112, 241, 139, 0.5);
 }
 
 /* Firefox */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(146, 204, 10, 0.3) rgba(13, 31, 20, 0.5);
+  scrollbar-color: rgba(112, 241, 139, 0.3) rgba(13, 31, 20, 0.5);
 }
 
+/* ============================================
+   DESIGN SYSTEM "BIOSYSTEM" — TYPOGRAPHIE & LAYOUT
+   Classes réutilisables par les sections bio-tech
+   (hero, bannières, titres de section). Modifier ici
+   pour répercuter un changement graphique partout.
+   ============================================ */
+
+/* Kicker au-dessus d'un titre (ex: "ÉLEVAGE RESPONSABLE") */
+.eyebrow {
+  margin: 0 0 22px;
+  color: var(--primary);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Grand titre condensé façon affiche (hero + bannières marketing) */
+.kinetic-title {
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(2.4rem, 6.6vw, 6.5rem);
+  font-weight: 900;
+  line-height: 0.83;
+  letter-spacing: -0.075em;
+}
+
+.kinetic-title span,
+.kinetic-title em {
+  display: block;
+  font-style: normal;
+}
+
+/* Ligne d'accent verte avec ombre "fantôme" en dégradé */
+.kinetic-title em {
+  color: var(--primary);
+  text-shadow: 0 11px 0 rgba(71, 255, 131, 0.07), 0 22px 0 rgba(71, 255, 131, 0.03);
+}
+
+/* Conteneur de section pleine largeur (fond + séparation) */
+.section {
+  padding: 100px clamp(22px, 6vw, 92px);
+  border-top: 1px solid var(--line);
+}
+
+/* En-tête de section: titre + lien "voir tout" optionnel */
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 42px;
+  flex-wrap: wrap;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.3rem, 4vw, 3.6rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--foreground);
+}
+
+.section-heading p:not(.eyebrow) {
+  margin: 12px 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.section-heading > a {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.section-heading > a span {
+  margin-left: 8px;
+  color: var(--secondary);
+}
+
+/* Styles du Banner déplacés dans components/layout/Header/banner.module.css (CSS Module colocalisé). */
+
+/* ============================================
+   NAVBAR / HEADER — classes partagées
+   Utilisées par Navbar (desktop), AnimalsDropdown et MobileAnimalsTree
+   pour éviter de dupliquer les mêmes utilitaires Tailwind dans chaque
+   composant. Modifier ici pour répercuter un changement sur toute la navbar.
+   ============================================ */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 2vw, 32px);
+  height: 74px;
+  padding-inline: clamp(20px, 3vw, 40px);
+  border-bottom: 1px solid var(--system-line);
+  background: rgba(5, 9, 7, 0.95);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+}
+
+.brand img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand strong {
+  display: block;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.brand small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2vw, 34px);
+}
+
+.desktop-nav > a,
+.desktop-nav > div > button,
+.desktop-nav .nav-link {
+  color: #cad2cc;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.desktop-nav a:hover,
+.desktop-nav button:hover,
+.desktop-nav .nav-link:hover,
+.desktop-nav .nav-link:focus-visible,
+.group:hover > .nav-link,
+.group:focus-within > .nav-link {
+  color: var(--primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.language-toggle {
+  border: 0;
+  background: transparent;
+  padding: 10px;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.language-toggle:hover,
+.language-toggle:focus-visible {
+  color: var(--primary);
+}
+
+.icon-button,
+.mobile-menu {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--foreground);
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible,
+.mobile-menu:hover,
+.mobile-menu:focus-visible {
+  border-color: rgba(112, 241, 139, 0.35);
+  background: rgba(112, 241, 139, 0.08);
+  color: var(--primary);
+}
+
+.header-link {
+  display: inline-grid;
+  place-items: center;
+}
+
+.cart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px 0 15px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(112, 241, 139, 0.05);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cart-button:hover,
+.cart-button:focus-visible {
+  border-color: rgba(112, 241, 139, 0.35);
+  background: rgba(112, 241, 139, 0.1);
+  color: var(--primary);
+}
+
+.cart-button-count {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #071309;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-link:hover,
+.account-link:focus-visible {
+  border-color: rgba(112, 241, 139, 0.35);
+  background: rgba(112, 241, 139, 0.08);
+  color: var(--primary);
+}
+
+.account-link-label {
+  color: inherit;
+}
+
+.account-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 0;
+  background: rgba(112, 241, 139, 0.12);
+  color: var(--primary);
+}
+
+.account-icon > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-menu {
+  display: none;
+  width: auto;
+  padding: 0 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Lien de nav principal (desktop) : typo + soulignement néon au survol/focus,
+   aussi bien pour un <Link> que pour le déclencheur <button> d'un sous-menu. */
+.nav-link {
+  position: relative;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  transition: color 0.2s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 1px;
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(112, 241, 139, 0.7);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible,
+.nav-link.active,
+.group:hover > .nav-link,
+.group:focus-within > .nav-link {
+  color: var(--primary);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link.active::after,
+.group:hover > .nav-link::after,
+.group:focus-within > .nav-link::after {
+  transform: scaleX(1);
+}
+
+/* Panneau flottant d'un sous-menu de navbar (ex: AnimalsDropdown) — masqué par
+   défaut, révélé au survol/focus du wrapper ".group" qui le contient. */
+.nav-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  z-index: 100;
+  visibility: hidden;
+  width: 31.25rem;
+  max-width: calc(100vw - 24px);
+  padding: 20px;
+  border: 1px solid rgba(112, 241, 139, 0.4);
+  background: rgba(0, 0, 0, 0.95);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px) scaleY(0.95);
+  transform-origin: top;
+  transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.2s ease;
+}
+
+.group:hover > .nav-dropdown-panel,
+.group:focus-within > .nav-dropdown-panel {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(12px) scaleY(1);
+}
+
+@media (max-width: 860px) {
+  .site-header {
+    height: 68px;
+    padding-inline: 16px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .header-actions .language-toggle,
+  .header-actions .cart-button-label,
+  .header-actions .account-link-label {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: inline-grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::after,
+  .nav-dropdown-panel {
+    transition: none;
+  }
+}
 

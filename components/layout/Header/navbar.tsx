@@ -6,24 +6,30 @@ import { useCartContext } from "@/context/CartContext"
 import { Search, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { AnimalsDropdown } from './AnimalsDropdown'
+import { NAV_LINKS } from './navLinks'
 
-/**
- * Avatar utilisateur pour la navbar - version ronde et petite
- */
 function NavbarUserAvatar() {
   const { isAuthenticated, isLoading } = useUserAvatar();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timeoutId = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
-  // Toujours afficher le skeleton pendant le SSR et jusqu'à l'hydration
   if (!mounted || isLoading) {
-    return <div className="w-9 h-9 rounded-full bg-primary/20 animate-pulse" />;
+    return (
+      <div className="account-link pointer-events-none">
+        <span className="account-icon">
+          <span className="h-full w-full animate-pulse bg-primary/20" />
+        </span>
+        <span className="account-link-label">Compte</span>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -32,41 +38,56 @@ function NavbarUserAvatar() {
         type="button"
         onClick={() => router.push("/login")}
         aria-label="Se connecter"
-        className="w-9 h-9 rounded-full flex items-center justify-center border-2 border-primary/50 hover:border-primary/80 bg-black/50 hover:bg-primary/10 transition-all hover:scale-110"
+        className="account-link"
       >
-        <User className="w-4 h-4 text-primary" />
+        <span className="account-icon">
+          <User className="h-4 w-4" />
+        </span>
+        <span className="account-link-label">Compte</span>
       </button>
     );
   }
 
   return (
-    <Link
-      href="/profile"
-      aria-label="Mon profil"
-      className="transition-transform hover:scale-110"
-    >
-      <UserAvatar
-        className="w-9 h-9 rounded-full border-2 border-primary-foreground/50 hover:border-primary/80 overflow-hidden flex items-center justify-center"
-        imageClassName="w-full h-full object-cover"
-        fallbackClassName="w-full h-full flex items-center justify-center font-bold text-xs"
-        width={36}
-        height={36}
-      />
+    <Link href="/profile" aria-label="Mon profil" className="account-link">
+      <span className="account-icon">
+        <UserAvatar
+          className="h-full w-full"
+          imageClassName="h-full w-full object-cover"
+          fallbackClassName="flex h-full w-full items-center justify-center text-[10px] font-bold"
+          width={28}
+          height={28}
+        />
+      </span>
+      <span className="account-link-label">Profil</span>
     </Link>
   );
 }
 
 function CartLink() {
   const { itemCount } = useCartContext();
+
   return (
-    <Link href="/cart" aria-label={`Panier (${itemCount} articles)`} className="relative">
-      <ShoppingCart className="w-6 h-6 icon-foreground icon-neon-hover" />
-      {itemCount > 0 && (
-        <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-primary rounded-full border-2 border-black gaming-badge">
-          {itemCount > 9 ? '9+' : itemCount}
-        </span>
-      )}
+    <Link href="/cart" aria-label={`Panier (${itemCount} articles)`} className="cart-button">
+      <ShoppingCart className="h-4 w-4" />
+      <span className="cart-button-label">Panier</span>
+      <span className="cart-button-count">{itemCount > 9 ? '9+' : itemCount}</span>
     </Link>
+  );
+}
+
+function LanguageToggle() {
+  const [lang, setLang] = useState<"FR" | "EN">("FR");
+
+  return (
+    <button
+      type="button"
+      onClick={() => setLang((current) => (current === "FR" ? "EN" : "FR"))}
+      aria-label="Changer de langue (affichage uniquement)"
+      className="language-toggle"
+    >
+      {lang}
+    </button>
   );
 }
 
@@ -74,7 +95,20 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const router = useRouter()
+  const pathname = usePathname()
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const isActiveLink = (href: string) => {
+    if (href === '/') {
+      return pathname === '/'
+    }
+
+    if (href === '/categories') {
+      return pathname === '/categories' || pathname.startsWith('/categories/')
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchValue.trim()) {
@@ -93,25 +127,41 @@ export function Navbar() {
   }
 
   return (
-    <nav aria-label="Navigation principale">
-      <div className="flex items-center justify-between w-full bg-black/30 backdrop-blur-lg px-6 py-3 border-b border-black/10 shadow-md">
-        <div className="flex-1" />
+    <nav aria-label="Navigation principale" className="w-full">
+      <div className="site-header">
+        <Link href="/" className="brand" aria-label="Mandibula, accueil">
+          <Image
+            src="/mandibula-logo.png"
+            alt=""
+            aria-hidden="true"
+            width={48}
+            height={48}
+            className="h-10 w-auto object-contain"
+            priority
+          />
+          <span className="grid leading-none">
+            <strong>MANDIBULA</strong>
+            <small>SYSTEM V.02.6</small>
+          </span>
+        </Link>
 
-        <div className="flex-1 flex justify-center">
-          <Link href="/">
-            <div className="w-12 h-12 flex items-center justify-center">
-              <Image
-                src="/logo_lg_neon.png"
-                alt="Mandibula"
-                width={50}
-                height={50}
-                className="w-auto h-auto max-w-12.5 max-h-12.5"
-              />
-            </div>
-          </Link>
+        <div className="desktop-nav">
+          {NAV_LINKS.map((link) => {
+            const active = isActiveLink(link.href)
+
+            return link.label === 'Animaux' ? (
+              <AnimalsDropdown key={link.label} active={active} />
+            ) : (
+              <Link key={link.label} href={link.href} className={`nav-link${active ? ' active' : ''}`}>
+                {link.label}
+              </Link>
+            )
+          })}
         </div>
 
-        <div className="flex-1 flex justify-end items-center gap-4">
+        <div className="header-actions">
+          <LanguageToggle />
+
           {isSearchOpen ? (
             <div className="flex items-center gap-2">
               <Input
@@ -123,38 +173,47 @@ export function Navbar() {
                 placeholder="Rechercher..."
                 autoFocus
                 aria-label="Rechercher dans le site"
-                className="w-50 px-4 py-2 rounded-md border-neon-glow"
+                className="w-40 border border-primary/20 bg-black/40 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground outline-none ring-0 focus:border-primary/50"
               />
               <button
+                type="button"
                 onClick={handleSearchSubmit}
                 aria-label="Valider la recherche"
-                className="p-2 hover:bg-primary/10 rounded transition-all"
+                className="icon-button header-link"
               >
-                <Search className="w-5 h-5 text-primary hover:text-primary/80" />
+                <Search className="h-4 w-4" />
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setIsSearchOpen(false)
                   setSearchValue("")
                 }}
                 aria-label="Fermer la recherche"
+                className="icon-button header-link"
               >
-                <X className="w-6 h-6 icon-foreground icon-neon-hover" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           ) : (
-            <button onClick={() => {
-              setIsSearchOpen(true)
-              setTimeout(() => searchInputRef.current?.focus(), 0)
-            }} aria-label="Recherche">
-              <Search className="w-6 h-6 icon-foreground icon-neon-hover" />
+            <button
+              type="button"
+              onClick={() => {
+                setIsSearchOpen(true)
+                setTimeout(() => searchInputRef.current?.focus(), 0)
+              }}
+              aria-label="Recherche"
+              className="icon-button header-link"
+            >
+              <Search className="h-4 w-4" />
             </button>
           )}
 
           <CartLink />
-
-          {/* Avatar utilisateur - version navbar (rond, petit) */}
           <NavbarUserAvatar />
+          <button type="button" className="mobile-menu" aria-label="Ouvrir le menu">
+            Menu
+          </button>
         </div>
       </div>
     </nav>

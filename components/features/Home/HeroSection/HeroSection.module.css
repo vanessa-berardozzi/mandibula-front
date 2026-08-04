@@ -1,0 +1,592 @@
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sonarPulse {
+  0%,
+  20% {
+    opacity: 0.18;
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.08;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+@keyframes sonarSweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sonarBlink {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.6);
+  }
+  48% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes scanMove {
+  0%,
+  100% {
+    transform: translateY(28px);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateY(310px);
+    opacity: 0.65;
+  }
+}
+
+/* Section pleine largeur, calquée sur la maquette (pas de conteneur max-w
+   séparé : le clamp() gère le padding, comme les autres sections de la home). */
+.hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--foreground);
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 32px;
+  padding: 70px clamp(22px, 7vw, 64px) 56px;
+  /* Variantes d'opacité dérivées de --primary : une seule source de vérité pour le vert,
+     pas de rgba() codé en dur qui pourrait diverger de la charte globale. */
+  --accent-border: color-mix(in srgb, var(--primary) 30%, transparent);
+  --accent-glow: color-mix(in srgb, var(--primary) 45%, transparent);
+  --accent-dim: var(--system-line);
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    min-height: 760px;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: 48px;
+    padding: 105px clamp(22px, 7vw, 110px) 70px;
+  }
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border: 1px solid var(--accent-dim);
+  pointer-events: none;
+  clip-path: polygon(
+    0 0,
+    12% 0,
+    12% 1px,
+    88% 1px,
+    88% 0,
+    100% 0,
+    100% 100%,
+    84% 100%,
+    84% calc(100% - 1px),
+    16% calc(100% - 1px),
+    16% 100%,
+    0 100%
+  );
+}
+
+/* ===== FOND JUNGLE + DÉGRADÉS DE CONTRASTE ===== */
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.hero-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 58% 42%, var(--accent-dim), transparent 2%),
+    linear-gradient(90deg, rgba(4, 8, 6, 0.82) 0%, rgba(4, 8, 6, 0.543) 18%, rgba(4, 8, 6, 0.506) 100%);
+}
+
+.hero-backdrop :global(img) {
+  filter: saturate(0.5) brightness(0.74) contrast(1.05);
+}
+
+/* Repères de coordonnées façon carte topographique, purement décoratifs */
+.hero-index {
+  position: absolute;
+  top: 28px;
+  left: 22px;
+  right: 22px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.hero-index span:last-child {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hero-index {
+    top: 48px;
+    left: clamp(22px, 7vw, 110px);
+    right: clamp(22px, 7vw, 110px);
+    font-size: 9px;
+  }
+
+  .hero-index span:last-child {
+    display: inline;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-title {
+  color: var(--foreground);
+}
+
+.hero-title span {
+  color: inherit;
+}
+
+.hero-title em {
+  color: var(--primary);
+}
+
+.hero-visual {
+  position: relative;
+  height: 400px;
+  overflow: visible;
+}
+
+@media (min-width: 768px) {
+  .hero-visual {
+    height: 470px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-visual {
+    height: 580px;
+  }
+}
+
+/* Panneau de fond */
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 82%;
+  height: 82%;
+  background: rgba(8, 18, 11, 0.35);
+  border: 1px solid var(--accent-border);
+}
+
+/* ===== BIO-SONAR ===== */
+.bio-sonar {
+  position: absolute;
+  z-index: 2;
+  left: -3%;
+  top: 2%;
+  width: min(280px, 62%);
+  aspect-ratio: 1;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle, var(--accent-dim), rgba(5, 12, 8, 0.82) 64%);
+  box-shadow: inset 0 0 60px var(--accent-dim), 0 0 35px var(--accent-dim);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .bio-sonar {
+    width: min(390px, 68%);
+  }
+}
+
+.sonar-ring,
+.sonar-axis,
+.sonar-sweep,
+.sonar-blip {
+  position: absolute;
+}
+
+.sonar-ring {
+  inset: 50%;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: sonarPulse 4.8s ease-out infinite;
+}
+
+.sonar-ring:nth-child(1) {
+  width: 28%;
+  height: 28%;
+}
+.sonar-ring:nth-child(2) {
+  width: 58%;
+  height: 58%;
+  animation-delay: 1.1s;
+}
+.sonar-ring:nth-child(3) {
+  width: 88%;
+  height: 88%;
+  animation-delay: 2.2s;
+}
+
+.sonar-axis {
+  background: var(--accent-dim);
+}
+
+.axis-x {
+  left: 6%;
+  right: 6%;
+  top: 50%;
+  height: 1px;
+}
+.axis-y {
+  top: 6%;
+  bottom: 6%;
+  left: 50%;
+  width: 1px;
+}
+
+.sonar-sweep {
+  inset: 6%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 294deg,
+    var(--accent-dim) 312deg,
+    var(--accent-glow) 359deg,
+    transparent 360deg
+  );
+  animation: sonarSweep 5s linear infinite;
+}
+
+.sonar-blip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 5px var(--primary), 0 0 14px var(--primary);
+  animation: sonarBlink 2.5s ease-in-out infinite;
+}
+
+.blip-a {
+  top: 27%;
+  right: 25%;
+}
+.blip-b {
+  bottom: 30%;
+  left: 20%;
+  animation-delay: 0.8s;
+}
+.blip-c {
+  bottom: 19%;
+  right: 40%;
+  animation-delay: 1.5s;
+}
+.blip-d {
+  top: 38%;
+  left: 28%;
+  animation-delay: 2.1s;
+}
+
+.sonar-readout {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  min-width: 120px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+}
+
+.sonar-readout span,
+.sonar-readout small {
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sonar-readout strong {
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 18px var(--accent-glow);
+}
+
+/* ===== SCAN LINE reliant le sonar à l'image ===== */
+.scan-line {
+  position: absolute;
+  z-index: 4;
+  left: 44%;
+  right: -2%;
+  height: 1px;
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+  animation: scanMove 5s ease-in-out infinite;
+}
+
+/* ===== SPECIMEN IMAGE ===== */
+.specimen-frame {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  border: 1px solid var(--accent-border);
+}
+
+.frame-one {
+  right: 1%;
+  bottom: 5%;
+  width: 55%;
+  height: 53%;
+  transform: translate(-13px, -13px);
+}
+
+.frame-two {
+  right: -3%;
+  bottom: 0;
+  width: 55%;
+  height: 53%;
+  transform: translate(13px, 13px);
+  opacity: 0.35;
+}
+
+@media (min-width: 1024px) {
+  .frame-one,
+  .frame-two {
+    width: 58%;
+    height: 58%;
+  }
+}
+
+.specimen-slides {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 2%;
+  width: 54%;
+  aspect-ratio: 1.05;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+@media (min-width: 1024px) {
+  .specimen-slides {
+    right: -2%;
+    width: min(330px, 58%);
+  }
+}
+
+.specimen-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: saturate(0.72) contrast(1.14) hue-rotate(7deg);
+  box-shadow: 18px 18px 0 var(--accent-dim), 0 0 0 1px var(--accent-border);
+  transform: scale(1.035);
+  transition: opacity 0.7s ease, transform 1.2s ease;
+  pointer-events: none;
+}
+
+.specimen-image.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== SPECIMEN CARD / DATA ===== */
+.specimen-card {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 22px;
+  width: 150px;
+  padding: 10px 12px;
+  background: rgba(4, 9, 6, 0.9);
+  border: 1px solid var(--accent-border);
+  backdrop-filter: blur(12px);
+}
+
+@media (min-width: 1024px) {
+  .specimen-card {
+    right: -42px;
+    bottom: 8px;
+  }
+}
+
+.specimen-card span {
+  display: block;
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.specimen-card strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.08;
+}
+
+.specimen-card small {
+  color: var(--muted-foreground);
+  font-size: 8px;
+}
+
+.specimen-data {
+  position: absolute;
+  z-index: 4;
+  left: 12px;
+  bottom: 28px;
+  display: grid;
+  gap: 5px;
+  color: color-mix(in srgb, var(--primary) 65%, var(--muted-foreground));
+  font-family: var(--font-mono, monospace);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+}
+
+@media (min-width: 1024px) {
+  .specimen-data {
+    left: 2px;
+  }
+}
+
+/* ===== PAGINATION (swipe tactile / clic) ===== */
+.specimen-dots {
+  position: absolute;
+  z-index: 6;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  gap: 7px;
+  padding: 8px;
+  background: rgba(4, 9, 6, 0.82);
+  border: 1px solid var(--accent-dim);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+}
+
+.hero-visual:hover .specimen-dots,
+.hero-visual:focus-within .specimen-dots {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.specimen-dots button {
+  width: 24px;
+  height: 3px;
+  padding: 0;
+  border: 0;
+  background: var(--accent-border);
+  cursor: pointer;
+  transition: background 0.25s ease, width 0.25s ease;
+}
+
+.specimen-dots button.active {
+  width: 38px;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-line,
+  .sonar-ring,
+  .sonar-sweep,
+  .sonar-blip {
+    animation: none;
+  }
+
+  .specimen-image {
+    transition: none;
+  }
+}
+
+.hero-content > * {
+  animation: fadeInUp 0.8s ease-out backwards;
+}
+
+.hero-content > :nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.hero-content > :nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.hero-content > :nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.hero-content > :nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+/* Liste des garanties, typo monospace façon maquette (propre au Hero, pas de
+   doublon avec une classe globale) */
+.guarantees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 11px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guarantees li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.guarantees li span {
+  color: var(--primary);
+}

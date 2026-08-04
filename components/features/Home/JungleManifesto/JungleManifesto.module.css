@@ -1,0 +1,121 @@
+.jungle-manifesto {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 40px;
+  min-height: 44rem;
+  isolation: isolate;
+}
+
+@media (min-width: 1024px) {
+  .jungle-manifesto {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.jungle-manifesto__backdrop {
+  z-index: -3;
+  object-fit: cover;
+  filter: saturate(0.6) contrast(1.05);
+}
+
+.jungle-manifesto__scrim {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(90deg, rgba(2, 8, 7, 0.93) 0%, rgba(2, 10, 8, 0.6) 55%, rgba(2, 9, 7, 0.35) 100%);
+  pointer-events: none;
+}
+
+.jungle-manifesto__overlay {
+  z-index: -1;
+  object-fit: cover;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.jungle-manifesto__tag {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.jungle-manifesto__text {
+  max-width: 34rem;
+  margin: 22px 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+
+.jungle-manifesto__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  max-width: 720px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.jungle-manifesto__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.jungle-manifesto__link span {
+  color: var(--secondary);
+}
+
+.jungle-manifesto__data {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  justify-self: start;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  .jungle-manifesto__data {
+    justify-self: end;
+    align-self: end;
+    text-align: right;
+  }
+}
+
+.jungle-manifesto__data span,
+.jungle-manifesto__data small {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.4375rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.jungle-manifesto__data strong {
+  margin: 7px 0;
+  color: var(--primary);
+  font: 900 3.625rem/1 "Arial Black", Arial, sans-serif;
+  letter-spacing: -0.06em;
+}
+

@@ -1,4 +1,4 @@
-import { BottomNav, Footer, Header, Sidebar, SidebarContent, SidebarProvider } from "@/components/layout"
+import { BottomNav, Footer, Header } from "@/components/layout"
 
 export default function MainLayout({
 	children,
@@ -8,12 +8,9 @@ export default function MainLayout({
 	modal: React.ReactNode
 }) {
 	return (
-		<SidebarProvider>
+		<>
 			<Header />
-			<Sidebar>
-				<SidebarContent />
-			</Sidebar>
-			{/* Zone principale : même colonne flex que le gap sidebar → s'aligne automatiquement */}
+			{/* Zone principale : plus de sidebar, navigation entièrement portée par la navbar */}
 			<div className="flex flex-col flex-1 min-h-svh">
 				<div className="flex-1 pt-24 md:pt-32 pb-20 md:pb-0">
 					{children}
@@ -24,7 +21,7 @@ export default function MainLayout({
 				<BottomNav />
 			</div>
 			{modal}
-		</SidebarProvider>
+		</>
 	)
 }
 

@@ -48,3 +48,9 @@ Repository: mandibula-front (Next.js App Router, TypeScript, Tailwind, shadcn/ui
 - Make small, focused diffs.
 - Run lint for touched areas before finalizing.
 - Do not refactor unrelated files in the same change.
+-Do not run server by our own, it's already running in the dev environment.
+
+## Graphical goals:
+
+-We want to recreate visually the same interface as the client's maquet ( https://mandibula.darkmalekith94.chatgpt.site/) but with my architecture and components. The goal is to have a clean, maintainable codebase that matches the client's design while leveraging our existing UI primitives and architecture.
+I want clean code, with a clear separation of concerns, and to avoid unnecessary complexity. The focus should be on reusability and consistency across the application.
