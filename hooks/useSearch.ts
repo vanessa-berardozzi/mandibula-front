@@ -22,23 +22,21 @@ export interface SearchResult {
  * @returns Résultats de recherche, état de chargement et erreurs
  */
 export function useSearch(query: string, limit: number = 12): SearchResult {
+  const normalizedQuery = query.trim();
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setProducts([]);
-      setTotal(0);
-      setError(null);
+    if (!normalizedQuery) {
       return;
     }
 
     setIsLoading(true);
     setError(null);
 
-    fetch(`/api/products?search=${encodeURIComponent(query)}&limit=${limit}`)
+    fetch(`/api/products?search=${encodeURIComponent(normalizedQuery)}&limit=${limit}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -52,7 +50,11 @@ export function useSearch(query: string, limit: number = 12): SearchResult {
         setProducts([]);
       })
       .finally(() => setIsLoading(false));
-  }, [query, limit]);
+  }, [normalizedQuery, limit]);
+
+  if (!normalizedQuery) {
+    return { products: [], total: 0, isLoading: false, error: null };
+  }
 
   return { products, total, isLoading, error };
 }

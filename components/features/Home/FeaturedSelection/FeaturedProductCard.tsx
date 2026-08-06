@@ -1,13 +1,12 @@
 "use client";
 
 import { useCartContext } from "@/context/CartContext";
-import { useFavorites } from "@/hooks/useFavorites";
-import { Check, Heart, Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import styles from "./FeaturedSelection.module.css";
+import styles from "./FeaturedProductCard.module.css";
 
 interface FeaturedProductCardProps {
   index: number;
@@ -17,12 +16,10 @@ interface FeaturedProductCardProps {
   imageUrl?: string;
   href: string;
   variantId?: string;
-  productId?: string;
   priority?: boolean;
   categoryName?: string;
 }
 
-// Carte produit thème clair, fidèle à la maquette (fond blanc, prix + ajout panier).
 export function FeaturedProductCard({
   index,
   title,
@@ -31,18 +28,14 @@ export function FeaturedProductCard({
   imageUrl,
   href,
   variantId,
-  productId,
   priority = false,
   categoryName,
 }: FeaturedProductCardProps) {
   const isInStock = stock > 0;
   const { addItem } = useCartContext();
-  const { isFavorite, toggle } = useFavorites();
 
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
-
-  const wishlisted = productId ? isFavorite(productId) : false;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,28 +51,15 @@ export function FeaturedProductCard({
     setIsAdding(false);
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (productId) toggle(productId);
-  };
-
   return (
-    <Link href={href} className={styles["product-card"]}>
+    <article className={styles["product-card"]}>
       <span className={styles["product-category-chip"]}>
         <i />
-        {categoryName ?? "Espèce"}
+        {categoryName ?? "Specimen"}
       </span>
-      <button
-        onClick={handleWishlist}
-        className={styles["product-card-node"]}
-        data-active={wishlisted}
-        aria-label={wishlisted ? "Retirer de la wishlist" : "Ajouter à la wishlist"}
-      >
-        <Heart className="h-3.5 w-3.5" fill={wishlisted ? "currentColor" : "none"} />
-      </button>
+      <span className={styles["product-card-node"]} aria-hidden="true">◇</span>
 
-      <div className={styles["product-image"]}>
+      <Link href={href} className={styles["product-image"]} aria-label={title}>
         {imageUrl && (
           <Image
             src={imageUrl}
@@ -90,11 +70,13 @@ export function FeaturedProductCard({
             priority={priority}
           />
         )}
-      </div>
+      </Link>
 
       <div className={styles["product-info"]}>
-        <p>U-{String(index + 1).padStart(2, "0")} / {categoryName ?? "Espèce"}</p>
-        <h3>{title}</h3>
+        <p>U-{String(index + 1).padStart(2, "0")} / {categoryName ?? "Specimen"}</p>
+        <h3>
+          <Link href={href}>{title}</Link>
+        </h3>
         <div className={styles["product-bottom"]}>
           <span>
             <small>DÈS</small>
@@ -113,6 +95,6 @@ export function FeaturedProductCard({
           )}
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

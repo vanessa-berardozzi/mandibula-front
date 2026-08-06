@@ -40,14 +40,14 @@ export function BottomNav() {
   const navItems = [
     { id: 'home',       icon: Home,         label: 'Accueil',    action: 'link'  as const, href: '/' },
     { id: 'categories', icon: Bug,          label: 'Catégories', action: 'link'  as const, href: '/categories' },
-    { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const, handler: openSearch },
+    { id: 'search',     icon: Search,       label: 'Recherche',  action: 'modal' as const },
     { id: 'cart',       icon: ShoppingCart, label: 'Panier',     action: 'link'  as const, href: '/cart', badge: itemCount },
     { id: 'profile',    icon: User,         label: 'Profil',     action: 'link'  as const, href: session?.user ? '/profile' : '/login' },
   ];
 
   const handleClick = (item: (typeof navItems)[number]) => {
-    if (item.action === 'modal' && 'handler' in item) {
-      item.handler();
+    if (item.action === 'modal') {
+      openSearch()
     } else if (item.action === 'link' && 'href' in item) {
       router.push(item.href);
     }

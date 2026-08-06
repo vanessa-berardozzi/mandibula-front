@@ -602,7 +602,7 @@ function CheckoutContent() {
             </p>
           </div>
           <p className="text-xs text-muted-foreground/60 mt-3 font-mono">
-            Aucune donnée bancaire n'est stockée sur nos serveurs
+            Aucune donnée bancaire n&apos;est stockée sur nos serveurs
           </p>
         </div>
       </div>

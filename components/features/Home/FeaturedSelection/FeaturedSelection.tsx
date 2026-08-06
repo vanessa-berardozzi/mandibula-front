@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -28,7 +27,7 @@ interface ProductsResponse {
   data: ApiProduct[];
 }
 
-// Section "Sélection du moment" — met en avant 4 espèces disponibles (thème clair, fidèle à la maquette).
+
 export function FeaturedSelection() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,23 +44,16 @@ export function FeaturedSelection() {
   }, []);
 
   return (
-    <section className={styles["featured-selection"]}>
-      <Image
-        src="/cyber-fern.png"
-        alt=""
-        aria-hidden="true"
-        width={220}
-        height={220}
-        className={styles["featured-selection__leaf"]}
-      />
-
+    <section id="selection" className={styles["featured-selection"]}>
       <div className={styles["featured-selection__heading"]}>
-        <div>
-          <p className="eyebrow">MODULE U-02 / Catalogue 2026</p>
+        <div className={styles["featured-selection__heading-content"]}>
+          <p className={`${styles["featured-selection__eyebrow"]} eyebrow`}>MODULE U-02 / CATALOGUE 2026</p>
           <h2>Sélection du moment</h2>
-          <p>Quatre espèces emblématiques, disponibles dès maintenant dans notre élevage.</p>
+          <div className={styles["featured-selection__subline"]}>
+            <p>Quatre animaux choisis dans nos élevages. La sélection évolue chaque heure.</p>
+          </div>
         </div>
-        <Link href="/categories">
+        <Link href="/categories" className={styles["featured-selection__cta"]}>
           Voir tous les animaux <span>→</span>
         </Link>
       </div>
@@ -80,10 +72,9 @@ export function FeaturedSelection() {
               title={product.name}
               price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
               stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
-              imageUrl={product.images[0]}
+              imageUrl={product.images[0] ?? "/boite.png"}
               href={`/product/${product.id}`}
               variantId={defaultVariant?.id}
-              productId={product.id}
               priority={index < 2}
               categoryName={product.category?.name}
             />

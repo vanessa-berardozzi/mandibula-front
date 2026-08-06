@@ -1,72 +1,105 @@
 .featured-selection {
   position: relative;
   overflow: hidden;
-  padding: 68px clamp(22px, 6vw, 92px);
-  background: #f1f1eb;
-  color: #111713;
+  padding: 92px clamp(22px, 6vw, 92px) 72px;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.4);
+  background:
+    linear-gradient(90deg, rgba(1, 7, 4, 0.96), rgba(1, 8, 4, 0.58) 52%, rgba(1, 7, 4, 0.9)),
+    radial-gradient(circle at 50% 26%, rgba(71, 255, 131, 0.2), transparent 29%),
+    url("/mandibula-jungle.png") center 42% / cover no-repeat;
+  color: #edf4ef;
+  box-shadow: inset 0 1px 0 rgba(71, 255, 131, 0.12);
 }
 
+.featured-selection .featured-selection__eyebrow,
 .featured-selection :global(.eyebrow) {
-  color: #188f3d;
-}
-
-.featured-selection__leaf {
-  position: absolute;
-  top: 10px;
-  left: 0;
-  width: clamp(120px, 14vw, 220px);
-  height: auto;
-  opacity: 0.14;
-  pointer-events: none;
-  mix-blend-mode: multiply;
+  margin: 0 0 22px;
+  color: #47ff83 !important;
+  font-family: monospace !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
 }
 
 .featured-selection__heading {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1180px) minmax(160px, 1fr);
   align-items: end;
-  justify-content: space-between;
-  gap: 30px;
+  gap: 28px;
   margin-bottom: 28px;
-  flex-wrap: wrap;
 }
 
-.featured-selection__heading h2 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.3rem, 4vw, 3.6rem);
-  font-weight: 400;
-  letter-spacing: -0.03em;
-  color: #111713;
+.featured-selection__heading-content {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  max-width: 1180px;
+  justify-self: center;
 }
 
-.featured-selection__heading p:not(.eyebrow) {
-  margin: 12px 0 0;
-  max-width: 32rem;
-  color: #657068;
-  font-size: 0.875rem;
+.featured-selection__subline {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
 }
 
-.featured-selection__heading > a {
+.featured-selection__cta {
+  grid-column: 3;
+  justify-self: end;
+  align-self: end;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #243029;
-  color: #111713;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.34);
+  color: #47ff83;
+  font-family: monospace;
   font-size: 0.6875rem;
   font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-.featured-selection__heading > a span {
+.featured-selection__cta span {
   margin-left: 8px;
-  color: #20d765;
+  color: #47ff83;
+}
+
+.featured-selection__heading h2 {
+  margin: 0;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(42px, 5.8vw, 82px);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: #edf4ef;
+  white-space: nowrap;
+  text-wrap: nowrap;
+  width: max-content;
+  max-width: none;
+  align-self: flex-start;
+}
+
+.featured-selection__heading p:not(.eyebrow) {
+  margin: 0;
+  max-width: 620px;
+  color: #829187;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .featured-selection__empty {
   position: relative;
   z-index: 1;
-  color: #657068;
+  color: #829187;
   font-family: var(--font-mono, monospace);
   font-size: 0.8rem;
   text-align: center;
@@ -81,8 +114,55 @@
   gap: 12px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1000px) {
   .featured-selection__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+@media (max-width: 760px) {
+  .featured-selection {
+    padding: 66px 18px 54px;
+  }
+
+  .featured-selection__heading {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .featured-selection__heading-content {
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    grid-column: auto;
+  }
+
+  .featured-selection__subline {
+    margin-top: 10px;
+  }
+
+  .featured-selection__cta {
+    grid-column: auto;
+    justify-self: start;
+    align-self: start;
+  }
+
+  .featured-selection__heading h2 {
+    font-size: clamp(35px, 11vw, 49px);
+    line-height: 0.92;
+  }
+
+  .featured-selection__heading p:not(.eyebrow) {
+    font-size: 13px;
+  }
+
+}
+
+@media (max-width: 620px) {
+  .featured-selection {
+    padding: 58px 18px 50px;
+  }
+
 }
