@@ -1,13 +1,41 @@
 .signal-ticker {
   position: relative;
+  z-index: 8;
   overflow: hidden;
+  width: 100%;
+  color: #041007;
   border-top: 1px solid #8affad;
   border-bottom: 1px solid #8affad;
   background:
     repeating-linear-gradient(90deg, transparent 0 48px, rgba(4, 16, 7, 0.16) 49px 50px),
     linear-gradient(90deg, #37e873, var(--primary) 48%, #37e873);
   box-shadow: 0 0 18px rgba(71, 255, 131, 0.2), inset 0 1px rgba(255, 255, 255, 0.3);
-  padding: 10px 0;
+}
+
+.signal-ticker::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  width: 90px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(236, 255, 241, 0.5), transparent);
+  mix-blend-mode: screen;
+  animation: ticker-scan 4.5s linear infinite;
+}
+
+.signal-ticker::after {
+  content: "DATA.FLOW // LIVE";
+  position: absolute;
+  z-index: 5;
+  right: 12px;
+  top: 3px;
+  padding: 2px 5px;
+  background: #041007;
+  color: var(--primary);
+  font: 6px/1 monospace;
+  letter-spacing: 0.08em;
 }
 
 @keyframes ticker-scroll {
@@ -20,72 +48,89 @@
 }
 
 @keyframes ticker-scan {
-  0% {
-    left: -20%;
+  from {
+    transform: translateX(-110px);
   }
-  100% {
-    left: 120%;
+  to {
+    transform: translateX(100vw);
   }
 }
 
 @keyframes data-flow {
-  from {
-    background-position: 0 0;
-  }
   to {
-    background-position: -200px 0;
+    transform: translateX(-50%);
   }
 }
 
 .signal-data-flow {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  opacity: 0.2;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #06220f 0px,
-    #06220f 1px,
-    transparent 1px,
-    transparent 18px
-  );
+  display: flex;
+  align-items: flex-end;
+  width: max-content;
+  opacity: 0.25;
+  color: #06220f;
+  font: 6px/1 monospace;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
   animation: data-flow 11s linear infinite reverse;
   pointer-events: none;
 }
 
+.signal-data-flow span {
+  padding-right: 80px;
+}
+
 .signal-ticker-track {
+  position: relative;
+  z-index: 3;
   display: flex;
   width: max-content;
   animation: ticker-scroll 28s linear infinite;
+  will-change: transform;
 }
 
 .signal-ticker-group {
   display: flex;
+  align-items: center;
+  gap: 28px;
   flex-shrink: 0;
-  padding-right: 48px;
+  min-height: 36px;
+  padding-right: 28px;
   color: #041007;
-  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font: 900 10px/1 "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.05em;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
-.signal-scan {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-  background: linear-gradient(90deg, transparent, rgba(236, 255, 241, 0.5), transparent);
-  mix-blend-mode: screen;
-  animation: ticker-scan 4.5s ease-in-out infinite;
-  pointer-events: none;
+.signal-ticker-group b {
+  font-size: 12px;
+}
+
+.signal-ticker-group i {
+  font-style: normal;
+  font-size: 7px;
+}
+
+@media (max-width: 760px) {
+  .signal-ticker-group {
+    min-height: 31px;
+    gap: 20px;
+    padding-right: 20px;
+    font-size: 8px;
+  }
+
+  .signal-ticker::after {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .signal-ticker-track,
   .signal-data-flow,
-  .signal-scan {
+  .signal-ticker::before {
     animation: none;
   }
 }
