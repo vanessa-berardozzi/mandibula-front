@@ -3,83 +3,138 @@
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr;
-  align-items: center;
-  gap: 40px;
-  min-height: 44rem;
+  align-items: end;
+  gap: 2.5rem;
+  min-height: 30rem;
+  padding: clamp(3rem, 6vw, 4.75rem);
+  border-block: 1px solid rgba(112, 241, 139, 0.35);
+  color: #eef7f0;
+  background:
+    linear-gradient(90deg, rgba(3, 9, 6, 0.94) 0%, rgba(3, 9, 6, 0.56) 52%, rgba(3, 9, 6, 0.2) 100%),
+    url("/mandibula-jungle.png") center 56% / cover no-repeat;
   isolation: isolate;
+}
+
+.jungle-manifesto::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 48%, rgba(112, 241, 139, 0.2), transparent 25%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.12), transparent 45%);
+  pointer-events: none;
+}
+
+.jungle-manifesto::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -45px;
+  height: 170px;
+  z-index: -1;
+  background: url("/mandibula-jungle.png") center bottom / cover no-repeat;
+  filter: saturate(1.2) contrast(1.15);
+  opacity: 0.72;
+  mask-image: linear-gradient(to top, #000 30%, transparent);
+  pointer-events: none;
 }
 
 @media (min-width: 1024px) {
   .jungle-manifesto {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1.2fr) auto;
+    gap: 3rem;
   }
+}
+
+.jungle-manifesto__grid {
+  position: absolute;
+  inset: 22px;
+  z-index: -1;
+  border: 1px solid rgba(112, 241, 139, 0.22);
+  background:
+    url("/topographic-neon.png") 112% center/64% auto no-repeat,
+    linear-gradient(rgba(112, 241, 139, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(112, 241, 139, 0.045) 1px, transparent 1px);
+  background-size: 64% auto, 42px 42px, 42px 42px;
+  mask-image: linear-gradient(90deg, #000, rgba(0, 0, 0, 0.72) 52%, #000);
+  pointer-events: none;
 }
 
 .jungle-manifesto__backdrop {
   z-index: -3;
   object-fit: cover;
-  filter: saturate(0.6) contrast(1.05);
-}
-
-.jungle-manifesto__scrim {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: linear-gradient(90deg, rgba(2, 8, 7, 0.93) 0%, rgba(2, 10, 8, 0.6) 55%, rgba(2, 9, 7, 0.35) 100%);
-  pointer-events: none;
+  filter: saturate(0.7) contrast(1.08) brightness(0.78);
 }
 
 .jungle-manifesto__overlay {
   z-index: -1;
   object-fit: cover;
-  opacity: 0.16;
+  opacity: 0.22;
   mix-blend-mode: screen;
   pointer-events: none;
-}
-
-.jungle-manifesto__tag {
-  display: block;
-  margin-bottom: 16px;
-  color: var(--primary);
-  font-family: var(--font-mono, monospace);
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.jungle-manifesto__text {
-  max-width: 34rem;
-  margin: 22px 0 0;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-  line-height: 1.75;
 }
 
 .jungle-manifesto__content {
   position: relative;
   z-index: 1;
   display: flex;
-  max-width: 720px;
+  max-width: 43rem;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 0.35rem;
+}
+
+.jungle-manifesto__title {
+  margin: 1.1rem 0 1.5rem;
+  font: 900 clamp(3rem, 6.3vw, 5.5rem) / 0.88 "Arial Black", Arial, sans-serif;
+  letter-spacing: -0.065em;
+  text-shadow: 0 3px 30px rgba(0, 0, 0, 0.55);
+}
+
+.jungle-manifesto__title span,
+.jungle-manifesto__title em {
+  display: block;
+  font-style: normal;
+}
+
+.jungle-manifesto__title em {
+  color: var(--primary);
+}
+
+.jungle-manifesto__tag {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.jungle-manifesto__text {
+  max-width: 34rem;
+  margin: 1.2rem 0 0;
+  color: rgba(213, 231, 220, 0.92);
+  font-size: 0.95rem;
+  line-height: 1.75;
 }
 
 .jungle-manifesto__link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
+  gap: 0.6rem;
+  margin-top: 1.3rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(112, 241, 139, 0.3);
   color: var(--primary);
   font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .jungle-manifesto__link span {
@@ -90,8 +145,13 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 12px;
   justify-self: start;
+  gap: 0.7rem;
+  min-width: min(16rem, 100%);
+  padding: 1.4rem 1.35rem;
+  border: 1px solid rgba(112, 241, 139, 0.22);
+  background: rgba(4, 13, 10, 0.72);
+  backdrop-filter: blur(12px);
   text-align: left;
 }
 
@@ -105,17 +165,17 @@
 
 .jungle-manifesto__data span,
 .jungle-manifesto__data small {
-  color: var(--muted-foreground);
+  color: rgba(213, 231, 220, 0.7);
   font-family: var(--font-mono, monospace);
-  font-size: 0.4375rem;
-  letter-spacing: 0.12em;
+  font-size: 0.46rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .jungle-manifesto__data strong {
-  margin: 7px 0;
+  margin: 0.2rem 0;
   color: var(--primary);
-  font: 900 3.625rem/1 "Arial Black", Arial, sans-serif;
+  font: 900 3.85rem/0.95 "Arial Black", Arial, sans-serif;
   letter-spacing: -0.06em;
 }
 

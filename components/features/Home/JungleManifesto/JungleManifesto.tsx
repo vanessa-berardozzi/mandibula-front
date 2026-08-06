@@ -7,6 +7,8 @@ import styles from "./JungleManifesto.module.css";
 export function JungleManifesto() {
   return (
     <section className={`section ${styles["jungle-manifesto"]}`} aria-label="Guides d'élevage et tutoriels Mandibula">
+      <div className={styles["jungle-manifesto__grid"]} aria-hidden="true" />
+
       {/* Fond jungle + grille topographique en overlay, purement décoratifs */}
       <Image
         src="/mandibula-jungle.png"
@@ -25,7 +27,7 @@ export function JungleManifesto() {
 
       <div className={styles["jungle-manifesto__content"]}>
         <span className={styles["jungle-manifesto__tag"]}>Mandibula Academy / 04</span>
-        <h2 className="kinetic-title">
+        <h2 className={`kinetic-title ${styles["jungle-manifesto__title"]}`}>
           <span>Élever, c&apos;est</span>
           <em>comprendre.</em>
         </h2>
@@ -39,11 +41,11 @@ export function JungleManifesto() {
         </Link>
       </div>
 
-      <div className={styles["jungle-manifesto__data"]} aria-hidden="true">
+      <aside className={styles["jungle-manifesto__data"]} aria-hidden="true">
         <span>Academy / Online</span>
         <strong>08</strong>
         <small>Guides disponibles</small>
-      </div>
+      </aside>
     </section>
   );
 }
