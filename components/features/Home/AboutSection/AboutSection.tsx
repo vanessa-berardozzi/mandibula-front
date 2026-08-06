@@ -10,15 +10,16 @@ const VALUES: [string, string][] = [
   ["Accompagnement réel", "Des conseils personnalisés avant et après l'achat, par des passionnés."],
 ];
 
-// Section "Qui sommes-nous" — présentation de l'équipe et des valeurs (thème clair).
 export function AboutSection() {
   const gallery = defaultHeroSpecimens.slice(0, 3);
 
   return (
-    <section className={styles["about"]}>
+    <section className={styles["about"]} id="qui-nous-sommes">
+      <div className={styles["about__leaves"]} aria-hidden="true" />
+
       <div className={styles["about__copy"]}>
-        <p className="eyebrow">Notre équipe</p>
-        <h2 className={styles["about__title"]}>Qui sommes-nous</h2>
+        <p className="eyebrow">Notre écosystème / depuis le Luxembourg</p>
+        <h2 className={styles["about__title"]}>Qui nous sommes.</h2>
         <p className={styles["about__lead"]}>
           Mandibula est né d&apos;une passion pour les invertébrés exotiques, portée par des éleveurs
           qui refusent de choisir entre exigence scientifique et accessibilité.
@@ -51,7 +52,7 @@ export function AboutSection() {
           <figure key={item.code} className={`${styles["about__photo"]} ${styles[`about__photo-${index + 1}`]}`}>
             <Image src={item.image} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
             <figcaption>
-              <span>Élevage Mandibula</span>
+              <span>Élevé chez Mandibula</span>
               <strong>{item.name}</strong>
               <small>{item.variety}</small>
             </figcaption>
