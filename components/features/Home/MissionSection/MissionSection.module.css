@@ -3,9 +3,32 @@
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  background: var(--primary);
-  color: var(--primary-foreground);
+  gap: 28px;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--primary) 94%, transparent),
+      color-mix(in srgb, var(--primary) 78%, transparent)
+    ),
+    url("/mandibula-jungle.png") center 72% / cover no-repeat;
+  color: #08110a;
+}
+
+.mission::after {
+  content: "RESPONSABILITÉ";
+  position: absolute;
+  right: -15px;
+  bottom: -22px;
+  color: rgba(5, 9, 7, 0.08);
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: clamp(70px, 12vw, 180px);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+.mission > * {
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
@@ -16,32 +39,36 @@
 }
 
 .mission :global(.eyebrow) {
-  color: var(--primary-foreground);
-  opacity: 0.7;
+  color: #176a2e;
+}
+
+.mission__heading {
+  max-width: 37rem;
 }
 
 .mission__title {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(2.3rem, 4vw, 3.6rem);
-  font-weight: 400;
-  letter-spacing: -0.03em;
-  color: var(--primary-foreground);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: #08110a;
 }
 
 .mission__content {
   position: relative;
   z-index: 1;
   display: flex;
-  max-width: 640px;
+  max-width: 590px;
   flex-direction: column;
-  gap: 22px;
+  gap: 0;
   align-self: end;
 }
 
 .mission__text {
-  margin: 0;
-  color: rgba(7, 19, 9, 0.82);
+  margin: 0 0 28px;
+  color: rgba(8, 17, 10, 0.9);
   font-size: 1rem;
   line-height: 1.75;
 }
@@ -50,17 +77,30 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(7, 19, 9, 0.4);
-  color: var(--primary-foreground);
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 800;
+  width: fit-content;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #0d3918;
+  color: #08110a;
+  font-family: monospace;
+  font-size: 0.6875rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 .mission__link span {
-  color: var(--background);
+  color: inherit;
+}
+
+@media (max-width: 767px) {
+  .mission {
+    gap: 35px;
+  }
+
+  .mission::after {
+    right: -8px;
+    bottom: -10px;
+    font-size: 64px;
+  }
 }
 
