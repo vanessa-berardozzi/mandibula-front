@@ -13,10 +13,10 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Accueil", href: "/" },
   { label: "Animaux", href: "/categories/animaux-vivants" },
   { label: "Accessoires", href: "/categories/accessoires" },
-  { label: "Bijoux", href: "/categories" },
+  { label: "Bijoux", href: "/categories/bijoux" },
   { label: "Nourriture", href: "/categories/nourriture" },
   { label: "Packs d’élevage", href: "/categories/packs-kits" },
-  { label: "Substrats", href: "/categories" },
+  { label: "Substrats", href: "/categories/substrats" },
 ];
 
 // Liens secondaires (pages éditoriales) — affichés en mobile uniquement, comme dans la maquette
