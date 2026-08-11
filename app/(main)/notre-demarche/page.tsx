@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function NotreDemarchePage() {
   return (
-    <main>
+    <main className="inner-page">
       <EditorialHero />
       <ValuesGrid />
       <ManifestoQuote />

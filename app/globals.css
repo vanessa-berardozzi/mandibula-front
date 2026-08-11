@@ -630,6 +630,165 @@ body {
   border-top: 1px solid var(--line);
 }
 
+.inner-page {
+  min-height: 100vh;
+  background: #090e0b;
+}
+
+.editorial-hero {
+  min-height: 690px;
+  padding: 120px clamp(22px, 8vw, 125px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid var(--system-line);
+  background:
+    radial-gradient(circle at 82% 46%, rgba(44, 173, 92, 0.14), transparent 31%),
+    linear-gradient(90deg, rgba(3, 9, 6, 0.94), rgba(3, 9, 6, 0.64)),
+    url("/mandibula-jungle.png") center / cover no-repeat !important;
+}
+
+.editorial-hero h1 {
+  margin: 0;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(3.3rem, 8.3vw, 7.2rem);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: #f5f7f2;
+}
+
+.editorial-hero > p:last-child {
+  max-width: 680px;
+  margin: 30px 0 0;
+  color: #c8d2cb;
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  color: #111713;
+  background:
+    radial-gradient(circle at 9% 28%, rgba(37, 124, 71, 0.12), transparent 24%),
+    radial-gradient(circle at 91% 76%, rgba(37, 124, 71, 0.1), transparent 25%),
+    linear-gradient(rgba(7, 12, 9, 0.78), rgba(7, 12, 9, 0.86)),
+    url("/mandibula-jungle.png") center / cover fixed no-repeat !important;
+}
+
+.values-grid article {
+  display: flex;
+  min-height: 620px;
+  flex-direction: column;
+  padding: 58px clamp(30px, 3.2vw, 52px) 46px;
+  border-right: 1px solid rgba(220, 255, 229, 0.35);
+}
+
+.values-grid article:last-child {
+  border-right: 0;
+}
+
+.values-grid span {
+  color: #188f3d;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.values-grid h2 {
+  min-height: 118px;
+  margin: 54px 0 20px;
+  color: #f3f7f4;
+  font-family: Georgia, serif;
+  font-size: clamp(1.95rem, 2.8vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.02;
+  text-shadow: 0 0 22px rgba(71, 255, 131, 0.08);
+}
+
+.values-grid strong {
+  display: block;
+  max-width: 390px;
+  margin-bottom: 22px;
+  color: #e5ede7;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.values-grid p {
+  margin: 0 0 17px;
+  color: #bdc9c0;
+  font-size: 0.95rem;
+  line-height: 1.78;
+}
+
+.values-grid small {
+  display: block;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(71, 255, 131, 0.18);
+  color: #47ff83;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1050px) {
+  .values-grid {
+    grid-template-columns: 1fr;
+    background-attachment: scroll !important;
+  }
+
+  .values-grid article {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid rgba(220, 255, 229, 0.35);
+  }
+
+  .values-grid article:last-child {
+    border-bottom: 0;
+  }
+
+  .values-grid h2 {
+    min-height: 0;
+    margin-top: 42px;
+  }
+
+  .values-grid strong,
+  .values-grid p {
+    max-width: 760px;
+  }
+
+  .values-grid small {
+    margin-top: 16px;
+  }
+}
+
+.nd-manifesto,
+.manifesto {
+  padding: 110px 8vw;
+  background: var(--primary);
+  color: #071009;
+}
+
+.nd-manifesto p,
+.manifesto p {
+  margin: 0;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(54px, 8.6vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.075em;
+  line-height: 0.86;
+  text-transform: none;
+}
+
 /* En-tête de section: titre + lien "voir tout" optionnel */
 .section-heading {
   display: flex;

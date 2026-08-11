@@ -1,14 +1,27 @@
 .values-grid {
   display: grid;
-  background: #edf0e9;
+  background: linear-gradient(180deg, #f5f7f2 0%, #eef2ea 100%);
   color: #111713;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .values-grid__item {
-  min-height: 340px;
-  padding: 55px 40px;
-  border-right: 1px solid #d4dad4;
+  position: relative;
+  min-height: 380px;
+  padding: clamp(36px, 4vw, 58px) clamp(28px, 4vw, 44px);
+  border-right: 1px solid rgba(17, 23, 19, 0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.values-grid__item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(112, 241, 139, 0.06), transparent 60%);
+  pointer-events: none;
 }
 
 .values-grid__item:last-child {
@@ -16,22 +29,49 @@
 }
 
 .values-grid__code {
+  position: relative;
   color: #2aad4f;
   font-size: 0.65rem;
   font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .values-grid__title {
-  margin: 55px 0 18px;
+  position: relative;
+  margin: 42px 0 16px;
   font-family: Georgia, serif;
-  font-size: 1.7rem;
+  font-size: clamp(1.7rem, 2.7vw, 2.2rem);
   font-weight: 400;
+  line-height: 1.05;
+}
+
+.values-grid__lead {
+  position: relative;
+  margin: 0 0 16px;
+  color: #19391f;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .values-grid__text {
-  margin: 0;
-  color: #657068;
-  line-height: 1.75;
+  position: relative;
+  margin: 0 0 24px;
+  color: #5f6c64;
+  line-height: 1.8;
+}
+
+.values-grid__footer {
+  position: relative;
+  margin-top: auto;
+  color: #2aad4f;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 900px) {
@@ -42,7 +82,7 @@
   .values-grid__item {
     min-height: auto;
     border-right: 0;
-    border-bottom: 1px solid #d4dad4;
+    border-bottom: 1px solid rgba(17, 23, 19, 0.12);
   }
 
   .values-grid__item:last-child {
@@ -50,6 +90,6 @@
   }
 
   .values-grid__title {
-    margin-top: 30px;
+    margin-top: 28px;
   }
 }

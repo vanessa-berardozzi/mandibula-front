@@ -1,5 +1,4 @@
 import { defaultApproachValues, type ApproachValue } from "./values.mock";
-import styles from "./ValuesGrid.module.css";
 
 interface ValuesGridProps {
   values?: ApproachValue[];
@@ -8,12 +7,16 @@ interface ValuesGridProps {
 // Rupture éditoriale claire (fidèle à la maquette) : 3 piliers de la démarche Mandibula.
 export function ValuesGrid({ values = defaultApproachValues }: ValuesGridProps) {
   return (
-    <section className={styles["values-grid"]}>
+    <section className="values-grid">
       {values.map((value) => (
-        <article key={value.code} className={styles["values-grid__item"]}>
-          <span className={styles["values-grid__code"]}>{value.code}</span>
-          <h2 className={styles["values-grid__title"]}>{value.title}</h2>
-          <p className={styles["values-grid__text"]}>{value.description}</p>
+        <article key={value.code}>
+          <span>{value.code}</span>
+          <h2>{value.title}</h2>
+          <strong>{value.lead}</strong>
+          {value.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+          <small>{value.footer}</small>
         </article>
       ))}
     </section>
