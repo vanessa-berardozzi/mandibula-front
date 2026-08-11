@@ -94,7 +94,19 @@
   border: 1px solid rgba(120, 180, 0, 0.56);
   background: rgba(1, 9, 4, 0.72);
   color: #83b900;
-  font: 14px/1 monospace;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.product-card-node:hover {
+  border-color: rgba(71, 255, 131, 0.72);
+  color: #47ff83;
+}
+
+.product-card-node[data-active="true"] {
+  border-color: rgba(71, 255, 131, 0.82);
+  background: rgba(71, 255, 131, 0.14);
+  color: #47ff83;
 }
 
 .product-image {

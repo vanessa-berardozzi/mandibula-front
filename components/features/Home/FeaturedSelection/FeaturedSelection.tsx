@@ -74,6 +74,7 @@ export function FeaturedSelection() {
               stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
               imageUrl={product.images[0] ?? "/boite.png"}
               href={`/product/${product.id}`}
+              productId={product.id}
               variantId={defaultVariant?.id}
               priority={index < 2}
               categoryName={product.category?.name}
