@@ -17,6 +17,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Nourriture", href: "/categories/nourriture" },
   { label: "Packs d’élevage", href: "/categories/packs-kits" },
   { label: "Substrats", href: "/categories/substrats" },
+  { label: "Guides & tutoriels", href: "/guides" },
 ];
 
 // Liens secondaires (pages éditoriales) — affichés en mobile uniquement, comme dans la maquette

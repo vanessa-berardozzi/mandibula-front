@@ -1,0 +1,99 @@
+.hero {
+	position: relative;
+	display: flex;
+	min-height: min(78svh, 760px);
+	align-items: center;
+	overflow: hidden;
+	padding: clamp(88px, 10vw, 132px) clamp(24px, 7vw, 96px);
+	border-bottom: 1px solid var(--line);
+	background: #071309;
+}
+
+.hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background: url("/mandibula-jungle.png") center 45% / cover no-repeat;
+	filter: saturate(0.62) contrast(1.04);
+	transform: scale(1.02);
+	pointer-events: none;
+}
+
+.hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	background: linear-gradient(90deg, rgba(2, 8, 7, 0.96), rgba(2, 8, 7, 0.52));
+	pointer-events: none;
+}
+
+.content {
+	position: relative;
+	z-index: 2;
+	max-width: 100%;
+}
+
+.title {
+	max-width: 80rem;
+	margin: 0;
+	font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+	font-size: clamp(3.3rem, 8.3vw, 7.2rem);
+	font-weight: 900;
+	line-height: 0.86;
+	letter-spacing: -0.06em;
+	color: #f5f7f2;
+}
+
+.description {
+	max-width: 30rem;
+	margin: 35px 0 0;
+	color: #b2beb6;
+	font-size: 1rem;
+	line-height: 1.75;
+}
+
+.stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 38px;
+	margin-top: 38px;
+}
+
+.stat {
+	color: #a7b5ac;
+	font-size: 0.625rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.statValue {
+	display: block;
+	margin-bottom: 4px;
+	color: #47ff83;
+	font-family: Georgia, serif;
+	font-size: 1.7rem;
+	font-weight: 400;
+	line-height: 1;
+}
+
+@media (max-width: 860px) {
+	.hero {
+		min-height: 390px;
+		padding: 70px 20px 55px;
+	}
+
+	.title {
+		font-size: clamp(2.8rem, 10vw, 4.8rem);
+	}
+
+	.description {
+		font-size: 0.98rem;
+	}
+
+	.stats {
+		gap: 22px;
+		margin-top: 30px;
+	}
+}
