@@ -1,10 +1,12 @@
 'use client';
 
-import { TradingProductCard } from '@/components/features/TradingProductCard';
+import { ProductGallery } from '@/components/features/ProductGallery';
 import { Button } from '@/components/ui/button';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
 import { Check, ShoppingCart } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -31,37 +33,82 @@ interface ApiProduct {
   variants: ProductVariant[];
 }
 
-// ── Composants utilitaires ───────────────────────────────────────────────────
+interface ProductsResponse {
+  data: ApiProduct[];
+}
 
-function Section({
-  title,
-  children,
-  variant = 'default',
-}: {
-  title: string;
-  children: React.ReactNode;
-  variant?: 'default' | 'premium';
-}) {
-  return (
-    <div
-      className={`p-3 backdrop-blur-sm border rounded-sm ${
-        variant === 'premium'
-          ? 'bg-card/30 border-primary/60 shadow-[0_0_20px_rgba(202,226,197,0.3)]'
-          : 'bg-card/20 border-primary/40'
-      }`}
-      style={{
-        clipPath: `polygon(${variant === 'premium' ? '20px' : '15px'} 0, 100% 0, 100% calc(100% - ${variant === 'premium' ? '20px' : '15px'}), calc(100% - ${variant === 'premium' ? '20px' : '15px'}) 100%, 0 100%, 0 ${variant === 'premium' ? '20px' : '15px'})`,
-      }}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <h2 className="text-sm md:text-base font-bold text-foreground uppercase tracking-tight flex items-center gap-2 flex-1">
-          <span className="w-1 h-3.5 bg-primary" />
-          {title}
-        </h2>
-      </div>
-      {children}
-    </div>
-  );
+//Todo: rendre les catégories dynamiques.
+const livingCategories = new Set([
+  'Araignées',
+  'Ardentiella',
+  'Autres isopodes',
+  'Blattes',
+  'Collemboles',
+  'Coléoptères',
+  'Cubaris',
+  'Laureola',
+  'Mantes',
+  'Myriapodes',
+  'Porcellio',
+  'Troglodillo',
+]);
+
+function productDetails(product: Pick<ApiProduct, 'name' | 'category'>) {
+  const normalizedName = product.name.toLocaleLowerCase('fr');
+  const isBoost = normalizedName.includes('boost') || normalizedName.includes('protein.exe');
+  const isSubstrate = product.category?.name === 'Substrats' || normalizedName.includes('substrat');
+
+  if (product.category && livingCategories.has(product.category.name)) {
+    return {
+      badge: 'Élevé chez Mandibula',
+      reassurance: [
+        'Garantie arrivée en vie',
+        'Expédition adaptée à la météo',
+        "Conseils d'élevage après achat",
+      ],
+    };
+  }
+
+  if (isBoost) {
+    return {
+      badge: 'Créé et produit dans nos locaux',
+      reassurance: [
+        'Formule développée chez Mandibula',
+        'Produit dans nos locaux',
+        "Conseils d'utilisation inclus",
+      ],
+    };
+  }
+
+  if (isSubstrate) {
+    return {
+      badge: 'Recette développée et testée dans nos locaux',
+      reassurance: [
+        'Recette développée chez Mandibula',
+        'Testé dans nos élevages',
+        'Conseils de mise en place inclus',
+      ],
+    };
+  }
+
+  return {
+    badge: 'Sélectionné par Mandibula',
+    reassurance: [
+      'Produit contrôlé avant expédition',
+      'Emballage adapté et soigné',
+      "Conseils d'utilisation après achat",
+    ],
+  };
+}
+
+function descriptionValue(description: string | null, labels: string[]) {
+  const lines = (description ?? '').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const line = lines.find((item) => labels.some((label) => item.toLocaleLowerCase('fr').startsWith(label)));
+  return line?.replace(/^[^:]+:\s*/, '').replace(/[🌡️💧💡🎯]/gu, '').trim() || null;
+}
+
+function firstText(...values: unknown[]) {
+  return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0) ?? null;
 }
 
 // ── Page principale ──────────────────────────────────────────────────────────
@@ -81,14 +128,28 @@ export default function ProductDetailPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<ApiProduct[]>([]);
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/products/${id}`)
-      .then((res) => {
-        if (res.status === 404) { setNotFound(true); return null; }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<ApiProduct>;
+    Promise.all([
+      fetch(`/api/products/${id}`),
+      fetch('/api/products?limit=100'),
+    ])
+      .then(async ([productResponse, productsResponse]) => {
+        if (productResponse.status === 404) { setNotFound(true); return null; }
+        if (!productResponse.ok) throw new Error(`HTTP ${productResponse.status}`);
+        const productData = await productResponse.json() as ApiProduct;
+
+        if (productsResponse.ok) {
+          const productsData = await productsResponse.json() as ProductsResponse;
+          const candidates = productsData.data.filter((item) => (
+            item.id !== productData.id && item.images.length > 0 && item.variants.length > 0
+          ));
+          setRelatedProducts(candidates.sort(() => Math.random() - 0.5).slice(0, 4));
+        }
+
+        return productData;
       })
       .then((data) => {
         if (data) {
@@ -154,112 +215,89 @@ export default function ProductDetailPage() {
     contenance?: string;
     [key: string]: unknown;
   } | null;
-  const isAnimal = attrs?.type === 'animal';
   const price = selectedVariant ? parseFloat(selectedVariant.price) : parseFloat(product.price);
   const stock = selectedVariant ? selectedVariant.stock - (selectedVariant.reservedStock ?? 0) : 0;
+  const details = productDetails(product);
+  const overview = firstText(
+    attrs?.presentation,
+    descriptionValue(product.description, ['présentation']),
+    product.description,
+  );
+  const technicalFacts = [
+    ['ORIGINE', firstText(attrs?.origine, descriptionValue(product.description, ['origine']))],
+    ['TEMPÉRATURE', firstText(attrs?.temperature, descriptionValue(product.description, ['température']))],
+    ['HUMIDITÉ', firstText(attrs?.humidite, descriptionValue(product.description, ['humidité', 'hygrométrie']))],
+    ['NIVEAU', firstText(attrs?.niveau, descriptionValue(product.description, ['niveau de difficulté', 'niveau']))],
+  ].filter((fact): fact is [string, string] => Boolean(fact[1]));
+  const carePanels = [
+    ['ALIMENTATION', firstText(attrs?.alimentation, descriptionValue(product.description, ['alimentation', 'alimentations']))],
+    ['COMPLÉMENTS', firstText(attrs?.complements, descriptionValue(product.description, ['compléments']))],
+    ['CONSEIL MANDIBULA', firstText(
+      Array.isArray(attrs?.conseils) ? attrs.conseils.join(' ') : null,
+      descriptionValue(product.description, ['conseil', 'conseils']),
+    )],
+    ['COMPOSITION', firstText(
+      Array.isArray(attrs?.caracteristiques) ? attrs.caracteristiques.join(' ') : null,
+      descriptionValue(product.description, ['composition']),
+    )],
+  ].filter((panel): panel is [string, string] => Boolean(panel[1]));
 
   return (
-    <main className="min-h-screen pb-8">
-      <div className="w-full px-4 md:px-8 pt-4 space-y-6">
+    <main className="min-h-screen bg-[#070c09] pb-8 text-[#edf4ef]">
+      <div className="w-full space-y-6">
 
         {/* ── LIGNE HAUTE : Visuel (gauche) + Panier & Conditionnement (droite) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start max-w-4xl mx-auto">
+        <div
+          className="grid grid-cols-1 items-start gap-8 px-5 pb-20 pt-12 text-[#edf4ef] md:grid-cols-[1.08fr_.92fr] md:gap-[clamp(35px,6vw,90px)] md:px-[clamp(20px,7vw,110px)] md:pt-17.5"
+          style={{
+            background:
+              'radial-gradient(circle at 9% 28%, rgba(37,124,71,.12), transparent 24%), radial-gradient(circle at 91% 76%, rgba(37,124,71,.1), transparent 25%), linear-gradient(rgba(7,12,9,.78), rgba(7,12,9,.86)), url("/mandibula-jungle.png") center / cover fixed no-repeat',
+          }}
+        >
 
           {/* ── GAUCHE : Visuel produit avec panneau décoratif ── */}
-          <div 
-            className="relative w-full p-6 md:p-8 border border-primary/40 overflow-hidden"
-            style={{ 
-              clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)',
-              background: 'linear-gradient(135deg, rgba(12, 20, 15, 0.85) 0%, rgba(8, 15, 12, 0.90) 50%, rgba(5, 12, 10, 0.85) 100%)',
-            }}
-          >
-            {/* Image de fond : fougères tropicales */}
-            <div
-              className="absolute inset-0 opacity-15"
-              style={{
-                backgroundImage: 'url(/v2_watermarked-bd8c3858-1193-4765-8f08-eedc315b524e-removebg-preview.png)',
-                backgroundSize: '150%',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-              }}
-            />
-
-            {/* Vignette douce */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                boxShadow: 'inset 0 0 80px rgba(0, 0, 0, 0.4)',
-              }}
-            />
-            
-            {/* Indicateurs top */}
-            <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(146,204,10,0.6)]" />
-              <div className="w-2 h-2 rounded-full bg-primary/40" />
-              <div className="w-2 h-2 rounded-full bg-primary/40" />
-            </div>
-            
-            <div className="absolute top-3 right-3 font-mono text-xs text-primary/70 uppercase tracking-widest z-10">
-              ID: {product.id.slice(0, 8)}
-            </div>
-
-            {/* Ligne décorative avec effet néon */}
-            <div className="absolute top-10 left-0 right-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent shadow-[0_0_4px_rgba(146,204,10,0.4)]" />
-
-            {/* Carte centrée */}
-            <div className="relative flex items-center justify-center pt-8 z-10">
-              <div className="w-full max-w-70 mx-auto">
-                <TradingProductCard
-                  title={product.name}
-                  price={price}
-                  stock={stock}
-                  imageUrl={product.images[0] ?? '/boite.png'}
-                  href={`/product/${product.id}`}
-                  variantId={selectedVariant?.id}
-                  productId={product.id}
-                  categorySlug={product.category?.slug}
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Label catégorie en bas */}
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-              <span className="font-mono text-xs text-primary/50 uppercase tracking-wider">
-                {product.category?.name ?? 'Spécimen'}
-              </span>
-              <span className="font-mono text-xs text-primary/70 uppercase tracking-wider">
-                {stock > 0 ? `${stock} en stock` : 'Épuisé'}
-              </span>
-            </div>
+          <div className="w-full justify-self-center xl:max-w-155">
+            <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           {/* ── DROITE : Titre + Prix + Conditionnement + Panier ── */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 pt-1 md:pt-6">
             {/* Titre & Prix */}
             <div>
-              <p className="text-xs font-mono text-primary/50 uppercase tracking-widest mb-1">
+              <p className="mb-1 font-mono text-xs uppercase tracking-[0.18em] text-primary">
                 {product.category?.name ?? 'Produit'}
               </p>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight">
-                {product.name}
+              <h1 className="flex flex-wrap items-baseline gap-x-3 gap-y-2 font-sans text-[clamp(43px,5vw,70px)] font-black uppercase leading-[0.95] tracking-[-0.055em] text-[#f0f5f1]">
+                <span>{product.name}</span>
+                {stock === 0 && (
+                  <span className="inline-flex items-center border border-[#c33b3b]/60 bg-[#3a1515] px-2.5 py-2 align-middle font-mono text-[10px] font-extrabold tracking-widest text-[#ff9e9e]">
+                    Épuisé
+                  </span>
+                )}
               </h1>
-              <p className="text-2xl font-black text-primary font-mono mt-1">
+              <p className="mt-5.5 font-mono text-xl font-extrabold text-primary">
                 {price.toFixed(2)}€
               </p>
+              <p className="mt-5 inline-flex w-fit items-center border border-primary/35 bg-primary/10 px-2.5 py-2 font-mono text-[10px] font-black uppercase tracking-[0.08em] text-primary">
+                <span className="mr-2 inline-block h-1.75 w-1.75 rounded-full bg-primary shadow-[0_0_8px_#70f18b]" />
+                {details.badge}
+              </p>
+              
             </div>
 
             {/* Dropdown conditionnement */}
             {product.variants.length > 1 && (
-              <Section title="Conditionnement">
+              <div className="mt-4 grid gap-2.5 font-mono text-[10px] font-black uppercase tracking-[0.08em] text-[#829187]">
+                <label htmlFor="product-variant">Choisir une variante</label>
                 <div className="relative">
                   <select
+                    id="product-variant"
                     value={selectedVariant?.id ?? ''}
                     onChange={(e) => {
                       const v = product.variants.find((v) => v.id === e.target.value);
                       if (v) { setSelectedVariant(v); setQuantity(1); }
                     }}
-                    className="w-full appearance-none bg-card/40 border border-primary/40 text-foreground text-xs font-mono uppercase tracking-wider px-3 py-2 pr-8 rounded-sm focus:outline-none focus:border-primary focus:shadow-[0_0_8px_rgba(202,226,197,0.3)] transition-all cursor-pointer"
+                    className="w-full cursor-pointer appearance-none border border-primary/20 bg-[#080e0a] px-3 py-3 pr-8 font-mono text-xs uppercase tracking-wider text-[#dfe9e2] transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {product.variants.map((v) => {
                       const vAvailableStock = v.stock - (v.reservedStock ?? 0);
@@ -268,7 +306,7 @@ export default function ProductDetailPage() {
                           key={v.id}
                           value={v.id}
                           disabled={vAvailableStock === 0}
-                          className="bg-card text-foreground"
+                          className="bg-[#080e0a] text-[#dfe9e2]"
                         >
                           {v.name} — {parseFloat(v.price).toFixed(2)}€{vAvailableStock === 0 ? ' (épuisé)' : ''}
                         </option>
@@ -282,21 +320,21 @@ export default function ProductDetailPage() {
                     </svg>
                   </div>
                 </div>
-              </Section>
+              </div>
             )}
 
             {/* Bloc panier */}
             <div
-              className="p-3 backdrop-blur-sm border bg-card/30 border-primary/60 shadow-[0_0_20px_rgba(202,226,197,0.3)]"
+              className="mt-5 border border-primary/35 bg-[#080e0a] p-4 shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
               style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}
             >
               {/* Quantité */}
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Qté</span>
+                <span className="font-mono text-xs uppercase tracking-wider text-[#829187]">Qté</span>
                 <div className="flex items-center gap-1">
                   <Button
                     variant="outline" size="icon"
-                    className="h-7! w-7! border-primary/50"
+                    className="h-7! w-7! border-primary/35 bg-transparent text-[#edf4ef]"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +344,7 @@ export default function ProductDetailPage() {
                   <span className="w-8 text-center font-bold text-primary text-sm font-mono">{quantity}</span>
                   <Button
                     variant="outline" size="icon"
-                    className="h-7! w-7! border-primary/50"
+                    className="h-7! w-7! border-primary/35 bg-transparent text-[#edf4ef]"
                     onClick={() => setQuantity(Math.min(stock, quantity + 1))}
                     disabled={quantity >= stock}
                   >
@@ -315,7 +353,7 @@ export default function ProductDetailPage() {
                     </svg>
                   </Button>
                 </div>
-                <span className={`ml-auto text-xs font-mono ${stock > 0 ? 'text-primary/60' : 'text-destructive/70'}`}>
+                <span className={`ml-auto font-mono text-xs ${stock > 0 ? 'text-primary' : 'text-[#ff9e9e]'}`}>
                   {stock > 0 ? `${stock} dispo` : 'Épuisé'}
                 </span>
               </div>
@@ -325,10 +363,10 @@ export default function ProductDetailPage() {
                 disabled={isAdding || stock === 0}
                 className={`w-full py-2 text-xs font-black uppercase tracking-widest transition-all ${
                   added
-                    ? 'bg-primary/30 text-primary shadow-[0_0_25px_rgba(202,226,197,0.6)]'
+                    ? 'bg-primary text-[#050907]'
                     : stock === 0
                     ? 'opacity-50 cursor-not-allowed'
-                    : 'shadow-[0_0_15px_rgba(202,226,197,0.4)] hover:shadow-[0_0_30px_rgba(202,226,197,0.6)]'
+                    : 'bg-primary text-[#050907] shadow-[7px_7px_0_rgba(71,255,131,.12)] hover:bg-[#99ffaa]'
                 }`}
               >
                 {isAdding ? (
@@ -341,113 +379,148 @@ export default function ProductDetailPage() {
               </Button>
 
               {stockError && (
-                <p className="text-xs text-red-400 font-mono text-center animate-pulse">{stockError}</p>
+                <p className="text-center font-mono text-xs text-red-600 motion-safe:animate-pulse">{stockError}</p>
               )}
 
               <div className="pt-2 mt-2 border-t border-primary/30 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">Total</span>
-                <span className="font-black text-primary font-mono">{(price * quantity).toFixed(2)}€</span>
+                <span className="font-mono text-xs uppercase tracking-wider text-[#829187]">Total</span>
+                <span className="font-mono font-black text-primary">{(price * quantity).toFixed(2)}€</span>
               </div>
+            </div>
+            <div className="grid grid-cols-1 gap-2.5 pt-2 text-[9px] uppercase tracking-[0.06em] text-[#9aa59e] sm:grid-cols-3">
+              {details.reassurance.map((item) => (
+                <span key={item} className="leading-4">
+                  <span className="mr-1.5 text-primary">✓</span>
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* ── LIGNE BASSE : Description & Attributs (pleine largeur) ── */}
-        <div className="space-y-4 max-w-4xl mx-auto">
-          {/* Description */}
-          {product.description && (
-            <Section title="À propos">
-              <p className="text-base text-muted-foreground leading-relaxed">{product.description}</p>
-            </Section>
-          )}
+        <section
+          className="border-t border-primary/20 px-5 py-16 md:px-[clamp(20px,7vw,110px)] md:py-22.5"
+          style={{
+            background: 'linear-gradient(rgba(5,12,8,.93), rgba(5,12,8,.97)), url("/mandibula-jungle.png") center / cover fixed',
+          }}
+        >
+          <header className="mb-8 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
+            <div>
+              <p className="mb-3 font-mono text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary">
+                DOSSIER ESPÈCE / RÉF. {product.id.slice(0, 8)}
+              </p>
+              <h2 className="font-sans text-[clamp(35px,5vw,62px)] font-black uppercase leading-[0.95] tracking-[-0.055em] text-[#edf4ef]">
+                Données d’élevage
+              </h2>
+            </div>
+            <span className="border border-primary/25 px-3 py-2 font-mono text-[8px] font-bold tracking-[0.13em] text-[#8ca095]">
+              <i className="mr-2 inline-block h-1.75 w-1.75 rounded-full bg-primary shadow-[0_0_11px_#70f18b]" />
+              SYSTÈME ACTIF
+            </span>
+          </header>
 
-          {/* Attributs animaux */}
-          {isAnimal && (
-            <>
-              <Section title="Conditions d'élevage" variant="premium">
-                <div className="grid grid-cols-2 gap-2 text-base">
-                  {attrs?.temperature && (
-                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Température</span>
-                      <span className="text-foreground">{String(attrs.temperature)}</span>
-                    </div>
-                  )}
-                  {attrs?.humidite && (
-                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Humidité</span>
-                      <span className="text-foreground">{String(attrs.humidite)}</span>
-                    </div>
-                  )}
-                  {attrs?.substrat && (
-                    <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Substrat</span>
-                      <span className="text-foreground">{String(attrs.substrat)}</span>
-                    </div>
-                  )}
-                  {attrs?.alimentation && (
-                    <div className="col-span-2 flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Alimentation</span>
-                      <span className="text-foreground">{String(attrs.alimentation)}</span>
-                    </div>
-                  )}
-                  {attrs?.origine && (
-                    <div className="flex flex-col gap-0.5 p-2 bg-primary/5 border border-primary/15 rounded-sm">
-                      <span className="text-xs font-mono text-primary/50 uppercase tracking-wider">Origine</span>
-                      <span className="text-foreground">{String(attrs.origine)}</span>
-                    </div>
-                  )}
-                  {attrs?.wc && (
-                    <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-sm">
-                      <span className="text-xs text-amber-400 font-mono uppercase">Wild-Caught</span>
-                    </div>
-                  )}
-                </div>
-              </Section>
+          <div className="grid gap-3 xl:grid-cols-[1.15fr_1fr]">
+            <article className="relative flex min-h-82.5 flex-col justify-between overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-7 md:p-14">
+              <span className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-primary">00 / PRÉSENTATION</span>
+              <p className="relative z-10 mt-14 max-w-190 font-serif text-[clamp(19px,2.2vw,29px)] leading-[1.55] text-[#d7e2da]">
+                {overview }
+              </p>
+              <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background:repeating-linear-gradient(0deg,transparent_0_5px,rgba(71,255,131,.25)_6px)]" />
+              <span className="absolute right-3 top-3 h-5 w-5 border-r border-t border-primary" />
+            </article>
 
-              {Array.isArray(attrs?.conseils) && (attrs.conseils as string[]).length > 0 && (
-                <Section title="💡 Conseils d'élevage">
-                  <ul className="space-y-2">
-                    {(attrs.conseils as string[]).map((tip, i) => (
-                      <li key={i} className="flex gap-2 text-base text-muted-foreground p-2 bg-primary/5 border border-primary/15 rounded-sm leading-relaxed">
-                        <span className="text-primary/70 shrink-0 mt-0.5">▸</span>
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-            </>
-          )}
+            {technicalFacts.length > 0 && (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {technicalFacts.map(([label, value], index) => (
+                  <article key={label} className="flex min-h-39.75 flex-col justify-between overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-6">
+                    <span className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-primary">0{index + 1} / {label}</span>
+                    <strong className="text-[clamp(15px,1.5vw,21px)] leading-[1.35] text-[#e5eee8]">{value}</strong>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>                                                                                  
 
-          {/* Attributs accessoires */}
-          {!isAnimal && attrs && (
-            <>
-              {Array.isArray(attrs.caracteristiques) && (
-                <Section title="Caractéristiques" variant="premium">
-                  <ul className="space-y-2">
-                    {(attrs.caracteristiques as string[]).map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-base text-muted-foreground leading-relaxed">
-                        <span className="text-primary mt-0.5">▸</span>
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-              {Array.isArray(attrs.contenu) && (attrs.contenu as string[]).length > 0 && (
-                <Section title="Contenu du kit">
-                  <ul className="space-y-1">
-                    {(attrs.contenu as string[]).map((c, i) => (
-                      <li key={i} className="flex items-start gap-2 text-base text-muted-foreground">
-                        <span className="text-primary/70">▸</span><span>{c}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-            </>
+          {carePanels.length > 0 && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {carePanels.map(([title, text], index) => (
+                <article key={title} className="relative min-h-52.5 overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-6">
+                  <span className="font-sans text-[34px] font-black leading-none text-primary/40">0{index + 1}</span>
+                  <h3 className="mt-7 mb-3 font-mono text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">{title}</h3>
+                  <p className="text-[13px] leading-[1.65] text-[#91a197]">{text}</p>
+                  <span className="absolute right-3 top-3 h-5 w-5 border-r border-t border-primary" />
+                </article>
+              ))}
+            </div>
           )}
-        </div>
+        </section>
+
+        {relatedProducts.length > 0 && (
+          <section className="border-t border-primary/20 bg-[#0a0f0c] px-5 pb-24 pt-16 md:px-[clamp(20px,7vw,110px)] md:pb-28 md:pt-22.5">
+            <div className="mb-8 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
+              <div>
+                <p className="mb-3 font-mono text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary">
+                  LOADOUT RECOMMANDÉ / COMPATIBILITÉ
+                </p>
+                <h2 className="font-sans text-[clamp(35px,5vw,62px)] font-black uppercase leading-[0.95] tracking-[-0.055em] text-[#edf4ef]">
+                  Compléter l’élevage
+                </h2>
+                <p className="mt-4 max-w-162.5 text-sm leading-[1.6] text-[#87978d]">
+                  Tout le nécessaire pour accompagner l’élevage de cette espèce.
+                </p>
+              </div>
+              <Link
+                href="/categories"
+                className="border-b border-primary/45 pb-1.5 font-mono text-[10px] font-extrabold uppercase text-[#cad7ce] transition hover:text-primary"
+              >
+                Voir toute la boutique <span className="ml-2 text-primary">↗</span>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {relatedProducts.map((related, index) => {
+                const relatedPrice = Math.min(
+                  ...related.variants
+                    .map((variant) => Number.parseFloat(variant.price))
+                    .filter((value) => value > 0),
+                );
+                return (
+                  <Link
+                    href={`/product/${related.id}`}
+                    key={related.id}
+                    className="group min-w-0 border border-primary/20 bg-[#080d0a] transition hover:-translate-y-1 hover:border-primary/65 hover:shadow-[0_18px_45px_rgba(0,0,0,.32),0_0_24px_rgba(71,255,131,.07)]"
+                  >
+                    <div className="relative aspect-[1.2] overflow-hidden border-b border-primary/20 bg-[#101711]">
+                      <Image
+                        src={related.images[0]}
+                        alt={related.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        className="object-cover transition duration-500 group-hover:scale-[1.04]"
+                      />
+                      <span className="absolute left-4 top-4 z-10 bg-[#040a06]/85 px-2 py-1.5 font-mono text-[7px] font-extrabold tracking-[0.13em] text-primary">
+                        LINK 0{index + 1}
+                      </span>
+                      <span className="pointer-events-none absolute inset-2.5 border border-primary/15" />
+                    </div>
+                    <div className="p-5">
+                      <small className="font-mono text-[8px] font-extrabold uppercase tracking-[0.13em] text-[#718078]">
+                        {related.category?.name ?? 'Produit'}
+                      </small>
+                      <h3 className="mt-2 min-h-12 font-serif text-xl leading-[1.2] text-[#edf4ef]">
+                        {related.name}
+                      </h3>
+                      <strong className="mt-5 flex justify-between gap-2 border-t border-primary/15 pt-3.5 font-mono text-[11px] leading-[1.2] text-primary">
+                        Dès {Number.isFinite(relatedPrice) ? `${relatedPrice.toFixed(2)}€` : 'Voir le produit'}
+                        <i className="not-italic">↗</i>
+                      </strong>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
       </div>
     </main>
