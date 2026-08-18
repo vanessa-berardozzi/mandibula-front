@@ -29,9 +29,9 @@ export function HeroSection({
   closing = "exigence.",
   description = "Isopodes, myriapodes et matériel d'élevage sélectionnés par des passionnés. Des animaux nés chez nous, des conseils précis et une expédition pensée pour leur sécurité.",
   ctaLabel = "Découvrir les espèces",
-  ctaHref = "/categories",
+  ctaHref = "/categories/animaux-vivants",
   ctaSecondaryLabel = "Voir les packs d'élevage",
-  ctaSecondaryHref = "/categories?categorie=pack",
+  ctaSecondaryHref = "/categories/packs-kits",
   specimens = defaultHeroSpecimens,
 }: HeroSectionProps) {
   const [activeSpecimen, setActiveSpecimen] = useState(0);
@@ -93,7 +93,7 @@ export function HeroSection({
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Link href={ctaHref}>
-            <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase text-xs md:text-sm">
+            <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 border-primary/40 text-primary-foreground font-bold uppercase text-xs md:text-sm">
               {ctaLabel}
             </Button>
           </Link>

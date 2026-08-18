@@ -1,5 +1,4 @@
-import { SimpleProductCard } from '@/components/features/SimpleProductCard';
-import Link from 'next/link';
+import { CategoryCatalog } from '@/components/features/Category/CategoryCatalog';
 import { notFound } from 'next/navigation';
 
 interface Variant {
@@ -72,44 +71,8 @@ export default async function CategoryPage({
           </p>
         </div>
 
-        {/* ── Grille produits ── */}
-        {data.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="font-mono text-primary/30 text-xs uppercase tracking-widest">
-              [ AUCUN SPÉCIMEN EN STOCK ]
-            </p>
-            <Link
-              href="/"
-              className="font-mono text-xs text-primary/50 hover:text-primary underline underline-offset-4 transition-colors"
-            >
-              ← Retour à l&rsquo;accueil
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-5">
-            {data.data.map((product, index) => {
-              const defaultVariant = product.variants[0];
-              return (
-                <div
-                  key={product.id}
-                  style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.04}s backwards` }}
-                >
-                  <SimpleProductCard
-                    title={product.name}
-                    price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
-                    stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
-                    imageUrl={product.images[0]}
-                    href={`/product/${product.id}`}
-                    variantId={defaultVariant?.id}
-                    productId={product.id}
-                    priority={index === 0}
-                    categoryName={data.category.name}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* ── Recherche, tri et grille produits ── */}
+        <CategoryCatalog products={data.data} categoryName={data.category.name} />
       </div>
     </main>
   );
