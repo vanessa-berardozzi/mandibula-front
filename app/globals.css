@@ -64,15 +64,7 @@
   /* Fond panneau semi-opaque (bandeaux, cartes flottantes, overlays) — valeur exacte maquette */
   --panel: rgba(7, 15, 10, 0);
 
-  /* --- MENU OFF-CANVAS (Sheet mobile) --- */
-  --sidebar: rgba(7, 15, 10, 0.93);
-  --sidebar-foreground: #d4edd0;
-  --sidebar-primary: #70f18b;
-  --sidebar-primary-foreground: #071309;
-  --sidebar-accent: #0f3020;
-  --sidebar-accent-foreground: #70f18b;
-  --sidebar-border: #1c2620;
-  --sidebar-ring: #70f18b;
+
 
   /* --- CONSOLE ADMIN ---
      Vert exact repris de la maquette (section "Mandibula System", --green: #47ff83),
@@ -80,10 +72,10 @@
   --admin-green: #47ff83;
   --admin-panel: rgba(4, 14, 8, 0.94);
   --admin-border: rgba(71, 255, 131, 0.2);
-  --admin-muted: #75857a;
+  --admin-muted: #819487;
   --admin-text: clamp(0.94rem, 0.89rem + 0.16vw, 1.06rem);
   --admin-small: clamp(0.78rem, 0.75rem + 0.1vw, 0.9rem);
-  --admin-micro: clamp(0.7rem, 0.68rem + 0.08vw, 0.78rem);
+  --admin-micro: clamp(0.7rem, 0.80rem + 0.08vw, 0.94rem);
 }
 
 /* Taille de base augmentée pour confort de lecture (zoom ~125%) */

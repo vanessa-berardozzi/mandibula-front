@@ -22,10 +22,10 @@
     "clsx": "^2.1.1",
     "latest": "^0.2.0",
     "lucide-react": "^0.562.0",
-    "next": "16.2.1",
+    "next": "16.3.3",
     "radix-ui": "^1.4.3",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-hook-form": "^7.72.0",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
@@ -39,7 +39,7 @@
     "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.4",
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "16.3.3",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
