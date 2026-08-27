@@ -1,5 +1,6 @@
 "use client";
 
+import { ADMIN_PERIOD_COOKIE } from "@/lib/admin/adminPeriod";
 import type { AdminDashboardPeriod } from "@/types/admin";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -16,6 +17,8 @@ export function AdminPeriodSelect({ current }: { current: AdminDashboardPeriod }
   const searchParams = useSearchParams();
 
   const handleChange = (period: string) => {
+    // Mémorisé côté cookie pour que le serveur retrouve le choix sur les prochaines visites.
+    document.cookie = `${ADMIN_PERIOD_COOKIE}=${period}; path=/admin; max-age=31536000; samesite=lax`;
     const params = new URLSearchParams(searchParams.toString());
     params.set("period", period);
     router.push(`?${params.toString()}`);
