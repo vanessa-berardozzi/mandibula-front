@@ -1,3 +1,16 @@
+# Documentation Mandibula Front
+
+## Guides projet
+
+- [Architecture et securite de l'administration](ADMIN-ARCHITECTURE-SECURITY.md)
+- [Guide styles](GUIDE-STYLES.md)
+- [Checklist integration](INTEGRATION-CHECKLIST.md)
+- [Guide profil](PROFILE-GUIDE.md)
+- [Configuration PWA](PWA-CONFIG-GUIDE.md)
+- [Guide footer SEO](FOOTER-SEO-GUIDE.md)
+
+## Notes Next.js
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
