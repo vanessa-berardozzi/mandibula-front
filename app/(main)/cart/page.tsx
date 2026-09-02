@@ -4,7 +4,6 @@ import { CartItemRow } from '@/components/features/CartItemRow';
 import { CartSummary } from '@/components/features/CartSummary';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
-import type { CartValidationResponse } from '@/types/cart';
 import { Package, ShoppingBag, Skull } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,11 +23,9 @@ interface ProductData {
 export default function CartPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { items, subtotal, itemCount, isLoading, clearCart, validateCart } =
-    useCartContext();
+  const { items, subtotal, itemCount, isLoading, clearCart } = useCartContext();
 
   const [isValidating, setIsValidating] = useState(false);
-  const [validation, setValidation] = useState<CartValidationResponse>();
   const [products, setProducts] = useState<ProductData>({});
   const [clearConfirm, setClearConfirm] = useState(false);
 
@@ -239,7 +236,6 @@ export default function CartPage() {
         <div className="lg:col-span-1 space-y-4">
           <CartSummary
             subtotal={subtotal}
-            validation={validation}
             isValidating={isValidating}
             onCheckout={handleCheckout}
             isCheckoutDisabled={!session?.user || items.length === 0}

@@ -35,8 +35,6 @@ export function AdminOrderDetailDrawer({
   useEffect(() => {
     if (!orderId) return;
     let cancelled = false;
-    setOrder(null);
-    setError("");
 
     fetch(`/api/admin/orders/${orderId}`, { cache: "no-store" })
       .then(async (response) => {

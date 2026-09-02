@@ -6,6 +6,14 @@ export type AdminTopProduct = {
   quantity: number;
 };
 
+export type AdminStockAlert = {
+  productId: string;
+  name: string;
+  currentStock: number;
+  minThreshold: number;
+  status: 'LOW_STOCK' | 'OUT_OF_STOCK';
+};
+
 export type AdminDashboardStats = {
   period: AdminDashboardPeriod;
   from: string | null;
@@ -76,4 +84,51 @@ export type AdminOrdersPage = {
   page: number;
   limit: number;
   pages: number;
+};
+
+export type AdminProductVariant = {
+  id: string;
+  name: string;
+  price: number;
+  lotSize: number;
+  isActive: boolean;
+};
+
+export type AdminProduct = {
+  id: string;
+  name: string;
+  category: string;
+  image: string;
+  price: number;
+  totalStock: number;
+  variantCount: number;
+  stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'UNKNOWN';
+  minThreshold: number;
+};
+
+export type AdminProductDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  images: string[];
+  totalStock: number;
+  reservedStock: number;
+  category: {
+    id: string;
+    name: string;
+  };
+  variants: AdminProductVariant[];
+  stockInfo: {
+    minThreshold: number;
+    status: string;
+  } | null;
+};
+
+export type AdminProductsPage = {
+  products: AdminProduct[];
+  total: number;
+  page: number;
+  pages: number;
+  limit: number;
 };

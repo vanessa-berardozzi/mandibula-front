@@ -134,7 +134,7 @@ export function SavedAddresses() {
         try {
           const errorData = await res.json();
           throw new Error(errorData.error || "Erreur lors de la sauvegarde");
-        } catch (parseErr) {
+        } catch (_) {
           throw new Error(`Erreur serveur (${res.status})`);
         }
       }
@@ -162,7 +162,7 @@ export function SavedAddresses() {
         try {
           const errorData = await res.json();
           throw new Error(errorData.error || "Erreur lors de la suppression");
-        } catch (parseErr) {
+        } catch (_) {
           throw new Error(`Erreur serveur (${res.status})`);
         }
       }

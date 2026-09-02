@@ -60,7 +60,7 @@ export function AccountSettings({ settings }: AccountSettingsProps) {
                 <input
                   type="checkbox"
                   checked={setting.status || false}
-                  onChange={(e) => setting.action()}
+                  onChange={() => setting.action()}
                   className="w-5 h-5 rounded accent-primary"
                 />
               </label>

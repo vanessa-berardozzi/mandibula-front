@@ -3,7 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 
 interface OrderItemDetail {
   id: string;
@@ -106,12 +107,7 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    fetchOrderDetail();
-  }, [isOpen, orderId]);
-
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -124,7 +120,12 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    fetchOrderDetail();
+  }, [isOpen, orderId, fetchOrderDetail]);
 
   if (!isOpen) return null;
 
@@ -190,9 +191,11 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
                     >
                       {item.variant.product.images?.[0] && (
                         <div className="w-12 h-12 bg-accent/30 rounded-sm shrink-0 overflow-hidden">
-                          <img
+                          <Image
                             src={item.variant.product.images[0]}
                             alt={item.variant.product.name}
+                            width={48}
+                            height={48}
                             className="w-full h-full object-cover"
                           />
                         </div>

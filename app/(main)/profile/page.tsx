@@ -18,39 +18,6 @@ const MOCK_USER = {
   loyaltyPoints: 2450,
 };
 
-const MOCK_SETTINGS = [
-  {
-    id: "email-notif",
-    label: "Notifications par email",
-    description: "Recevez des mises à jour sur vos commandes et promotions",
-    icon: "📧",
-    action: () => console.log("Toggle email notifications"),
-    actionLabel: "Gérer",
-    type: "button" as const,
-    status: true,
-  },
-  
-  {
-    id: "newsletter",
-    label: "Infolettre & Promotions",
-    description: "Recevez les dernières news et offres exclusives",
-    icon: "📢",
-    action: () => console.log("Toggle newsletter"),
-    actionLabel: "Désabonner",
-    type: "button" as const,
-    status: true,
-  },
-  {
-    id: "privacy",
-    label: "Données personnelles",
-    description: "Téléchargez ou supprimez vos données",
-    icon: "👤",
-    action: () => console.log("Manage privacy"),
-    actionLabel: "Gérer",
-    type: "button" as const,
-  },
-];
-
 export default function ProfilePage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();

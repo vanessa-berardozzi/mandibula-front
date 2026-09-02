@@ -70,7 +70,7 @@ function CheckoutContent() {
       lastName: prev.lastName || defaultLastName,
       email: prev.email || session?.user?.email || '',
     }));
-  }, [session?.user]);
+  }, [defaultFirstName, defaultLastName, session?.user?.email]);
 
   // Charger les adresses sauvegardées
   useEffect(() => {

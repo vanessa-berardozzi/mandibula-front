@@ -30,26 +30,43 @@ export function useSearch(query: string, limit: number = 12): SearchResult {
 
   useEffect(() => {
     if (!normalizedQuery) {
+      setProducts([]);
+      setTotal(0);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
+    let cancelled = false;
 
-    fetch(`/api/products?search=${encodeURIComponent(normalizedQuery)}&limit=${limit}`)
-      .then((res) => {
+    const performSearch = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const res = await fetch(`/api/products?search=${encodeURIComponent(normalizedQuery)}&limit=${limit}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data.data || []);
-        setTotal(data.total || 0);
-      })
-      .catch((err) => {
-        setError(err.message || 'Erreur lors de la recherche');
-        setProducts([]);
-      })
-      .finally(() => setIsLoading(false));
+        const data = await res.json();
+
+        if (!cancelled) {
+          setProducts(data.data || []);
+          setTotal(data.total || 0);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Erreur lors de la recherche');
+          setProducts([]);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    performSearch();
+
+    return () => {
+      cancelled = true;
+    };
   }, [normalizedQuery, limit]);
 
   if (!normalizedQuery) {

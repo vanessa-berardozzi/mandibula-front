@@ -2,14 +2,21 @@
 
 import { ORDER_STATUS_OPTIONS } from "@/lib/admin/adminOrderLabels";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function AdminOrdersFilters({ status, search }: { status: string; search: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(search);
 
-  useEffect(() => setQuery(search), [search]);
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set("search", value);
+    else params.delete("search");
+    params.delete("page");
+    router.push(`?${params.toString()}`);
+  };
 
   const applyFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());

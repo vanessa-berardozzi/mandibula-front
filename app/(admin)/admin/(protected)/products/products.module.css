@@ -1,0 +1,258 @@
+/* Page Products - Styles isolated avec CSS Modules */
+
+/* Header du catalogue */
+.catalogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.2);
+  gap: 30px;
+  margin-bottom: 24px;
+}
+
+.catalogHeader > div {
+  display: grid;
+  gap: 12px;
+}
+
+.catalogHeader span {
+  color: var(--admin-green);
+  font: 9px / 1 monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.catalogHeader h2 {
+  margin: 0;
+  font: 900 32px / 1 "Arial Black", Arial, sans-serif;
+  color: #dbe7dd;
+}
+
+.searchLabel {
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 100%;
+  min-width: 300px;
+  padding: 12px 16px;
+  background: #020805;
+  border: 1px solid rgba(71, 255, 131, 0.2);
+  color: #d5e2d8;
+  font: 9px / 1 monospace;
+  letter-spacing: 0.08em;
+}
+
+.searchInput::placeholder {
+  color: #6d7e72;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--admin-green);
+  box-shadow: inset 0 0 0 1px rgba(71, 255, 131, 0.3);
+}
+
+/* Liste de produits */
+.productsList {
+  display: grid;
+  gap: 0;
+}
+
+.productsRow {
+  min-height: 110px;
+  display: grid;
+  grid-template-columns: 90px minmax(240px, 1fr) 120px 100px 140px 100px;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(71, 255, 131, 0.1);
+}
+
+.productImage {
+  position: relative;
+  width: 90px;
+  height: 85px;
+  aspect-ratio: 90 / 85;
+  border: 1px solid rgba(71, 255, 131, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.productDetails {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.productCategory {
+  color: var(--admin-green);
+  font: 8px / 1 monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.productName {
+  overflow: hidden;
+  color: #dfe9e2;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.productVariants {
+  color: #59685e;
+  font: 8px / 1 monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.productPrice {
+  color: #6dde8b;
+  font: 12px / 1 monospace;
+  font-weight: 700;
+}
+
+.productVisibility,
+.productStock {
+  color: #65756a;
+  font: 9px / 1.2 monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.online {
+  color: var(--admin-green);
+}
+
+.editButton {
+  min-height: 45px;
+  border: 1px solid rgba(71, 255, 131, 0.26);
+  background: transparent;
+  color: #76a681;
+  font: 9px / 1 monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 0.12em;
+  transition: all 200ms ease-out;
+  padding: 0 16px;
+}
+
+.editButton:hover {
+  border-color: var(--admin-green);
+  color: var(--admin-green);
+  background: rgba(71, 255, 131, 0.05);
+}
+
+.editButton:active {
+  background: rgba(71, 255, 131, 0.1);
+}
+
+/* Responsive: Tablette */
+@media (max-width: 1024px) {
+  .productsRow {
+    grid-template-columns: 75px minmax(200px, 1fr) 100px 90px 110px 90px;
+    gap: 16px;
+    padding: 10px 16px;
+  }
+
+  .productImage {
+    width: 75px;
+    height: 70px;
+    aspect-ratio: 75 / 70;
+  }
+
+  .productName {
+    font-size: 12px;
+  }
+
+  .productPrice {
+    font-size: 11px;
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 768px) {
+  .catalogHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .searchInput {
+    min-width: 100%;
+  }
+
+  .productsRow {
+    grid-template-columns: 65px minmax(0, 1fr) 80px 80px;
+    gap: 12px;
+    padding: 10px;
+    min-height: auto;
+  }
+
+  .productImage {
+    width: 65px;
+    height: 65px;
+    aspect-ratio: 1;
+  }
+
+  .productName {
+    font-size: 11px;
+  }
+
+  .productPrice {
+    font-size: 10px;
+  }
+
+  .productVisibility,
+  .productStock {
+    display: none;
+  }
+
+  .editButton {
+    min-height: 40px;
+    font-size: 8px;
+  }
+}
+
+/* Responsive: Petit mobile */
+@media (max-width: 480px) {
+  .productsRow {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .productImage {
+    width: 70px;
+    height: 70px;
+    aspect-ratio: 1;
+  }
+
+  .productName {
+    font-size: 11px;
+  }
+
+  .productPrice {
+    grid-column: 2;
+    font-size: 10px;
+  }
+
+  .productVisibility,
+  .productStock {
+    grid-column: 1 / -1;
+    font-size: 8px;
+    display: block;
+  }
+
+  .editButton {
+    grid-column: 1 / -1;
+    min-height: 50px;
+    font-size: 9px;
+  }
+}
