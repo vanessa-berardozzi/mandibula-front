@@ -123,6 +123,9 @@ export type AdminProductDetail = {
     minThreshold: number;
     status: string;
   } | null;
+  promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
+  promotionValue?: number | null;
+  featured?: boolean;
 };
 
 export type AdminProductsPage = {

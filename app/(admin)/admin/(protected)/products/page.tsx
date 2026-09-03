@@ -1,8 +1,8 @@
 "use client";
 
+import { AdminProductEditor } from "@/components/features/admin/products/AdminProductEditor";
 import { AdminProductsFilters } from "@/components/features/admin/products/AdminProductsFilters";
 import { AdminProductsList } from "@/components/features/admin/products/AdminProductsList";
-import { AdminProductEditor } from "@/components/features/admin/products/AdminProductEditor";
 import { AdminEmptyState } from "@/components/features/admin/shared/AdminEmptyState";
 import { AdminPagination } from "@/components/features/admin/shared/AdminPagination";
 import type { AdminProduct, AdminProductDetail, AdminProductsPage } from "@/types/admin";
@@ -95,8 +95,12 @@ export default function AdminProductsPage() {
   async function handleSaveProduct(data: {
     name: string;
     description: string | null;
-    price: number;
     minThreshold: number;
+    shippingWeight?: number;
+    variants?: any[];
+    promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
+    promotionValue?: number | null;
+    featured?: boolean;
   }) {
     if (!editingProduct) return;
 
@@ -115,7 +119,7 @@ export default function AdminProductsPage() {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
-            ? { ...p, name: data.name, price: data.price }
+            ? { ...p, name: data.name }
             : p
         )
       );
