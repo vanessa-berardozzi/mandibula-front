@@ -1,6 +1,7 @@
 'use client';
 
 import { useCartContext } from '@/context/CartContext';
+import { formatPrice } from '@/lib/priceUtils';
 import type { CartValidationResponse } from '@/types/cart';
 import { Check, Tag, X, Zap } from 'lucide-react';
 import { useState } from 'react';
@@ -92,7 +93,7 @@ export function CartSummary({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="font-mono text-sm text-foreground/75 tracking-widest">SOUS-TOTAL</span>
-            <span className="font-mono text-sm text-primary font-bold">{subtotal.toFixed(2)}€</span>
+            <span className="font-mono text-sm text-primary font-bold">{formatPrice(subtotal)}€</span>
           </div>
           {finalDiscount > 0 && (
             <div className="flex justify-between items-center">
@@ -100,12 +101,12 @@ export function CartSummary({
                 <Tag size={10} />
                 {appliedPromo ?? 'PROMO'}
               </span>
-              <span className="font-mono text-sm text-primary font-bold">-{finalDiscount.toFixed(2)}€</span>
+              <span className="font-mono text-sm text-primary font-bold">-{formatPrice(finalDiscount)}€</span>
             </div>
           )}
           <div className="flex justify-between items-center">
             <span className="font-mono text-sm text-foreground/75 tracking-widest">LIVRAISON</span>
-            <span className="font-mono text-sm text-primary font-bold">{finalShipping.toFixed(2)}€</span>
+            <span className="font-mono text-sm text-primary font-bold">{formatPrice(finalShipping)}€</span>
           </div>
         </div>
 
@@ -116,7 +117,7 @@ export function CartSummary({
         <div className="flex justify-between items-end">
           <span className="font-mono text-sm tracking-[0.2em] uppercase text-foreground/85">Total</span>
           <span className="font-black text-3xl text-primary drop-shadow-[0_0_8px_rgba(216,249,153,0.4)]">
-            {finalTotal.toFixed(2)}€
+            {formatPrice(finalTotal)}€
           </span>
         </div>
 

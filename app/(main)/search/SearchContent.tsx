@@ -1,6 +1,7 @@
 'use client';
 
 import { SimpleProductCard } from "@/components/features/SimpleProductCard";
+import { toPrice } from "@/lib/priceUtils";
 import { ArrowLeft, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -11,8 +12,7 @@ interface Variant {
   name: string;
   lotSize: number;
   price: string;
-  stock: number;
-  reservedStock: number;
+  availableStock: number;
   isActive: boolean;
 }
 
@@ -22,6 +22,7 @@ interface ApiProduct {
   price: string;
   images: string[];
   variants: Variant[];
+  availableStock: number;
   category?: { id: string; name: string; slug: string; parentId: string | null };
 }
 
@@ -216,8 +217,9 @@ export function SearchContent() {
                 productId={product.id}
                 title={product.name}
                 imageUrl={product.images[0] || '/placeholder.jpg'}
-                price={parseFloat(product.price) || 0}
-                stock={product.variants[0]?.stock || 0}
+                price={toPrice(product.price)}
+                stock={product.availableStock ?? 0}
+                variantId={product.variants[0]?.id}
                 categoryName={product.category?.name}
               />
             ))}

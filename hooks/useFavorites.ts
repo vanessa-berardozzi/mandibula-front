@@ -8,8 +8,10 @@ export interface WishlistProduct {
   name: string;
   price: string;
   images: string[];
+  totalStock: number;
+  reservedStock: number;
   category: { name: string; slug: string };
-  variants: { id: string; stock: number; reservedStock: number }[];
+  variants: { id: string }[];
 }
 
 export interface WishlistItem {

@@ -1,6 +1,7 @@
 'use client';
 
 import { SimpleProductCard } from '@/components/features/SimpleProductCard';
+import { toPrice } from '@/lib/priceUtils';
 import { ChevronDown, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -10,8 +11,7 @@ interface Variant {
   name: string;
   lotSize: number;
   price: string;
-  stock: number;
-  reservedStock: number;
+  availableStock: number;
   isActive: boolean;
 }
 
@@ -21,6 +21,7 @@ export interface CatalogProduct {
   price: string;
   images: string[];
   variants: Variant[];
+  availableStock: number;
 }
 
 type SortKey = 'featured' | 'name' | 'price-up' | 'price-down';
@@ -34,7 +35,7 @@ const sortOptions: Array<{ value: SortKey; label: string }> = [
 
 function productPrice(product: CatalogProduct) {
   const variant = product.variants[0];
-  return parseFloat(variant ? variant.price : product.price) || 0;
+  return toPrice(variant ? variant.price : product.price);
 }
 
 export function CategoryCatalog({
@@ -150,8 +151,8 @@ export function CategoryCatalog({
               >
                 <SimpleProductCard
                   title={product.name}
-                  price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
-                  stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
+                  price={toPrice(defaultVariant ? defaultVariant.price : product.price)}
+                  stock={product.availableStock ?? 0}
                   imageUrl={product.images[0]}
                   href={`/product/${product.id}`}
                   variantId={defaultVariant?.id}

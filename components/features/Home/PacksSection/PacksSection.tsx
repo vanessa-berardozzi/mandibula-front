@@ -11,8 +11,6 @@ interface Variant {
   id: string;
   name: string;
   price: string;
-  stock: number;
-  reservedStock: number;
 }
 
 interface ApiProduct {

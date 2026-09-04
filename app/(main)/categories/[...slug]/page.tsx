@@ -6,8 +6,7 @@ interface Variant {
   name: string;
   lotSize: number;
   price: string;
-  stock: number;
-  reservedStock: number;
+  availableStock: number;
   isActive: boolean;
 }
 
@@ -17,6 +16,7 @@ interface ApiProduct {
   price: string;
   images: string[];
   variants: Variant[];
+  availableStock: number;
 }
 
 interface CategoryResponse {

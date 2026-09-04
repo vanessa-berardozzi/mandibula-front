@@ -4,6 +4,7 @@ import { ProductGallery } from '@/components/features/ProductGallery';
 import { Button } from '@/components/ui/button';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
+import { toPrice } from '@/lib/priceUtils';
 import { Check, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,8 +18,7 @@ interface ProductVariant {
   name: string;
   lotSize: number;
   price: string;
-  stock: number;
-  reservedStock: number;
+  availableStock: number;
   isActive: boolean;
 }
 
@@ -31,6 +31,7 @@ interface ApiProduct {
   attributes: Record<string, unknown> | null;
   category: { id: string; name: string; slug: string } | null;
   variants: ProductVariant[];
+  availableStock: number;
 }
 
 interface ProductsResponse {
@@ -163,12 +164,11 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!session?.user) { router.push('/login'); return; }
-    const availableStock = selectedVariant ? selectedVariant.stock - (selectedVariant.reservedStock ?? 0) : 0;
-    if (!selectedVariant || availableStock === 0) return;
+    if (!selectedVariant || selectedVariant.availableStock === 0) return;
 
     setIsAdding(true);
     setStockError(null);
-    const result = await addItem(selectedVariant.id, quantity, parseFloat(selectedVariant.price));
+    const result = await addItem(selectedVariant.id, quantity, toPrice(selectedVariant.price));
     if (result?.error) {
       setStockError(result.error);
       setTimeout(() => setStockError(null), 3000);
@@ -215,8 +215,8 @@ export default function ProductDetailPage() {
     contenance?: string;
     [key: string]: unknown;
   } | null;
-  const price = selectedVariant ? parseFloat(selectedVariant.price) : parseFloat(product.price);
-  const stock = selectedVariant ? selectedVariant.stock - (selectedVariant.reservedStock ?? 0) : 0;
+  const price = toPrice(selectedVariant?.price ?? product.price, 0);
+  const stock = selectedVariant?.availableStock ?? product.availableStock ?? 0;
   const details = productDetails(product);
   const overview = firstText(
     attrs?.presentation,
@@ -299,19 +299,16 @@ export default function ProductDetailPage() {
                     }}
                     className="w-full cursor-pointer appearance-none border border-primary/20 bg-[#080e0a] px-3 py-3 pr-8 font-mono text-xs uppercase tracking-wider text-[#dfe9e2] transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {product.variants.map((v) => {
-                      const vAvailableStock = v.stock - (v.reservedStock ?? 0);
-                      return (
-                        <option
-                          key={v.id}
-                          value={v.id}
-                          disabled={vAvailableStock === 0}
-                          className="bg-[#080e0a] text-[#dfe9e2]"
-                        >
-                          {v.name} — {parseFloat(v.price).toFixed(2)}€{vAvailableStock === 0 ? ' (épuisé)' : ''}
-                        </option>
-                      );
-                    })}
+                    {product.variants.map((v) => (
+                      <option
+                        key={v.id}
+                        value={v.id}
+                        disabled={v.availableStock === 0}
+                        className="bg-[#080e0a] text-[#dfe9e2]"
+                      >
+                        {v.name} — {toPrice(v.price).toFixed(2)}€{v.availableStock === 0 ? ' (épuisé)' : ''}
+                      </option>
+                    ))}
                   </select>
                   {/* Icône chevron */}
                   <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
@@ -481,7 +478,7 @@ export default function ProductDetailPage() {
               {relatedProducts.map((related, index) => {
                 const relatedPrice = Math.min(
                   ...related.variants
-                    .map((variant) => Number.parseFloat(variant.price))
+                    .map((variant) => toPrice(variant.price))
                     .filter((value) => value > 0),
                 );
                 return (

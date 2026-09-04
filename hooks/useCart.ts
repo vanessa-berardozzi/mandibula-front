@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from '@/lib/auth.client';
+import { toPrice } from '@/lib/priceUtils';
 import type { CartResponse, CartValidationResponse, PromoValidationResponse } from '@/types/cart';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -138,7 +139,7 @@ export function useCart() {
       const items = cart.items.map((item) => ({
         variantId: item.variantId,
         quantity: item.quantity,
-        price: item.price,
+        price: toPrice(item.price),
       }));
 
       const totals = calculateTotals(items);
@@ -167,7 +168,7 @@ export function useCart() {
       const items = cart.items.map((item) => ({
         variantId: item.variantId,
         quantity: item.quantity,
-        price: item.price,
+        price: toPrice(item.price),
       }));
       const totals = calculateTotals(items);
       setState((prev) => ({ ...prev, items, ...totals }));
@@ -187,6 +188,9 @@ export function useCart() {
   const addItem = useCallback(
     async (variantId: string, quantity: number = 1, price?: number): Promise<{ error?: string }> => {
       let previousItems: LocalCartItem[] = [];
+      
+      // Normaliser le prix
+      const normalizedPrice = toPrice(price);
 
       // Optimistic update
       setState((prev) => {
@@ -196,7 +200,7 @@ export function useCart() {
           ? prev.items.map((i) =>
               i.variantId === variantId ? { ...i, quantity: i.quantity + quantity } : i
             )
-          : [...prev.items, { variantId, quantity, price }];
+          : [...prev.items, { variantId, quantity, price: normalizedPrice }];
         const totals = calculateTotals(newItems);
         saveToLocalStorage(newItems);
         return { ...prev, items: newItems, ...totals };
@@ -251,7 +255,10 @@ export function useCart() {
           headers: getHeaders(),
           credentials: 'include',
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
       } catch (error) {
         console.error('Error syncing delete to server:', error);
       } finally {

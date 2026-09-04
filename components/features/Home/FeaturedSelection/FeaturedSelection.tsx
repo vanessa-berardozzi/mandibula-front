@@ -1,5 +1,6 @@
 "use client";
 
+import { toPrice } from "@/lib/priceUtils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -10,8 +11,6 @@ interface Variant {
   id: string;
   name: string;
   price: string;
-  stock: number;
-  reservedStock: number;
 }
 
 interface ApiProduct {
@@ -20,6 +19,7 @@ interface ApiProduct {
   price: string;
   images: string[];
   variants: Variant[];
+  availableStock: number;
   category?: { id: string; name: string; slug: string };
 }
 
@@ -70,8 +70,8 @@ export function FeaturedSelection() {
               key={product.id}
               index={index}
               title={product.name}
-              price={defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.price)}
-              stock={defaultVariant ? defaultVariant.stock - (defaultVariant.reservedStock ?? 0) : 0}
+              price={toPrice(defaultVariant ? defaultVariant.price : product.price)}
+              stock={product.availableStock ?? 0}
               imageUrl={product.images[0] ?? "/boite.png"}
               href={`/product/${product.id}`}
               productId={product.id}

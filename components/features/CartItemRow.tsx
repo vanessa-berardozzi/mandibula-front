@@ -2,6 +2,7 @@
 
 import { useCartContext } from '@/context/CartContext';
 import type { LocalCartItem } from '@/hooks/useCart';
+import { calculateTotal, formatPrice, toPrice } from '@/lib/priceUtils';
 import { Minus, Plus, X } from 'lucide-react';
 import NextImage from 'next/image';
 import { useState } from 'react';
@@ -53,8 +54,8 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
     }
   };
 
-  const unitPrice = item.price ?? 0;
-  const totalPrice = unitPrice * item.quantity;
+  const unitPrice = toPrice(item.price);
+  const totalPrice = calculateTotal(unitPrice, item.quantity);
   const slotLabel = String(slotIndex).padStart(2, '0');
 
   return (
@@ -110,7 +111,7 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
           </p>
         )}
         <p className="font-mono text-sm text-primary/70 mt-0.5">
-          {unitPrice.toFixed(2)}€ / unité
+          {formatPrice(unitPrice)}€ / unité
         </p>
       </div>
 
@@ -147,7 +148,7 @@ export function CartItemRow({ item, product, slotIndex = 1 }: CartItemRowProps) 
 
       {/* Prix total */}
       <div className="shrink-0 w-24 text-right font-mono font-black text-primary text-base pr-2">
-        {totalPrice.toFixed(2)}€
+        {formatPrice(totalPrice)}€
       </div>
 
       {/* Supprimer */}

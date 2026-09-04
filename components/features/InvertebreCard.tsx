@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPrice } from "@/lib/priceUtils";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -94,7 +95,7 @@ export function InvertebreCard({
           </div>
           <div className="flex items-baseline gap-0.5">
             <span className="text-xl font-black text-primary font-mono tabular-nums">
-              {price.toFixed(2)}
+              {formatPrice(price)}
             </span>
             <span className="text-xs text-primary/70 font-bold">€</span>
           </div>

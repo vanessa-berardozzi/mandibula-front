@@ -1,7 +1,9 @@
 "use client";
 
+import { QuantitySelector } from "@/components/shared/QuantitySelector";
 import { useCartContext } from "@/context/CartContext";
 import { useFavorites } from "@/hooks/useFavorites";
+import { formatPrice } from "@/lib/priceUtils";
 import { Check, Heart, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,22 +41,32 @@ export function SimpleProductCard({
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [showQuantitySelector, setShowQuantitySelector] = useState(false);
 
   const wishlisted = productId ? isFavorite(productId) : false;
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleQuantitySelect = (quantity: number) => {
+    setSelectedQuantity(quantity);
+  };
+
+  const handleAddToCart = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!variantId || !isInStock) return;
 
     setIsAdding(true);
     setStockError(null);
-    const result = await addItem(variantId, 1, price);
+    const result = await addItem(variantId, selectedQuantity, price);
     if (result?.error) {
       setStockError(result.error);
       setTimeout(() => setStockError(null), 3000);
     } else {
       setAdded(true);
+      setShowQuantitySelector(false);
+      setSelectedQuantity(1);
       setTimeout(() => setAdded(false), 2000);
     }
     setIsAdding(false);
@@ -79,6 +91,7 @@ export function SimpleProductCard({
 
         {/* Icône "node" ronde = favoris, coin haut-droit */}
         <button
+          type="button"
           onClick={handleWishlist}
           className={styles["product-card__node"]}
           data-active={wishlisted}
@@ -120,26 +133,60 @@ export function SimpleProductCard({
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-1">
-              <span className={styles["product-card__price"]}>{price.toFixed(2)}</span>
+              <span className={styles["product-card__price"]}>{formatPrice(price)}</span>
               <span className={styles["product-card__currency"]}>€</span>
             </div>
 
             {variantId && (
-              <button
-                onClick={handleAddToCart}
-                disabled={!isInStock || isAdding}
-                className={styles["product-card__add"]}
-                data-state={added ? "added" : isInStock ? "idle" : "disabled"}
-                aria-label={isInStock ? "Ajouter au panier" : "Rupture de stock"}
-              >
-                {isAdding ? (
-                  <span className={styles["product-card__spinner"]} />
-                ) : added ? (
-                  <Check className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                {showQuantitySelector ? (
+                  <>
+                    <QuantitySelector
+                      maxStock={stock}
+                      onQuantityChange={handleQuantitySelect}
+                      initialQuantity={selectedQuantity}
+                      disabled={isAdding}
+                      size="sm"
+                      compact
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      disabled={!isInStock || isAdding}
+                      className={styles["product-card__add"]}
+                      data-state={added ? "added" : isInStock ? "idle" : "disabled"}
+                      aria-label="Confirmer l'ajout au panier"
+                    >
+                      {isAdding ? (
+                        <span className={styles["product-card__spinner"]} />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
+                    </button>
+                  </>
                 ) : (
-                  <Plus className="h-4 w-4" />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowQuantitySelector(true);
+                    }}
+                    disabled={!isInStock || isAdding}
+                    className={styles["product-card__add"]}
+                    data-state={added ? "added" : isInStock ? "idle" : "disabled"}
+                    aria-label={isInStock ? "Ajouter au panier" : "Rupture de stock"}
+                  >
+                    {isAdding ? (
+                      <span className={styles["product-card__spinner"]} />
+                    ) : added ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Plus className="h-4 w-4" />
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
             )}
           </div>
 

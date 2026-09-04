@@ -5,6 +5,7 @@ import { SavedAddresses, UserProfileHeader, UserStats } from "@/components/profi
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFavorites } from "@/hooks/useFavorites";
 import { signOut, useSession } from "@/lib/auth.client";
+import { toPrice } from "@/lib/priceUtils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -103,15 +104,13 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-2">
                 {favorites.map(({ product }) => {
                   const firstVariant = product.variants[0];
-                  const stock = firstVariant
-                    ? firstVariant.stock - firstVariant.reservedStock
-                    : 0;
+                  const stock = Math.max(0, product.totalStock - product.reservedStock);
                   return (
                     <SimpleProductCard
                       key={product.id}
                       productId={product.id}
                       title={product.name}
-                      price={parseFloat(product.price)}
+                      price={toPrice(product.price)}
                       stock={stock}
                       imageUrl={product.images[0]}
                       href={`/product/${product.id}`}
