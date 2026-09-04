@@ -95,39 +95,44 @@ export default function AdminProductsPage() {
   async function handleSaveProduct(data: {
     name: string;
     description: string | null;
+    categoryId: string;
     minThreshold: number;
-    shippingWeight?: number;
-    variants?: any[];
+    shippingWeight: number | null;
+    isPublished: boolean;
+    variants: { id?: string; name: string; price: number; lotSize: number; isActive: boolean }[];
     promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
     promotionValue?: number | null;
     featured?: boolean;
   }) {
     if (!editingProduct) return;
 
-    try {
-      const response = await fetch(`/api/admin/products/${editingProduct.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(`/api/admin/products/${editingProduct.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde");
-      }
-
-      // Mettre à jour la liste locale
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? { ...p, name: data.name }
-            : p
-        )
-      );
-
-      setEditingProduct(null);
-    } catch (caught) {
-      throw caught;
+    if (!response.ok) {
+      throw new Error("Erreur lors de la sauvegarde");
     }
+
+    const updated = (await response.json()) as AdminProductDetail;
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === editingProduct.id
+          ? {
+              ...p,
+              name: updated.name,
+              totalStock: updated.totalStock,
+              isPublished: updated.isPublished,
+              variantCount: updated.variants.filter((v) => v.isActive).length,
+            }
+          : p
+      )
+    );
+
+    setEditingProduct(null);
   }
 
   return (

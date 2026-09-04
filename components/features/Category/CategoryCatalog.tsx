@@ -11,6 +11,7 @@ interface Variant {
   name: string;
   lotSize: number;
   price: string;
+  originalPrice?: string;
   availableStock: number;
   isActive: boolean;
 }
@@ -152,6 +153,7 @@ export function CategoryCatalog({
                 <SimpleProductCard
                   title={product.name}
                   price={toPrice(defaultVariant ? defaultVariant.price : product.price)}
+                  originalPrice={defaultVariant?.originalPrice ? toPrice(defaultVariant.originalPrice) : undefined}
                   stock={product.availableStock ?? 0}
                   imageUrl={product.images[0]}
                   href={`/product/${product.id}`}

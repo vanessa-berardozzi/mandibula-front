@@ -104,6 +104,7 @@ export type AdminProduct = {
   variantCount: number;
   stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'UNKNOWN';
   minThreshold: number;
+  isPublished: boolean;
 };
 
 export type AdminProductDetail = {
@@ -126,6 +127,8 @@ export type AdminProductDetail = {
   promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
   promotionValue?: number | null;
   featured?: boolean;
+  shippingWeight: number | null;
+  isPublished: boolean;
 };
 
 export type AdminProductsPage = {

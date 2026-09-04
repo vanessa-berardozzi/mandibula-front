@@ -14,6 +14,7 @@ import styles from "./SimpleProductCard.module.css";
 interface SimpleProductCardProps {
   title: string;
   price: number;
+  originalPrice?: number;
   stock: number;
   imageUrl?: string;
   href?: string;
@@ -26,6 +27,7 @@ interface SimpleProductCardProps {
 export function SimpleProductCard({
   title,
   price,
+  originalPrice,
   stock,
   imageUrl,
   href = "/product",
@@ -133,6 +135,9 @@ export function SimpleProductCard({
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-1">
+              {originalPrice !== undefined && originalPrice > price && (
+                <span className={styles["product-card__price--original"]}>{formatPrice(originalPrice)}€</span>
+              )}
               <span className={styles["product-card__price"]}>{formatPrice(price)}</span>
               <span className={styles["product-card__currency"]}>€</span>
             </div>

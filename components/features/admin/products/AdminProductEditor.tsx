@@ -15,9 +15,11 @@ type AdminProductEditorProps = {
   onSave: (data: {
     name: string;
     description: string | null;
+    categoryId: string;
     minThreshold: number;
-    shippingWeight?: number;
-    variants?: FormVariant[];
+    shippingWeight: number | null;
+    isPublished: boolean;
+    variants: { id?: string; name: string; price: number; lotSize: number; isActive: boolean }[];
     promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
     promotionValue?: number | null;
     featured?: boolean;
@@ -33,10 +35,10 @@ export function AdminProductEditor({
     name: product.name,
     categoryId: product.category.id,
     description: product.description || "",
-    shippingWeight: "0",
     minThreshold: (product.stockInfo?.minThreshold || 5).toString(),
     totalStock: product.totalStock.toString(),
-    online: true,
+    shippingWeight: product.shippingWeight?.toString() ?? "",
+    isPublished: product.isPublished,
   });
 
   const [variants, setVariants] = useState<FormVariant[]>(product.variants);
@@ -45,6 +47,7 @@ export function AdminProductEditor({
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [showStockManagement, setShowStockManagement] = useState(false);
+  const [isMovingStock, setIsMovingStock] = useState(false);
   const [stockMovement, setStockMovement] = useState({
     type: "ENTRY",
     quantity: "",
@@ -124,23 +127,45 @@ export function AdminProductEditor({
       return;
     }
 
-    const currentStock = parseInt(form.totalStock, 10);
-    let newStock = currentStock;
+    // Le backend attend une quantité signée : positive pour une entrée, négative pour une sortie.
+    const signedQuantity = stockMovement.type === "ENTRY" ? quantity : -quantity;
 
-    if (stockMovement.type === "ENTRY") {
-      newStock = currentStock + quantity;
-    } else if (stockMovement.type === "LOSS" || stockMovement.type === "ADJUSTMENT") {
-      newStock = currentStock - quantity;
-      if (newStock < 0) {
-        setError("La quantité ne peut pas dépasser le stock actuel");
-        return;
-      }
+    if (parseInt(form.totalStock, 10) + signedQuantity < 0) {
+      setError("La quantité ne peut pas dépasser le stock actuel");
+      return;
     }
 
-    setForm({ ...form, totalStock: newStock.toString() });
-    setStockMovement({ type: "ENTRY", quantity: "", reason: "" });
-    setShowStockManagement(false);
+    setIsMovingStock(true);
     setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/stock/product/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quantity: signedQuantity,
+          type: stockMovement.type,
+          ...(stockMovement.reason.trim().length >= 3
+            ? { reason: stockMovement.reason.trim() }
+            : {}),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Le mouvement de stock a été refusé");
+      }
+
+      const data = (await response.json()) as { product: { totalStock: number } };
+      setForm((prev) => ({ ...prev, totalStock: data.product.totalStock.toString() }));
+      setStockMovement({ type: "ENTRY", quantity: "", reason: "" });
+      setShowStockManagement(false);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erreur lors du mouvement de stock"
+      );
+    } finally {
+      setIsMovingStock(false);
+    }
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -149,9 +174,9 @@ export function AdminProductEditor({
     setError(null);
 
     try {
-      const totalStock = parseInt(form.totalStock, 10);
-      if (isNaN(totalStock) || totalStock < 0) {
-        throw new Error("Le stock total doit être un nombre positif");
+      const activeVariants = variants.filter((v) => !v._isDeleted);
+      if (activeVariants.some((v) => !v.name.trim())) {
+        throw new Error("Chaque variante doit avoir un nom");
       }
 
       // Validation de la promotion
@@ -170,8 +195,19 @@ export function AdminProductEditor({
       await onSave({
         name: form.name.trim(),
         description: form.description.trim() || null,
+        categoryId: form.categoryId,
         minThreshold: parseInt(form.minThreshold, 10),
-        variants: variants.filter((v) => !v._isDeleted),
+        shippingWeight: form.shippingWeight.trim()
+          ? Number(form.shippingWeight)
+          : null,
+        isPublished: form.isPublished,
+        variants: activeVariants.map((v) => ({
+          ...(v._isNew ? {} : { id: v.id }),
+          name: v.name.trim(),
+          price: Number(v.price) || 0,
+          lotSize: Number(v.lotSize) || 1,
+          isActive: v.isActive,
+        })),
         promotionType,
         promotionValue: promotionVal,
         featured,
@@ -277,12 +313,9 @@ export function AdminProductEditor({
                 <span>STOCK TOTAL (UNITÉS)</span>
                 <input
                   type="number"
-                  min="0"
                   value={form.totalStock}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setForm({ ...form, totalStock: e.target.value })
-                  }
-                  required
+                  readOnly
+                  title="Le stock se modifie via la gestion des stocks, pour conserver la traçabilité des mouvements"
                 />
               </label>
               <label>
@@ -310,6 +343,7 @@ export function AdminProductEditor({
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setForm({ ...form, shippingWeight: e.target.value })
                   }
+                  placeholder="0"
                 />
               </label>
               <label>
@@ -317,9 +351,9 @@ export function AdminProductEditor({
                 <div className={styles.checkboxControl}>
                   <input
                     type="checkbox"
-                    checked={form.online}
+                    checked={form.isPublished}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setForm({ ...form, online: e.target.checked })
+                      setForm({ ...form, isPublished: e.target.checked })
                     }
                   />
                 </div>
@@ -394,9 +428,10 @@ export function AdminProductEditor({
                 <button
                   type="button"
                   onClick={handleStockMovement}
+                  disabled={isMovingStock}
                   className={styles.stockMovementBtn}
                 >
-                  ENREGISTRER LE MOUVEMENT
+                  {isMovingStock ? "ENREGISTREMENT..." : "ENREGISTRER LE MOUVEMENT"}
                 </button>
               </div>
             )}

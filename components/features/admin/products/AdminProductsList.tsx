@@ -29,12 +29,16 @@ export function AdminProductsList({ products, onEdit }: AdminProductsListProps) 
           <b className={styles.productPrice}>{product.price.toFixed(2)} €</b>
           <span
             className={`${styles.productVisibility} ${
-              product.stockStatus === "IN_STOCK" ? styles.online : ""
+              product.isPublished && product.stockStatus !== "OUT_OF_STOCK"
+                ? styles.online
+                : ""
             }`}
           >
-            {product.stockStatus === "OUT_OF_STOCK"
-              ? "Indisponible"
-              : "En ligne"}
+            {!product.isPublished
+              ? "Hors ligne"
+              : product.stockStatus === "OUT_OF_STOCK"
+                ? "Indisponible"
+                : "En ligne"}
           </span>
           <span className={styles.productStock}>
             {product.stockStatus === "OUT_OF_STOCK"

@@ -18,6 +18,7 @@ interface ProductVariant {
   name: string;
   lotSize: number;
   price: string;
+  originalPrice?: string;
   availableStock: number;
   isActive: boolean;
 }
@@ -216,6 +217,7 @@ export default function ProductDetailPage() {
     [key: string]: unknown;
   } | null;
   const price = toPrice(selectedVariant?.price ?? product.price, 0);
+  const originalPrice = selectedVariant?.originalPrice ? toPrice(selectedVariant.originalPrice, 0) : undefined;
   const stock = selectedVariant?.availableStock ?? product.availableStock ?? 0;
   const details = productDetails(product);
   const overview = firstText(
@@ -275,7 +277,12 @@ export default function ProductDetailPage() {
                   </span>
                 )}
               </h1>
-              <p className="mt-5.5 font-mono text-xl font-extrabold text-primary">
+              <p className="mt-5.5 flex items-baseline gap-2 font-mono text-xl font-extrabold text-primary">
+                {originalPrice !== undefined && originalPrice > price && (
+                  <span className="text-sm font-semibold text-[#829187] line-through opacity-70">
+                    {originalPrice.toFixed(2)}€
+                  </span>
+                )}
                 {price.toFixed(2)}€
               </p>
               <p className="mt-5 inline-flex w-fit items-center border border-primary/35 bg-primary/10 px-2.5 py-2 font-mono text-[10px] font-black uppercase tracking-[0.08em] text-primary">
