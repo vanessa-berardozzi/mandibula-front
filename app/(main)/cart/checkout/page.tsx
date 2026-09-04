@@ -17,6 +17,7 @@ interface ShippingAddress {
   city: string;
   postalCode: string;
   country: string;
+  countryCode: string;
 }
 
 interface SavedAddress {
@@ -26,6 +27,75 @@ interface SavedAddress {
   state: string;
   postalCode: string;
   country: string;
+}
+
+type ProductVatCategory = "STANDARD_GOODS" | "LIVE_ANIMALS";
+
+interface CheckoutVariantData {
+  id: string;
+  price: number;
+  product: {
+    id: string;
+    vatCategory: ProductVatCategory;
+  };
+}
+
+interface VatCalculationResponse {
+  totals: {
+    totalVatCents: number;
+  };
+}
+
+const COUNTRIES = [
+  { code: 'FR', label: 'France' },
+  { code: 'BE', label: 'Belgique' },
+  { code: 'CH', label: 'Suisse' },
+  { code: 'LU', label: 'Luxembourg' },
+  { code: 'MC', label: 'Monaco' },
+  { code: '---', label: '─────────────', disabled: true },
+  { code: 'DE', label: 'Allemagne' },
+  { code: 'AT', label: 'Autriche' },
+  { code: 'ES', label: 'Espagne' },
+  { code: 'IT', label: 'Italie' },
+  { code: 'NL', label: 'Pays-Bas' },
+  { code: 'PT', label: 'Portugal' },
+  { code: 'GB', label: 'Royaume-Uni' },
+  { code: 'IE', label: 'Irlande' },
+  { code: 'DK', label: 'Danemark' },
+  { code: 'SE', label: 'Suède' },
+  { code: 'NO', label: 'Norvège' },
+  { code: 'FI', label: 'Finlande' },
+  { code: 'PL', label: 'Pologne' },
+  { code: 'CZ', label: 'République tchèque' },
+  { code: 'SK', label: 'Slovaquie' },
+  { code: 'HU', label: 'Hongrie' },
+  { code: 'RO', label: 'Roumanie' },
+  { code: 'BG', label: 'Bulgarie' },
+  { code: 'HR', label: 'Croatie' },
+  { code: 'SI', label: 'Slovénie' },
+  { code: 'GR', label: 'Grèce' },
+  { code: 'CY', label: 'Chypre' },
+  { code: 'MT', label: 'Malte' },
+  { code: 'EE', label: 'Estonie' },
+  { code: 'LV', label: 'Lettonie' },
+  { code: 'LT', label: 'Lituanie' },
+  { code: '---2', label: '─────────────', disabled: true },
+  { code: 'CA', label: 'Canada' },
+  { code: 'US', label: 'États-Unis' },
+  { code: 'AU', label: 'Australie' },
+  { code: 'JP', label: 'Japon' },
+];
+
+function getCountryOption(value: string) {
+  const normalizedValue = value.trim().toLowerCase();
+  return COUNTRIES.find((country) => (
+    !country.disabled
+    && (country.code.toLowerCase() === normalizedValue || country.label.toLowerCase() === normalizedValue)
+  ));
+}
+
+function getCountryLabel(code: string) {
+  return getCountryOption(code)?.label ?? code;
 }
 
 function CheckoutContent() {
@@ -39,6 +109,10 @@ function CheckoutContent() {
   const [error, setError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [checkoutVariants, setCheckoutVariants] = useState<Record<string, CheckoutVariantData>>({});
+  const [vatAmount, setVatAmount] = useState(0);
+  const [isVatLoading, setIsVatLoading] = useState(false);
+  const [vatError, setVatError] = useState<string | null>(null);
 
   // Décompose le nom complet (best effort) en prénom + nom
   const fullName = session?.user?.name ?? '';
@@ -55,6 +129,7 @@ function CheckoutContent() {
     city: '',
     postalCode: '',
     country: 'France',
+    countryCode: 'FR',
   });
 
   const SHIPPING_COST = 5.99;
@@ -72,6 +147,99 @@ function CheckoutContent() {
     }));
   }, [defaultFirstName, defaultLastName, session?.user?.email]);
 
+  useEffect(() => {
+    const variantIds = items.filter((item) => item.variantId).map((item) => item.variantId);
+    if (variantIds.length === 0) {
+      setCheckoutVariants({});
+      return;
+    }
+
+    let ignore = false;
+    fetch(`/api/products/variants/batch?ids=${variantIds.join(',')}`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<CheckoutVariantData[]>;
+      })
+      .then((variants) => {
+        if (ignore) return;
+        const byId: Record<string, CheckoutVariantData> = {};
+        for (const variant of variants) {
+          byId[variant.id] = variant;
+        }
+        setCheckoutVariants(byId);
+      })
+      .catch(() => {
+        if (!ignore) {
+          setCheckoutVariants({});
+          setIsVatLoading(false);
+          setVatError('TVA recalculée à la validation');
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [items]);
+
+  useEffect(() => {
+    if (items.length === 0 || !shipping.countryCode) {
+      setVatAmount(0);
+      setVatError(null);
+      return;
+    }
+
+    const vatItems = items.map((item) => {
+      const variant = checkoutVariants[item.variantId];
+      if (!variant) return null;
+      return {
+        productId: variant.product.id,
+        productCategory: variant.product.vatCategory,
+        unitPriceInclVatCents: Math.round((variant.price ?? item.price ?? 0) * 100),
+        quantity: item.quantity,
+      };
+    });
+
+    if (vatItems.some((item) => item === null)) {
+      setVatAmount(0);
+      setIsVatLoading(true);
+      setVatError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    setIsVatLoading(true);
+    setVatError(null);
+
+    fetch('/api/vat/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      signal: controller.signal,
+      body: JSON.stringify({
+        items: vatItems,
+        shipToCountry: shipping.countryCode,
+        buyerType: 'B2C',
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<VatCalculationResponse>;
+      })
+      .then((vatResult) => {
+        setVatAmount(vatResult.totals.totalVatCents / 100);
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setVatAmount(0);
+        setVatError('TVA recalculée à la validation');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsVatLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [checkoutVariants, items, shipping.countryCode]);
+
   // Charger les adresses sauvegardées
   useEffect(() => {
     if (!session?.user) return;
@@ -82,13 +250,15 @@ function CheckoutContent() {
         // Pré-remplir avec la première adresse si disponible
         if (addresses?.length > 0) {
           const first = addresses[0];
+          const country = getCountryOption(first.country) ?? getCountryOption('FR')!;
           setSelectedAddressId(first.id);
           setShipping(prev => ({
             ...prev,
             street: first.street,
             city: first.city,
             postalCode: first.postalCode,
-            country: first.country || 'France',
+            country: country.label,
+            countryCode: country.code,
           }));
         }
       })
@@ -96,13 +266,15 @@ function CheckoutContent() {
   }, [session?.user]);
 
   const handleSelectSavedAddress = (addr: SavedAddress) => {
+    const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
     setSelectedAddressId(addr.id);
     setShipping(prev => ({
       ...prev,
       street: addr.street,
       city: addr.city,
       postalCode: addr.postalCode,
-      country: addr.country || 'France',
+      country: country.label,
+      countryCode: country.code,
     }));
   };
 
@@ -130,50 +302,8 @@ function CheckoutContent() {
     </div>
   );
 
-  // TODO: remplacer cette liste en dur par une source externe
-  // Options : bibliothèque `country-list` / `i18n-iso-countries`, API REST Countries (https://restcountries.com), ou constante partagée dans lib/countries.ts
-  const COUNTRIES = [
-    { code: 'FR', label: 'France' },
-    { code: 'BE', label: 'Belgique' },
-    { code: 'CH', label: 'Suisse' },
-    { code: 'LU', label: 'Luxembourg' },
-    { code: 'MC', label: 'Monaco' },
-    { code: '---', label: '─────────────' },
-    { code: 'DE', label: 'Allemagne' },
-    { code: 'AT', label: 'Autriche' },
-    { code: 'ES', label: 'Espagne' },
-    { code: 'IT', label: 'Italie' },
-    { code: 'NL', label: 'Pays-Bas' },
-    { code: 'PT', label: 'Portugal' },
-    { code: 'GB', label: 'Royaume-Uni' },
-    { code: 'IE', label: 'Irlande' },
-    { code: 'DK', label: 'Danemark' },
-    { code: 'SE', label: 'Suède' },
-    { code: 'NO', label: 'Norvège' },
-    { code: 'FI', label: 'Finlande' },
-    { code: 'PL', label: 'Pologne' },
-    { code: 'CZ', label: 'République tchèque' },
-    { code: 'SK', label: 'Slovaquie' },
-    { code: 'HU', label: 'Hongrie' },
-    { code: 'RO', label: 'Roumanie' },
-    { code: 'BG', label: 'Bulgarie' },
-    { code: 'HR', label: 'Croatie' },
-    { code: 'SI', label: 'Slovénie' },
-    { code: 'GR', label: 'Grèce' },
-    { code: 'CY', label: 'Chypre' },
-    { code: 'MT', label: 'Malte' },
-    { code: 'EE', label: 'Estonie' },
-    { code: 'LV', label: 'Lettonie' },
-    { code: 'LT', label: 'Lituanie' },
-    { code: '---2', label: '─────────────' },
-    { code: 'CA', label: 'Canada' },
-    { code: 'US', label: 'États-Unis' },
-    { code: 'AU', label: 'Australie' },
-    { code: 'JP', label: 'Japon' },
-  ];
-
-  const isShippingComplete = shipping.firstName && shipping.lastName && shipping.email
-    && shipping.street && shipping.city && shipping.postalCode && shipping.country;
+  const isShippingComplete = Boolean(shipping.firstName && shipping.lastName && shipping.email
+    && shipping.street && shipping.city && shipping.postalCode && shipping.countryCode);
 
   const handlePayment = async () => {
     if (!session?.user) {
@@ -203,7 +333,8 @@ function CheckoutContent() {
         body: JSON.stringify({
           items: items.map(item => ({ variantId: item.variantId, quantity: item.quantity })),
           paymentMethod,
-          shippingAddress: `${shipping.firstName} ${shipping.lastName}\n${shipping.street}\n${shipping.postalCode} ${shipping.city}\n${shipping.country}`,
+          shippingAddress: `${shipping.firstName} ${shipping.lastName}\n${shipping.street}\n${shipping.postalCode} ${shipping.city}\n${getCountryLabel(shipping.countryCode)}`,
+          shippingCountryCode: shipping.countryCode,
           customerEmail: shipping.email,
           customerPhone: shipping.phone,
           discount,
@@ -340,6 +471,12 @@ function CheckoutContent() {
                   <span className="text-muted-foreground uppercase tracking-wide">Livraison</span>
                   <span className="text-foreground tabular-nums">{SHIPPING_COST.toFixed(2)} €</span>
                 </div>
+                <div className="flex justify-between text-sm font-mono">
+                  <span className="text-muted-foreground uppercase tracking-wide">Dont TVA ({shipping.countryCode})</span>
+                  <span className="text-foreground tabular-nums">
+                    {isVatLoading ? 'Calcul...' : vatError ?? `${vatAmount.toFixed(2)} €`}
+                  </span>
+                </div>
                 <div className="flex justify-between text-xl font-black pt-3 border-t border-primary/50">
                   <span className="uppercase tracking-wider text-primary">Total</span>
                   <span className="text-primary tabular-nums drop-shadow-[0_0_8px_rgba(146,204,10,0.6)]">
@@ -392,7 +529,7 @@ function CheckoutContent() {
                     type="button"
                     onClick={() => {
                       setSelectedAddressId(null);
-                      setShipping(prev => ({ ...prev, street: '', city: '', postalCode: '', country: 'France' }));
+                      setShipping(prev => ({ ...prev, street: '', city: '', postalCode: '', country: 'France', countryCode: 'FR' }));
                     }}
                     className={`w-full text-left px-3 py-2 border font-mono text-sm transition-all ${
                       selectedAddressId === null
@@ -426,8 +563,12 @@ function CheckoutContent() {
                 </label>
                 <select
                   id="shipping-country"
-                  value={shipping.country}
-                  onChange={e => setShipping(prev => ({ ...prev, country: e.target.value }))}
+                  value={shipping.countryCode}
+                  onChange={e => {
+                    const country = getCountryOption(e.target.value);
+                    if (!country) return;
+                    setShipping(prev => ({ ...prev, country: country.label, countryCode: country.code }));
+                  }}
                   required
                   className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground focus:outline-none focus:border-primary/70 transition-colors appearance-none cursor-pointer"
                   style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
@@ -435,8 +576,8 @@ function CheckoutContent() {
                   {COUNTRIES.map(c => (
                     <option
                       key={c.code}
-                      value={c.code.startsWith('---') ? '' : c.label}
-                      disabled={c.code.startsWith('---')}
+                      value={c.code}
+                      disabled={c.disabled}
                     >
                       {c.label}
                     </option>
