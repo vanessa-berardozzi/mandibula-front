@@ -337,7 +337,6 @@ function CheckoutContent() {
           shippingCountryCode: shipping.countryCode,
           customerEmail: shipping.email,
           customerPhone: shipping.phone,
-          discount,
           promoCode: promoResult?.code,
         }),
       });
