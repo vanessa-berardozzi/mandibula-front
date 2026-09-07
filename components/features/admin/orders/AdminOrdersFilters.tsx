@@ -9,15 +9,6 @@ export function AdminOrdersFilters({ status, search }: { status: string; search:
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(search);
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value);
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) params.set("search", value);
-    else params.delete("search");
-    params.delete("page");
-    router.push(`?${params.toString()}`);
-  };
-
   const applyFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);

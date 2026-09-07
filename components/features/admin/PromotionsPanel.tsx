@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 interface Promotion {
   id: string;
@@ -54,11 +54,7 @@ export function PromotionsPanel({ apiBase = "/api/admin" }: { apiBase?: string }
   const [editingPromotionId, setEditingPromotionId] = useState<string | null>(null);
   const [form, setForm] = useState<PromotionFormData>(emptyForm);
 
-  useEffect(() => {
-    loadPromotions();
-  }, []);
-
-  async function loadPromotions() {
+  const loadPromotions = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -72,7 +68,11 @@ export function PromotionsPanel({ apiBase = "/api/admin" }: { apiBase?: string }
     } finally {
       setLoading(false);
     }
-  }
+  }, [apiBase]);
+
+  useEffect(() => {
+    void loadPromotions();
+  }, [loadPromotions]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -214,7 +214,7 @@ export function PromotionsPanel({ apiBase = "/api/admin" }: { apiBase?: string }
               />
             </label>
             <label>
-              Limite d'utilisation
+              Limite d&apos;utilisation
               <input
                 type="number"
                 min="1"

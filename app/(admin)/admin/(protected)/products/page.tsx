@@ -22,8 +22,6 @@ export default function AdminProductsPage() {
   const [total, setTotal] = useState(0);
   
   const [editingProduct, setEditingProduct] = useState<AdminProductDetail | null>(null);
-  const [editingLoading, setEditingLoading] = useState(false);
-  const [editingError, setEditingError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProducts() {
@@ -71,9 +69,6 @@ export default function AdminProductsPage() {
   };
 
   async function handleProductEdit(product: AdminProduct) {
-    setEditingLoading(true);
-    setEditingError(null);
-    
     try {
       const response = await fetch(`/api/admin/products/${product.id}`);
       
@@ -84,11 +79,7 @@ export default function AdminProductsPage() {
       const detail = (await response.json()) as AdminProductDetail;
       setEditingProduct(detail);
     } catch (caught) {
-      setEditingError(
-        caught instanceof Error ? caught.message : "Erreur lors du chargement"
-      );
-    } finally {
-      setEditingLoading(false);
+      setError(caught instanceof Error ? caught.message : "Erreur lors du chargement");
     }
   }
 
