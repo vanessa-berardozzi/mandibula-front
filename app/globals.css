@@ -2276,5 +2276,299 @@ a.footer-contact-link:focus-visible strong {
   color: var(--admin-green);
 }
 
+/* ============================================
+   CLIENTS — TABLEAU + HISTORIQUE DE COMMANDES
+   Reprend les tokens admin déjà définis plus haut.
+   ============================================ */
+.admin-data-table.customers .admin-data-head,
+.admin-data-table.customers .admin-data-row {
+  grid-template-columns: 1.4fr 1fr 0.8fr 0.8fr 160px;
+}
+
+.admin-sort-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.admin-sort-button:hover,
+.admin-sort-button:focus-visible {
+  color: var(--admin-green);
+  outline: none;
+}
+.admin-sort-button b {
+  color: #71967b;
+  font: inherit;
+  line-height: 1;
+}
+.admin-sort-button:hover b,
+.admin-sort-button:focus-visible b {
+  color: var(--admin-green);
+}
+
+.customer-orders-trigger {
+  width: fit-content;
+  min-width: 52px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 9px;
+  border: 1px solid rgba(71, 255, 131, 0.3);
+  background: #030a06;
+  color: var(--admin-green);
+  font: 700 var(--admin-micro) / 1 monospace;
+  cursor: pointer;
+}
+.customer-orders-trigger:hover,
+.customer-orders-trigger:focus-visible {
+  border-color: var(--admin-green);
+  background: rgba(71, 255, 131, 0.08);
+  outline: none;
+}
+.customer-orders-trigger span {
+  color: #bfffd0;
+  font-size: var(--admin-small);
+  line-height: 1;
+}
+
+.customer-row-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.customer-row-actions span {
+  min-width: 74px;
+  padding: 8px 9px;
+  border: 1px solid var(--admin-border);
+  color: #6d8574;
+  font: var(--admin-micro) / 1 monospace;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.customer-orders-detail {
+  /* Échelle locale : les tokens --admin-* aplatissent la hiérarchie de la maquette
+     (micro >= small sur grand écran), on la rétablit ici. */
+  --co-micro: clamp(0.6rem, 0.58rem + 0.08vw, 0.7rem);
+  --co-small: clamp(0.72rem, 0.7rem + 0.1vw, 0.82rem);
+  --co-text: clamp(0.85rem, 0.82rem + 0.12vw, 0.95rem);
+  --co-lead: clamp(0.95rem, 0.9rem + 0.15vw, 1.1rem);
+
+  grid-column: 1 / -1;
+  padding: 18px 20px 22px;
+  border-top: 1px solid rgba(71, 255, 131, 0.14);
+  background: linear-gradient(90deg, rgba(5, 23, 11, 0.72), rgba(3, 12, 7, 0.42));
+  animation: admin-detail-in 0.18s ease-out both;
+}
+.customer-orders-detail > header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.customer-orders-detail > header span,
+.customer-order-card header span {
+  color: #71a67e;
+  font: var(--co-micro) / 1 monospace;
+  letter-spacing: 0.13em;
+}
+.customer-orders-detail > header h3 {
+  margin: 6px 0 0;
+  color: #e3ede5;
+  font: 700 var(--co-text) / 1.15 Arial, sans-serif;
+}
+.customer-orders-detail > header > b {
+  color: var(--admin-green);
+  font: 700 var(--co-lead) / 1 monospace;
+  white-space: nowrap;
+}
+.customer-orders-list {
+  display: grid;
+  gap: 10px;
+}
+.customer-order-card {
+  border: 1px solid rgba(71, 255, 131, 0.16);
+  background: rgba(2, 11, 6, 0.68);
+}
+.customer-order-card.cancelled {
+  border-color: rgba(255, 86, 104, 0.7);
+  background: linear-gradient(100deg, rgba(94, 11, 20, 0.78), rgba(24, 5, 9, 0.88));
+  box-shadow: inset 3px 0 0 #ff5668;
+}
+.customer-order-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 15px 11px;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.1);
+}
+.customer-order-card.cancelled > header {
+  border-bottom-color: rgba(255, 86, 104, 0.28);
+}
+.customer-order-card > header > div {
+  display: grid;
+  gap: 6px;
+}
+.customer-order-card > header > div:last-child {
+  justify-items: end;
+}
+.customer-order-card > header strong {
+  color: #dbe7dd;
+  font: 700 var(--co-small) / 1.2 Arial, sans-serif;
+}
+.customer-order-card > header b {
+  color: var(--admin-green);
+  font: 700 var(--co-text) / 1 monospace;
+}
+.customer-order-card > header small {
+  color: #83a38b;
+  font: var(--co-micro) / 1 monospace;
+  text-transform: uppercase;
+}
+.customer-order-card.cancelled > header b {
+  color: #ffb0b9;
+}
+.customer-order-card.cancelled > header small {
+  color: #ff9eaa;
+  font-weight: 800;
+}
+.customer-order-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 15px;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.08);
+}
+.customer-order-flags span {
+  padding: 5px 7px;
+  border: 1px solid rgba(148, 190, 158, 0.18);
+  color: #8ea996;
+  font: var(--co-micro) / 1 monospace;
+  text-transform: uppercase;
+}
+.customer-order-flags .live {
+  border-color: rgba(71, 255, 131, 0.35);
+  color: var(--admin-green);
+}
+.customer-order-flags .cancelled {
+  border-color: rgba(255, 86, 104, 0.65);
+  background: rgba(255, 86, 104, 0.16);
+  color: #ffc0c7;
+  font-weight: 800;
+}
+.customer-order-items {
+  display: grid;
+}
+.customer-order-item {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 42px 82px;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 15px;
+  border-bottom: 1px solid rgba(71, 255, 131, 0.08);
+}
+.customer-order-item:last-child {
+  border-bottom: 0;
+}
+.customer-order-item img,
+.customer-item-placeholder {
+  width: 46px;
+  height: 42px;
+  object-fit: cover;
+  border: 1px solid rgba(71, 255, 131, 0.2);
+}
+.customer-item-placeholder {
+  display: grid;
+  place-items: center;
+  background: #07170c;
+  color: #5a8163;
+  font-size: 17px;
+}
+.customer-order-item > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.customer-order-item strong {
+  overflow: hidden;
+  color: #dce8de;
+  font: 700 var(--co-small) / 1.2 Arial, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customer-order-item small {
+  overflow: hidden;
+  color: #6f8875;
+  font: var(--co-micro) / 1 monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customer-order-quantity {
+  color: #a4b7a8;
+  font: var(--co-micro) / 1 monospace;
+  text-align: center;
+}
+.customer-order-item > b {
+  color: #cdebd4;
+  font: 700 var(--co-small) / 1 monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+.customer-orders-empty {
+  margin: 0;
+  padding: 16px;
+  color: #73857a;
+  font: var(--co-micro) / 1.5 monospace;
+}
+
+@media (max-width: 1180px) {
+  .admin-data-table.customers .admin-data-head,
+  .admin-data-table.customers .admin-data-row {
+    grid-template-columns: 1.3fr 1fr 0.75fr 0.75fr 140px;
+    gap: 10px;
+    padding-inline: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-data-table.customers .admin-data-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .customer-orders-detail {
+    padding: 14px;
+  }
+  .customer-orders-detail > header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .customer-order-item {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+  .customer-order-item > b {
+    grid-column: 2 / 4;
+    text-align: left;
+  }
+}
+
+@media (max-width: 390px) {
+  .admin-data-table.customers .admin-data-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 

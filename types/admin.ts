@@ -86,6 +86,28 @@ export type AdminOrdersPage = {
   pages: number;
 };
 
+export type AdminCustomerSortKey = "name" | "orders" | "spent";
+
+export type AdminCustomerListItem = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  orderCount: number;
+  cancelledCount: number;
+  totalSpent: number;
+  lastOrderAt: string | null;
+  orders: AdminOrderListItem[];
+};
+
+export type AdminCustomersPage = {
+  customers: AdminCustomerListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+};
+
 export type AdminProductVariant = {
   id: string;
   name: string;
