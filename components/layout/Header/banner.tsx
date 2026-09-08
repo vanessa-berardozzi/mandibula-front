@@ -15,7 +15,7 @@ interface BannerProps {
   rightLabel?: string;
 }
 
-//TODO: rendre accessible le changement pause/active du banner depuis l'admin
+
 
 export function Banner({
   message,

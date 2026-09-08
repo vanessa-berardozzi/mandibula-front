@@ -3,6 +3,8 @@
 import { findAdminNavItem } from "@/lib/admin/adminNav";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { BannerSettingsDialog } from "./BannerSettingsDialog";
 
 type AdminTopbarProps = {
   onOpenNav: () => void;
@@ -11,6 +13,7 @@ type AdminTopbarProps = {
 export function AdminTopbar({ onOpenNav }: AdminTopbarProps) {
   const pathname = usePathname();
   const current = findAdminNavItem(pathname);
+  const [isBannerDialogOpen, setIsBannerDialogOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 flex min-h-23 items-center gap-4 border-b border-admin-border bg-[#020905]/86 px-4 py-4 backdrop-blur-md sm:px-6">
@@ -32,12 +35,22 @@ export function AdminTopbar({ onOpenNav }: AdminTopbarProps) {
         </h1>
       </div>
 
+      <button
+        type="button"
+        onClick={() => setIsBannerDialogOpen(true)}
+        className="admin-type-micro hidden min-h-9 items-center border border-sky-500/50 bg-sky-500/10 px-3 font-mono uppercase tracking-[0.2em] text-sky-300 transition-colors hover:border-sky-400 hover:text-sky-200 sm:inline-flex"
+      >
+        Bandeau
+      </button>
+
       <Link
         href="/"
         className="admin-type-micro hidden min-h-9 items-center border border-admin-border bg-[#040e08]/80 px-3 font-mono uppercase tracking-[0.2em] text-[#7d9985] transition-colors hover:border-admin-green hover:text-admin-green sm:inline-flex"
       >
         Retour au site
       </Link>
+
+      <BannerSettingsDialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen} />
     </header>
   );
 }
