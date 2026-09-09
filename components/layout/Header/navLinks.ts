@@ -7,7 +7,7 @@ export interface NavLink {
 // Accueil + catégories. Source unique utilisée par la navbar desktop et le menu mobile.
 // "Animaux" est rendu via AnimalsDropdown/MobileAnimalsTree (le href sert de repère uniquement).
 // Slugs "accessoires"/"nourriture"/"packs-kits" vérifiés dans Mandibula-back/prisma/seed/seed.ts.
-// TODO(categories-back): "bijoux" et "substrats" n'existent pas encore comme catégories en base,
+
 // ces liens pointent vers /categories en attendant leur création côté back.
 export const NAV_LINKS: NavLink[] = [
   { label: "Accueil", href: "/" },

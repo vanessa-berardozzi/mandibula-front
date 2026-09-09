@@ -34,7 +34,9 @@ export type AdminDashboardStats = {
 export type AdminOrderStatus =
   | "PENDING"
   | "CONFIRMED"
+  | "TO_PREPARE"
   | "PREPARING"
+  | "READY"
   | "HELD_WEATHER"
   | "SHIPPED"
   | "DELIVERED"

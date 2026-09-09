@@ -3,7 +3,9 @@ import type { AdminOrderStatus, AdminPaymentMethod, AdminPaymentStatus } from "@
 export const ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
   PENDING: "A préparer",
   CONFIRMED: "Payée",
+  TO_PREPARE: "A préparer",
   PREPARING: "En Préparation",
+  READY: "Prêt à partir",
   HELD_WEATHER: "Attente météo",
   SHIPPED: "Expédiée",
   DELIVERED: "Livrée",

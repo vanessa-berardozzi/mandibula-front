@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 	title: "Mandibula Shop - Boutique en ligne d'isopodes et blattes",
 	description: "Boutique en ligne spécialisée dans la vente d'isopodes, blattes et accessoires pour terrariums. Qualité garantie, expédition sécurisée.",
 	keywords: ["isopodes", "blattes", "terrainium", "invertébrés", "élevage", "accessoires"],
-	authors: [{ name: "Mandibula Shop" }],
+	authors: [{ name: "Vanessa Berardozzi" }],
 	creator: "Mandibula Shop",
 	publisher: "Mandibula Shop",
 	formatDetection: {
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
 	openGraph: {
 		type: "website",
 		locale: "fr_FR",
-		url: "https://mandibula.shop",
+		url: "https://dev.mandibula.lu",
 		siteName: "Mandibula Shop",
 		title: "Mandibula Shop - Boutique en ligne d'isopodes et blattes",
 		description: "Boutique en ligne spécialisée dans la vente d'isopodes, blattes et accessoires pour terrariums.",
 		images: [
 			{
 				//todo: mettre à jour l'adresse de l'image Open Graph avec la bonne URL
-				url: "https://mandibula.shop/og-image.png",
+				url: "https://dev.mandibula.lu",
 				width: 1200,
 				height: 630,
 				alt: "Mandibula Shop",
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 				
 				{/* Canonical URL */}
-				<link rel="canonical" href="https://mandibula.shop" />
+				<link rel="canonical" href="https://mandibula.lu" />
 				
 				{/* Icons */}
 				<link rel="icon" href="/favicon.ico" />
