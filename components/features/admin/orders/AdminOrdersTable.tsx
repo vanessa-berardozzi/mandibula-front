@@ -182,7 +182,13 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListItem[] }) {
         })}
       </div>
 
-      <AdminOrderDetailDrawer orderId={detailId} onClose={() => setDetailId(null)} />
+      <AdminOrderDetailDrawer
+        orderId={detailId}
+        onClose={() => setDetailId(null)}
+        onStatusChange={() => {
+          startTransition(() => router.refresh());
+        }}
+      />
     </>
   );
 }

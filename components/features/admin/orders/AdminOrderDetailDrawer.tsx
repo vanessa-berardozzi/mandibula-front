@@ -25,12 +25,15 @@ import { useEffect, useState } from "react";
 export function AdminOrderDetailDrawer({
   orderId,
   onClose,
+  onStatusChange,
 }: {
   orderId: string | null;
   onClose: () => void;
+  onStatusChange?: () => void;
 }) {
   const [order, setOrder] = useState<AdminOrderDetail | null>(null);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -53,9 +56,34 @@ export function AdminOrderDetailDrawer({
     };
   }, [orderId]);
 
+  const changeStatus = async (status: AdminOrderDetail["status"]) => {
+    if (!order || status === order.status) return;
+
+    setError("");
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/admin/orders/${order.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error("Statut indisponible");
+
+      setOrder((current) => (current ? { ...current, status } : current));
+      onStatusChange?.();
+    } catch {
+      setError("Impossible de mettre à jour le statut de cette commande.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Sheet open={Boolean(orderId)} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="admin-drawer" overlayClassName="admin-drawer-overlay">
+      <SheetContent
+        className="admin-drawer admin-modal admin-order-modal"
+        overlayClassName="admin-drawer-overlay admin-modal-overlay"
+      >
         <header>
           <div>
             <span>FULFILMENT.PIPELINE</span>
@@ -118,6 +146,77 @@ export function AdminOrderDetailDrawer({
                 <strong>{order.notes || "Aucune"}</strong>
               </div>
             </div>
+
+            <section className="admin-order-form" aria-label="Gestion de la commande">
+              <div className="admin-order-form-grid">
+                <label>
+                  <span>Nom du client</span>
+                  <input value={order.customerName || "Client"} readOnly />
+                </label>
+                <label>
+                  <span>E-mail client</span>
+                  <input value={order.customerEmail} readOnly />
+                </label>
+                <label>
+                  <span>Statut</span>
+                  <select
+                    value={order.status}
+                    disabled={isSaving}
+                    onChange={(event) =>
+                      void changeStatus(event.target.value as AdminOrderDetail["status"])
+                    }
+                  >
+                    {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Paiement</span>
+                  <input value={PAYMENT_STATUS_LABELS[order.paymentStatus]} readOnly />
+                </label>
+              </div>
+
+              <label>
+                <span>Moyen de paiement</span>
+                <input value={PAYMENT_METHOD_LABELS[order.paymentMethod]} readOnly />
+              </label>
+
+              <div className="admin-order-form-grid">
+                <label>
+                  <span>Adresse de livraison</span>
+                  <textarea value={order.shippingAddress || "Non renseignée"} readOnly rows={3} />
+                </label>
+                <label>
+                  <span>Adresse de facturation</span>
+                  <textarea value={order.billingAddress || "Non renseignée"} readOnly rows={3} />
+                </label>
+              </div>
+
+              <label>
+                <span>Note de préparation</span>
+                <textarea value={order.notes || "Aucune note"} readOnly rows={3} />
+              </label>
+            </section>
+
+            <section className="admin-order-logistics" aria-label="Transporteur">
+              <span>CONNECTEUR TRANSPORTEUR</span>
+              <strong>Configuration en attente</strong>
+              <p>
+                Le transporteur et la création du bordereau seront disponibles après l’intégration
+                des appels API.
+              </p>
+              <div>
+                <button type="button" disabled>
+                  Créer le bordereau A6
+                </button>
+                <button type="button" disabled>
+                  Étiquette officielle
+                </button>
+              </div>
+            </section>
 
             <section className="admin-order-items" aria-label="Articles de la commande">
               <header>
