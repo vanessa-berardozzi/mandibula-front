@@ -7,7 +7,11 @@ import styles from "./adminProductEditor.module.css";
 
 type Category = { id: string; name: string };
 
-type FormVariant = AdminProductVariant & { _isNew?: boolean; _isDeleted?: boolean };
+type FormVariant = AdminProductVariant & {
+  _isNew?: boolean;
+  _isDeleted?: boolean;
+  initialStock?: number;
+};
 
 type AdminProductEditorProps = {
   product: AdminProductDetail;
@@ -16,10 +20,21 @@ type AdminProductEditorProps = {
     name: string;
     description: string | null;
     categoryId: string;
+    vatCategory?: "STANDARD_GOODS" | "LIVE_ANIMALS";
+    stockMode?: "SHARED_POOL" | "PER_VARIANT";
     minThreshold: number;
     shippingWeight: number | null;
     isPublished: boolean;
-    variants: { id?: string; name: string; price: number; lotSize: number; isActive: boolean }[];
+    variants: {
+      id?: string;
+      name: string;
+      price: number;
+      lotSize: number;
+      isActive: boolean;
+      initialStock?: number;
+      totalStock?: number;
+      minThreshold?: number;
+    }[];
     promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
     promotionValue?: number | null;
     featured?: boolean;
@@ -31,9 +46,15 @@ export function AdminProductEditor({
   onClose,
   onSave,
 }: AdminProductEditorProps) {
+  const initialStockMode =
+    product.stockMode ??
+    (product.vatCategory === "LIVE_ANIMALS" ? "SHARED_POOL" : "PER_VARIANT");
+
   const [form, setForm] = useState({
     name: product.name,
     categoryId: product.category.id,
+    vatCategory: (product.vatCategory ?? "STANDARD_GOODS") as "STANDARD_GOODS" | "LIVE_ANIMALS",
+    stockMode: initialStockMode as "SHARED_POOL" | "PER_VARIANT",
     description: product.description || "",
     minThreshold: (product.stockInfo?.minThreshold || 5).toString(),
     totalStock: product.totalStock.toString(),
@@ -48,6 +69,9 @@ export function AdminProductEditor({
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [showStockManagement, setShowStockManagement] = useState(false);
   const [isMovingStock, setIsMovingStock] = useState(false);
+  const [targetVariantId, setTargetVariantId] = useState<string>(
+    product.variants[0]?.id ?? ""
+  );
   const [stockMovement, setStockMovement] = useState({
     type: "ENTRY",
     quantity: "",
@@ -62,6 +86,8 @@ export function AdminProductEditor({
     product.promotionValue ? product.promotionValue.toString() : ""
   );
   const [featured, setFeatured] = useState<boolean>(product.featured ?? false);
+
+  const isPerVariant = form.stockMode === "PER_VARIANT";
 
   useEffect(() => {
     async function loadCategories() {
@@ -92,11 +118,17 @@ export function AdminProductEditor({
       id: `temp-${Date.now()}`,
       name: "",
       price: 0,
-      lotSize: 1,
+      lotSize: isPerVariant ? 1 : 1,
       isActive: true,
       _isNew: true,
+      initialStock: 0,
+      totalStock: 0,
+      minThreshold: parseInt(form.minThreshold, 10) || 5,
     };
     setVariants([...variants, newVariant]);
+    if (!targetVariantId) {
+      setTargetVariantId(newVariant.id);
+    }
   }
 
   function handleDeleteVariant(id: string) {
@@ -113,7 +145,14 @@ export function AdminProductEditor({
         v.id === id
           ? {
               ...v,
-              [field]: field === "price" || field === "lotSize" ? parseFloat(value.toString()) : value,
+              [field]:
+                field === "price" ||
+                field === "lotSize" ||
+                field === "totalStock" ||
+                field === "initialStock" ||
+                field === "minThreshold"
+                  ? parseFloat(value.toString()) || 0
+                  : value,
             }
           : v
       )
@@ -127,12 +166,26 @@ export function AdminProductEditor({
       return;
     }
 
+    if (isPerVariant && !targetVariantId) {
+      setError("Veuillez sélectionner la variante à ajuster");
+      return;
+    }
+
     // Le backend attend une quantité signée : positive pour une entrée, négative pour une sortie.
     const signedQuantity = stockMovement.type === "ENTRY" ? quantity : -quantity;
 
-    if (parseInt(form.totalStock, 10) + signedQuantity < 0) {
-      setError("La quantité ne peut pas dépasser le stock actuel");
-      return;
+    if (isPerVariant) {
+      const currentVar = variants.find((v) => v.id === targetVariantId);
+      const currentVarStock = currentVar?.totalStock ?? 0;
+      if (currentVarStock + signedQuantity < 0) {
+        setError(`Stock insuffisant pour cette variante (actuel: ${currentVarStock})`);
+        return;
+      }
+    } else {
+      if (parseInt(form.totalStock, 10) + signedQuantity < 0) {
+        setError("La quantité ne peut pas dépasser le stock actuel");
+        return;
+      }
     }
 
     setIsMovingStock(true);
@@ -145,6 +198,7 @@ export function AdminProductEditor({
         body: JSON.stringify({
           quantity: signedQuantity,
           type: stockMovement.type,
+          ...(isPerVariant && targetVariantId ? { variantId: targetVariantId } : {}),
           ...(stockMovement.reason.trim().length >= 3
             ? { reason: stockMovement.reason.trim() }
             : {}),
@@ -157,6 +211,17 @@ export function AdminProductEditor({
 
       const data = (await response.json()) as { product: { totalStock: number } };
       setForm((prev) => ({ ...prev, totalStock: data.product.totalStock.toString() }));
+
+      if (isPerVariant && targetVariantId) {
+        setVariants((prev) =>
+          prev.map((v) =>
+            v.id === targetVariantId
+              ? { ...v, totalStock: (v.totalStock ?? 0) + signedQuantity }
+              : v
+          )
+        );
+      }
+
       setStockMovement({ type: "ENTRY", quantity: "", reason: "" });
       setShowStockManagement(false);
     } catch (caught) {
@@ -196,6 +261,8 @@ export function AdminProductEditor({
         name: form.name.trim(),
         description: form.description.trim() || null,
         categoryId: form.categoryId,
+        vatCategory: form.vatCategory,
+        stockMode: form.stockMode,
         minThreshold: parseInt(form.minThreshold, 10),
         shippingWeight: form.shippingWeight.trim()
           ? Number(form.shippingWeight)
@@ -205,8 +272,11 @@ export function AdminProductEditor({
           ...(v._isNew ? {} : { id: v.id }),
           name: v.name.trim(),
           price: Number(v.price) || 0,
-          lotSize: Number(v.lotSize) || 1,
+          lotSize: isPerVariant ? 1 : Number(v.lotSize) || 1,
           isActive: v.isActive,
+          initialStock: v._isNew ? v.initialStock : undefined,
+          totalStock: isPerVariant && !v._isNew ? v.totalStock ?? undefined : undefined,
+          minThreshold: isPerVariant ? v.minThreshold : undefined,
         })),
         promotionType,
         promotionValue: promotionVal,
@@ -227,6 +297,8 @@ export function AdminProductEditor({
       onClose();
     }
   }
+
+  const activeVariantsList = variants.filter((v) => !v._isDeleted);
 
   return (
     <div className="admin-modal-overlay" onClick={handleBackdropClick}>
@@ -262,7 +334,7 @@ export function AdminProductEditor({
                 {parseInt(form.totalStock, 10)} en stock
               </span>
               <span className={styles.stockLabel}>
-                {stockStatus}
+                {stockStatus} • {isPerVariant ? "STOCK PAR VARIANTE" : "POOL D'ESPÈCE"}
               </span>
             </div>
           </div>
@@ -310,12 +382,57 @@ export function AdminProductEditor({
 
             <div className={styles.formGrid}>
               <label>
-                <span>STOCK TOTAL (UNITÉS)</span>
+                <span>CATÉGORIE FISCALE</span>
+                <select
+                  value={form.vatCategory}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                    const newVat = e.target.value as "STANDARD_GOODS" | "LIVE_ANIMALS";
+                    setForm({
+                      ...form,
+                      vatCategory: newVat,
+                      stockMode: newVat === "LIVE_ANIMALS" ? "SHARED_POOL" : "PER_VARIANT",
+                    });
+                  }}
+                >
+                  <option value="STANDARD_GOODS">Accessoires & Matériel (Stock par variante)</option>
+                  <option value="LIVE_ANIMALS">Arthropodes vivants (Stock pool partagé)</option>
+                </select>
+              </label>
+              <label>
+                <span>MODE DE GESTION DU STOCK</span>
+                <select
+                  value={form.stockMode}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    setForm({
+                      ...form,
+                      stockMode: e.target.value as "SHARED_POOL" | "PER_VARIANT",
+                    })
+                  }
+                >
+                  <option value="PER_VARIANT">
+                    Stock indépendant par variante (Accessoires, Couleurs, Tailles)
+                  </option>
+                  <option value="SHARED_POOL">
+                    Pool commun partagé (Animaux vivants - Variantes = Lots)
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <div className={styles.formGrid}>
+              <label>
+                <span>
+                  {isPerVariant ? "STOCK TOTAL CUMULÉ (UNITÉS)" : "STOCK TOTAL (INDIVIDUS)"}
+                </span>
                 <input
                   type="number"
                   value={form.totalStock}
                   readOnly
-                  title="Le stock se modifie via la gestion des stocks, pour conserver la traçabilité des mouvements"
+                  title={
+                    isPerVariant
+                      ? "Le stock total est la somme des stocks des variantes, modifiable via la section Gestion des stocks"
+                      : "Le stock se modifie via la section Gestion des stocks pour conserver la traçabilité"
+                  }
                 />
               </label>
               <label>
@@ -356,6 +473,9 @@ export function AdminProductEditor({
                       setForm({ ...form, isPublished: e.target.checked })
                     }
                   />
+                  <span style={{ marginLeft: "0.5rem" }}>
+                    {form.isPublished ? "Produit publié et visible au catalogue" : "Brouillon non publié"}
+                  </span>
                 </div>
               </label>
             </div>
@@ -380,12 +500,29 @@ export function AdminProductEditor({
               onClick={() => setShowStockManagement(!showStockManagement)}
               className={styles.stockManagementBtn}
             >
-              {showStockManagement ? "- GESTION DES STOCKS" : "+ GESTION DES STOCKS"}
+              {showStockManagement ? "- GESTION DES MOUVEMENTS DE STOCK" : "+ GESTION DES MOUVEMENTS DE STOCK"}
             </button>
 
             {showStockManagement && (
               <div className={styles.stockManagementForm}>
                 <div className={styles.formGrid}>
+                  {isPerVariant && (
+                    <label style={{ gridColumn: "1 / -1" }}>
+                      <span>VARIANTE CIBLÉE</span>
+                      <select
+                        value={targetVariantId}
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                          setTargetVariantId(e.target.value)
+                        }
+                      >
+                        {activeVariantsList.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name} — Stock actuel : {v.totalStock ?? 0} unité(s)
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <label>
                     <span>TYPE DE MOUVEMENT</span>
                     <select
@@ -394,9 +531,9 @@ export function AdminProductEditor({
                         setStockMovement({ ...stockMovement, type: e.target.value })
                       }
                     >
-                      <option value="ENTRY">Arrivage fournisseur</option>
-                      <option value="LOSS">Perte / Casse / Mortalité</option>
-                      <option value="ADJUSTMENT">Ajustement d&apos;inventaire</option>
+                      <option value="ENTRY">Arrivage fournisseur (+)</option>
+                      <option value="LOSS">Perte / Casse / Mortalité (-)</option>
+                      <option value="ADJUSTMENT">Ajustement inventaire (-)</option>
                     </select>
                   </label>
                   <label>
@@ -440,7 +577,14 @@ export function AdminProductEditor({
           {/* VARIANTES & STOCK */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Variantes & tarifs</h3>
+              <div>
+                <h3>Variantes & tarifs</h3>
+                <p style={{ margin: "0.25rem 0 0", color: "var(--admin-muted)", font: "400 12px/1.4 monospace" }}>
+                  {isPerVariant
+                    ? "Mode par variante : chaque variante possède son propre stock indépendant."
+                    : "Mode pool commun : chaque variante est une taille de lot tirant dans le stock global."}
+                </p>
+              </div>
               <button 
                 type="button" 
                 onClick={handleAddVariant}
@@ -450,26 +594,34 @@ export function AdminProductEditor({
               </button>
             </div>
 
-            {variants.filter(v => !v._isDeleted).length > 0 ? (
+            {activeVariantsList.length > 0 ? (
               <div className={styles.variantsTable}>
-                <div className={styles.tableHeader}>
+                <div
+                  className={styles.tableHeader}
+                  style={isPerVariant ? { gridTemplateColumns: "1.8fr 1fr 1fr 1fr 0.8fr 1fr" } : undefined}
+                >
                   <div>VARIANTE</div>
                   <div>PRIX (€)</div>
-                  <div>PRIX DE REVIENT</div>
-                  <div>DISPONIBLE À LA VENTE</div>
+                  <div>{isPerVariant ? "STOCK ACTUEL" : "TAILLE DU LOT"}</div>
+                  {isPerVariant && <div>SEUIL D&apos;ALERTE</div>}
+                  <div>VENTE</div>
                   <div>ACTIONS</div>
                 </div>
                 {variants.map((variant) => {
                   if (variant._isDeleted) return null;
                   return (
-                    <div key={variant.id} className={styles.tableRow}>
+                    <div
+                      key={variant.id}
+                      className={styles.tableRow}
+                      style={isPerVariant ? { gridTemplateColumns: "1.8fr 1fr 1fr 1fr 0.8fr 1fr" } : undefined}
+                    >
                       <div>
                         <input
                           type="text"
                           value={variant.name}
                           onChange={(e) => handleVariantChange(variant.id, "name", e.target.value)}
                           className={styles.variantInput}
-                          placeholder="Ex: Lot de 5"
+                          placeholder={isPerVariant ? "Ex: Noir / XL" : "Ex: Lot de 5"}
                           required
                         />
                       </div>
@@ -485,20 +637,61 @@ export function AdminProductEditor({
                         />
                       </div>
                       <div>
-                        <input
-                          type="text"
-                          value="—"
-                          disabled
-                          className={styles.priceInput}
-                          title="Calculé ultérieurement"
-                        />
+                        {isPerVariant ? (
+                          variant._isNew ? (
+                            <input
+                              type="number"
+                              min="0"
+                              value={variant.initialStock ?? 0}
+                              onChange={(e) =>
+                                handleVariantChange(variant.id, "initialStock", e.target.value)
+                              }
+                              className={styles.priceInput}
+                              placeholder="Stock initial"
+                              required
+                            />
+                          ) : (
+                            <input
+                              type="text"
+                              value={`${variant.totalStock ?? 0} unité(s)`}
+                              disabled
+                              className={styles.priceInput}
+                              title="Modifiez le stock via la section Gestion des stocks"
+                            />
+                          )
+                        ) : (
+                          <input
+                            type="number"
+                            min="1"
+                            value={variant.lotSize}
+                            onChange={(e) => handleVariantChange(variant.id, "lotSize", e.target.value)}
+                            className={styles.priceInput}
+                            required
+                          />
+                        )}
                       </div>
+                      {isPerVariant && (
+                        <div>
+                          <input
+                            type="number"
+                            min="0"
+                            value={variant.minThreshold ?? 5}
+                            onChange={(e) =>
+                              handleVariantChange(variant.id, "minThreshold", e.target.value)
+                            }
+                            className={styles.priceInput}
+                            placeholder="5"
+                            required
+                          />
+                        </div>
+                      )}
                       <div className={styles.availableCell}>
                         <input
                           type="checkbox"
                           checked={variant.isActive}
                           onChange={(e) => handleVariantChange(variant.id, "isActive", e.target.checked)}
                           className={styles.availableCheckbox}
+                          title="Variante active et disponible à la vente"
                         />
                       </div>
                       <div className={styles.actionsCell}>

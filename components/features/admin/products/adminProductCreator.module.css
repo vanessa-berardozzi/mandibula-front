@@ -1,0 +1,86 @@
+/* Uploader d'image — spécifique à la création de produit */
+
+.uploader {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.preview {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border: 2px dashed var(--admin-border);
+  background: #020805;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewPlaceholder {
+  color: var(--admin-muted);
+  font: 700 10px / 1.4 monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0 0.75rem;
+}
+
+.uploaderActions {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.uploaderHint {
+  margin: 0;
+  color: var(--admin-muted);
+  font: 400 12px / 1.5 "Courier New", monospace;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileButton {
+  justify-self: start;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--admin-green);
+  background: transparent;
+  color: var(--admin-green);
+  font: 700 11px / 1 monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.fileButton:hover {
+  background: rgba(71, 255, 131, 0.08);
+}
+
+.removeButton {
+  justify-self: start;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid rgba(255, 90, 90, 0.5);
+  background: transparent;
+  color: #ff7a7a;
+  font: 700 11px / 1 monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .uploader {
+    grid-template-columns: 1fr;
+  }
+}

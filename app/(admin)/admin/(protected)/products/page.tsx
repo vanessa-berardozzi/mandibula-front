@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminProductCreator, type AdminProductCreateInput } from "@/components/features/admin/products/AdminProductCreator";
 import { AdminProductEditor } from "@/components/features/admin/products/AdminProductEditor";
 import { AdminProductsFilters } from "@/components/features/admin/products/AdminProductsFilters";
 import { AdminProductsList } from "@/components/features/admin/products/AdminProductsList";
@@ -22,6 +23,8 @@ export default function AdminProductsPage() {
   const [total, setTotal] = useState(0);
   
   const [editingProduct, setEditingProduct] = useState<AdminProductDetail | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     async function loadProducts() {
@@ -54,7 +57,7 @@ export default function AdminProductsPage() {
     }
 
     loadProducts();
-  }, [search, page]);
+  }, [search, page, reloadToken]);
 
   function buildHref(targetPage: number) {
     const href = new URLSearchParams();
@@ -87,10 +90,21 @@ export default function AdminProductsPage() {
     name: string;
     description: string | null;
     categoryId: string;
+    vatCategory?: "STANDARD_GOODS" | "LIVE_ANIMALS";
+    stockMode?: "SHARED_POOL" | "PER_VARIANT";
     minThreshold: number;
     shippingWeight: number | null;
     isPublished: boolean;
-    variants: { id?: string; name: string; price: number; lotSize: number; isActive: boolean }[];
+    variants: {
+      id?: string;
+      name: string;
+      price: number;
+      lotSize: number;
+      isActive: boolean;
+      initialStock?: number;
+      totalStock?: number;
+      minThreshold?: number;
+    }[];
     promotionType?: "NONE" | "PERCENTAGE" | "FIXED_AMOUNT";
     promotionValue?: number | null;
     featured?: boolean;
@@ -116,6 +130,9 @@ export default function AdminProductsPage() {
               ...p,
               name: updated.name,
               totalStock: updated.totalStock,
+              stockMode: updated.stockMode,
+              vatCategory: updated.vatCategory,
+              stockStatus: (updated.stockInfo?.status as AdminProduct["stockStatus"]) || p.stockStatus,
               isPublished: updated.isPublished,
               variantCount: updated.variants.filter((v) => v.isActive).length,
             }
@@ -126,6 +143,22 @@ export default function AdminProductsPage() {
     setEditingProduct(null);
   }
 
+  async function handleCreateProduct(data: AdminProductCreateInput) {
+    const response = await fetch("/api/admin/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de la création du produit");
+    }
+
+    setIsCreating(false);
+    setPage(1);
+    setReloadToken((token) => token + 1);
+  }
+
   return (
     <section className="admin-panel">
       <header className={styles.catalogHeader}>
@@ -133,10 +166,19 @@ export default function AdminProductsPage() {
           <span>CATALOG.CONTROL</span>
           <h2>Catalogue & stocks</h2>
         </div>
-        <AdminProductsFilters
-          search={search}
-          onSearchChange={handleSearchChange}
-        />
+        <div className="flex flex-wrap items-stretch gap-3">
+          <button
+            type="button"
+            onClick={() => setIsCreating(true)}
+            className="admin-type-micro inline-flex min-h-9 items-center whitespace-nowrap border! border-violet-500/50! bg-violet-500/10! px-3 font-mono uppercase tracking-[0.2em] text-violet-300! transition-colors hover:border-violet-400! hover:text-violet-200!"
+          >
+            + Créer un produit
+          </button>
+          <AdminProductsFilters
+            search={search}
+            onSearchChange={handleSearchChange}
+          />
+        </div>
       </header>
 
       {error ? (
@@ -167,6 +209,13 @@ export default function AdminProductsPage() {
             buildHref={buildHref}
           />
         </>
+      )}
+
+      {isCreating && (
+        <AdminProductCreator
+          onClose={() => setIsCreating(false)}
+          onCreate={handleCreateProduct}
+        />
       )}
 
       {editingProduct && (

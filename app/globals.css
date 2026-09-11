@@ -625,17 +625,19 @@ body {
   padding: 20px;
 }
 
-/* Modale centrée - surcharge du drawer */
+/* Modale centrée - surcharge du drawer (l'overlay gère déjà le centrage en flex) */
 .admin-drawer.admin-modal {
-  top: 50%;
-  left: 50%;
+  position: relative;
+  top: auto;
+  left: auto;
   right: auto;
   bottom: auto;
   z-index: 10000;
   width: min(95%, 1400px) !important;
   max-height: 90vh;
   height: auto;
-  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  transform: none !important;
   animation: none !important;
   overflow-y: auto;
   overflow-x: hidden;
@@ -654,14 +656,15 @@ body {
   }
 
   .admin-drawer.admin-modal {
+    position: relative;
     top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: auto;
+    right: auto;
+    bottom: auto;
     width: 100% !important;
     max-width: none;
     max-height: 94vh;
-    height: 100vh;
+    height: 94vh;
     transform: none;
     border: none;
     border-top: 1px solid rgba(71, 255, 131, 0.42);

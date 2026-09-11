@@ -116,6 +116,11 @@ export type AdminProductVariant = {
   price: number;
   lotSize: number;
   isActive: boolean;
+  totalStock?: number | null;
+  reservedStock?: number | null;
+  availableStock?: number;
+  minThreshold?: number;
+  stockStatus?: string;
 };
 
 export type AdminProduct = {
@@ -125,6 +130,8 @@ export type AdminProduct = {
   image: string;
   price: number;
   totalStock: number;
+  stockMode?: 'SHARED_POOL' | 'PER_VARIANT';
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
   variantCount: number;
   stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'UNKNOWN';
   minThreshold: number;
@@ -139,6 +146,8 @@ export type AdminProductDetail = {
   images: string[];
   totalStock: number;
   reservedStock: number;
+  stockMode?: 'SHARED_POOL' | 'PER_VARIANT';
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
   category: {
     id: string;
     name: string;
