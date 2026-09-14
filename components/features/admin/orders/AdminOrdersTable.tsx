@@ -1,18 +1,18 @@
 "use client";
 
 import {
-    AdminLiveChip,
-    AdminPaymentStatusBadge,
-    isCancelledOrder,
+  AdminLiveChip,
+  AdminPaymentStatusBadge,
+  isCancelledOrder,
 } from "@/components/features/admin/orders/AdminOrderBadges";
-import { AdminOrderDetailDrawer } from "@/components/features/admin/orders/AdminOrderDetailDrawer";
+import { OrderDetailModal } from "@/components/profile/OrderDetailModal";
 import {
-    formatEuro,
-    formatOrderDate,
-    ORDER_STATUS_LABELS,
-    ORDER_STATUS_OPTIONS,
-    PAYMENT_METHOD_LABELS,
-    PAYMENT_STATUS_LABELS,
+  formatEuro,
+  formatOrderDate,
+  ORDER_STATUS_LABELS,
+  ORDER_STATUS_OPTIONS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS,
 } from "@/lib/admin/adminOrderLabels";
 import type { AdminOrderListItem, AdminOrderStatus } from "@/types/admin";
 import { useRouter } from "next/navigation";
@@ -103,7 +103,7 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListItem[] }) {
                 </select>
 
                 <button data-label="Action" type="button" onClick={() => setDetailId(order.id)}>
-                  Détail
+                  Préparer
                 </button>
               </div>
 
@@ -182,13 +182,13 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListItem[] }) {
         })}
       </div>
 
-      <AdminOrderDetailDrawer
-        orderId={detailId}
-        onClose={() => setDetailId(null)}
-        onStatusChange={() => {
-          startTransition(() => router.refresh());
-        }}
-      />
+      {detailId && (
+        <OrderDetailModal
+          orderId={detailId}
+          isOpen={detailId !== null}
+          onClose={() => setDetailId(null)}
+        />
+      )}
     </>
   );
 }
