@@ -2,7 +2,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 92px clamp(22px, 6vw, 92px) 72px;
+  padding: 82px clamp(22px, 6vw, 92px) 62px;
   color: var(--foreground);
   border-block: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
   background:
@@ -57,7 +57,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: 28px;
   align-items: end;
-  margin-bottom: 48px;
+  margin-bottom: 38px;
   text-align: center;
 }
 
@@ -186,17 +186,37 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   align-items: center;
-  padding: 22px 0;
+  width: min(100%, 1180px);
+  margin-inline: auto;
+  padding: 18px 0;
 }
 
 .pack-card {
+  --pack-float-distance: 9px;
   position: relative;
   min-width: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
   background: linear-gradient(180deg, rgba(5, 24, 12, 0.72), rgba(1, 6, 3, 0.98));
   box-shadow: 0 20px 56px rgba(0, 0, 0, 0.38), inset 0 0 34px color-mix(in srgb, var(--primary) 2.5%, transparent);
+  animation: pack-card-float 5.8s ease-in-out infinite;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: translate;
+}
+
+.pack-card:nth-child(1) {
+  --pack-float-distance: 8px;
+  animation-delay: -0.75s;
+}
+
+.pack-card:nth-child(2) {
+  --pack-float-distance: 11px;
+  animation-delay: -3.15s;
+}
+
+.pack-card:nth-child(3) {
+  --pack-float-distance: 7px;
+  animation-delay: -4.45s;
 }
 
 .pack-card:hover {
@@ -281,7 +301,7 @@
 .pack-card__image {
   position: relative;
   display: block;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 3 / 3.85;
   overflow: hidden;
   border-bottom: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
   background: radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--primary) 13%, transparent), transparent 43%), #010302;
@@ -396,7 +416,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 22px;
+  padding: 20px;
   background: linear-gradient(180deg, rgba(1, 10, 5, 0.92), #010402);
 }
 
@@ -411,7 +431,7 @@
 .pack-card__info h3 {
   margin: 0;
   color: var(--foreground);
-  font: 900 clamp(23px, 2.25vw, 34px) / 1 "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font: 900 clamp(22px, 2.12vw, 32px) / 1 "Arial Black", "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.055em;
   text-transform: uppercase;
 }
@@ -435,8 +455,8 @@
   grid-template-columns: 1fr auto 40px;
   align-items: end;
   gap: 12px;
-  margin-top: 18px;
-  padding-top: 17px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
@@ -491,6 +511,16 @@
   color: #5f7967;
   font: 700 7px/1 monospace;
   letter-spacing: 0.12em;
+}
+
+@keyframes pack-card-float {
+  0%, 100% {
+    translate: 0 calc(var(--pack-float-distance) * 0.45);
+  }
+
+  50% {
+    translate: 0 calc(var(--pack-float-distance) * -1);
+  }
 }
 
 @keyframes packs-scan {
@@ -622,6 +652,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .packs-impact::after,
+  .pack-card,
   .pack-card__image :global(img),
   .packs__level-track i::after {
     animation: none;
