@@ -4,7 +4,7 @@ import { QuantitySelector } from "@/components/shared/QuantitySelector";
 import { useCartContext } from "@/context/CartContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import { formatPrice } from "@/lib/priceUtils";
-import { Check, Heart, Plus } from "lucide-react";
+import { Check, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -22,6 +22,9 @@ interface SimpleProductCardProps {
   productId?: string;
   priority?: boolean;
   categoryName?: string;
+  categorySlug?: string;
+  pricingCategoryName?: string;
+  vatCategory?: "STANDARD_GOODS" | "LIVE_ANIMALS";
 }
 
 export function SimpleProductCard({
@@ -35,8 +38,20 @@ export function SimpleProductCard({
   productId,
   priority = false,
   categoryName,
+  categorySlug,
+  pricingCategoryName,
+  vatCategory,
 }: SimpleProductCardProps) {
   const isInStock = stock > 0;
+  const categoryIdentifier = `${categoryName ?? ""} ${categorySlug ?? ""} ${pricingCategoryName ?? ""}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fr");
+  const displaysStartingPrice =
+    vatCategory === "LIVE_ANIMALS" ||
+    categoryIdentifier.includes("animaux") ||
+    categoryIdentifier.includes("substrat") ||
+    categoryIdentifier.includes("pack");
   const { addItem } = useCartContext();
   const { isFavorite, toggle } = useFavorites();
 
@@ -81,17 +96,13 @@ export function SimpleProductCard({
   };
 
   return (
-    <Link href={href} className={`${styles["product-card"]} group block w-full`}>
-      <article className="relative flex h-full w-full flex-col">
-        {/* Chip catégorie, coin haut-gauche */}
-        {categoryName && (
-          <div className={`${styles["product-card__chip"]} absolute top-2.5 left-2.5 z-30`}>
-            <span className={styles["product-card__chip-dot"]} />
-            {categoryName}
-          </div>
-        )}
+    <article className={styles["product-card"]}>
+      <div className={styles["product-card__meta"]}>
+        <span className={styles["product-card__chip"]}>
+          <span className={styles["product-card__chip-dot"]} />
+          {categoryName ?? "Produit"}
+        </span>
 
-        {/* Icône "node" ronde = favoris, coin haut-droit */}
         <button
           type="button"
           onClick={handleWishlist}
@@ -101,15 +112,23 @@ export function SimpleProductCard({
         >
           <Heart className="h-3.5 w-3.5" fill={wishlisted ? "currentColor" : "none"} />
         </button>
+      </div>
 
-        {/* Zone image */}
-        <div className="relative flex-1 overflow-hidden">
+      <Link href={href} className={styles["product-card__image-link"]} aria-label={title}>
+        <span
+          className={styles["product-card__availability"]}
+          data-available={isInStock}
+        >
+          <span aria-hidden="true" />
+          {isInStock ? "Disponible" : "Indisponible"}
+        </span>
+        <div className={styles["product-card__image-frame"]}>
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={title}
               fill
-              className={`${styles["product-card__image"]} object-contain p-6`}
+              className={styles["product-card__image"]}
               sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
               priority={priority}
             />
@@ -128,84 +147,79 @@ export function SimpleProductCard({
             </div>
           )}
         </div>
+      </Link>
 
-        {/* Bas de carte : nom, prix, bouton d'ajout au panier */}
-        <div className={styles["product-card__footer"]}>
-          <h3 className={styles["product-card__title"]}>{title}</h3>
+      <div className={styles["product-card__footer"]}>
+        <h3 className={styles["product-card__title"]}>
+          <Link href={href}>{title}</Link>
+        </h3>
 
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1">
+        <div className={styles["product-card__buy"]}>
+          <div className={styles["product-card__price-row"]}>
+            {displaysStartingPrice && (
+              <span className={styles["product-card__price-prefix"]}>À partir de</span>
+            )}
+            <span className={styles["product-card__prices"]}>
               {originalPrice !== undefined && originalPrice > price && (
                 <span className={styles["product-card__price--original"]}>{formatPrice(originalPrice)}€</span>
               )}
               <span className={styles["product-card__price"]}>{formatPrice(price)}</span>
               <span className={styles["product-card__currency"]}>€</span>
-            </div>
+            </span>
+          </div>
 
-            {variantId && (
-              <div className="flex items-center gap-2">
-                {showQuantitySelector ? (
-                  <>
-                    <QuantitySelector
-                      maxStock={stock}
-                      onQuantityChange={handleQuantitySelect}
-                      initialQuantity={selectedQuantity}
-                      disabled={isAdding}
-                      size="sm"
-                      compact
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddToCart}
-                      disabled={!isInStock || isAdding}
-                      className={styles["product-card__add"]}
-                      data-state={added ? "added" : isInStock ? "idle" : "disabled"}
-                      aria-label="Confirmer l'ajout au panier"
-                    >
-                      {isAdding ? (
-                        <span className={styles["product-card__spinner"]} />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </button>
-                  </>
-                ) : (
+          {variantId && (
+            <div className={styles["product-card__actions"]}>
+              {showQuantitySelector ? (
+                <>
+                  <QuantitySelector
+                    maxStock={stock}
+                    onQuantityChange={handleQuantitySelect}
+                    initialQuantity={selectedQuantity}
+                    disabled={isAdding}
+                    size="sm"
+                    compact
+                  />
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowQuantitySelector(true);
-                    }}
+                    onClick={handleAddToCart}
                     disabled={!isInStock || isAdding}
                     className={styles["product-card__add"]}
                     data-state={added ? "added" : isInStock ? "idle" : "disabled"}
-                    aria-label={isInStock ? "Ajouter au panier" : "Rupture de stock"}
+                    aria-label="Confirmer l'ajout au panier"
                   >
                     {isAdding ? (
                       <span className={styles["product-card__spinner"]} />
-                    ) : added ? (
-                      <Check className="h-4 w-4" />
                     ) : (
-                      <Plus className="h-4 w-4" />
+                      <Check className="h-4 w-4" />
                     )}
                   </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {isInStock && stock <= 3 && (
-            <p className={styles["product-card__notice"]}>Stock limité</p>
-          )}
-          {stockError && (
-            <p className={`${styles["product-card__notice"]} ${styles["product-card__notice--error"]}`}>
-              {stockError}
-            </p>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowQuantitySelector(true)}
+                  disabled={!isInStock || isAdding}
+                  className={styles["product-card__choose"]}
+                  data-state={added ? "added" : isInStock ? "idle" : "disabled"}
+                >
+                  {added ? "Ajouté" : "Choisir"}
+                </button>
+              )}
+            </div>
           )}
         </div>
-      </article>
-    </Link>
+
+        {isInStock && stock <= 3 && (
+          <p className={styles["product-card__notice"]}>Stock limité</p>
+        )}
+        {stockError && (
+          <p className={`${styles["product-card__notice"]} ${styles["product-card__notice--error"]}`}>
+            {stockError}
+          </p>
+        )}
+      </div>
+    </article>
   );
 }
 

@@ -23,6 +23,7 @@ interface ApiProduct {
   images: string[];
   variants: Variant[];
   availableStock: number;
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
   category?: { id: string; name: string; slug: string; parentId: string | null };
 }
 
@@ -220,7 +221,10 @@ export function SearchContent() {
                 price={toPrice(product.price)}
                 stock={product.availableStock ?? 0}
                 variantId={product.variants[0]?.id}
+                href={`/product/${product.id}`}
                 categoryName={product.category?.name}
+                categorySlug={product.category?.slug}
+                vatCategory={product.vatCategory}
               />
             ))}
           </div>

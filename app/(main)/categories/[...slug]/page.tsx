@@ -17,6 +17,8 @@ interface ApiProduct {
   images: string[];
   variants: Variant[];
   availableStock: number;
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
+  category?: { id: string; name: string; slug: string; parentId: string | null };
 }
 
 interface CategoryResponse {

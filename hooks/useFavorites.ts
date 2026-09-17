@@ -10,6 +10,7 @@ export interface WishlistProduct {
   images: string[];
   totalStock: number;
   reservedStock: number;
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
   category: { name: string; slug: string };
   variants: { id: string }[];
 }

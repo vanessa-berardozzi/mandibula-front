@@ -116,6 +116,8 @@ export default function ProfilePage() {
                       href={`/product/${product.id}`}
                       variantId={firstVariant?.id}
                       categoryName={product.category.name}
+                      categorySlug={product.category.slug}
+                      vatCategory={product.vatCategory}
                     />
                   );
                 })}

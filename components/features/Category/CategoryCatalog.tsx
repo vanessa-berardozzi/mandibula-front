@@ -23,6 +23,8 @@ export interface CatalogProduct {
   images: string[];
   variants: Variant[];
   availableStock: number;
+  vatCategory?: 'STANDARD_GOODS' | 'LIVE_ANIMALS';
+  category?: { id: string; name: string; slug: string; parentId: string | null };
 }
 
 type SortKey = 'featured' | 'name' | 'price-up' | 'price-down';
@@ -142,7 +144,7 @@ export function CategoryCatalog({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2 md:gap-3">
           {filtered.map((product, index) => {
             const defaultVariant = product.variants[0];
             return (
@@ -160,7 +162,10 @@ export function CategoryCatalog({
                   variantId={defaultVariant?.id}
                   productId={product.id}
                   priority={index === 0}
-                  categoryName={categoryName}
+                  categoryName={product.category?.name ?? categoryName}
+                  categorySlug={product.category?.slug}
+                  pricingCategoryName={categoryName}
+                  vatCategory={product.vatCategory}
                 />
               </div>
             );

@@ -110,10 +110,13 @@ export function FeaturedProductCard({
           <Link href={href}>{title}</Link>
         </h3>
         <div className={styles["product-bottom"]}>
-          <span>
-            <small>DÈS</small>
-            {formatPrice(price)} €
-          </span>
+          <div className={styles["product-price-row"]}>
+            <span className={styles["product-price-prefix"]}>À partir de</span>
+            <span className={styles["product-prices"]}>
+              <span className={styles["product-price"]}>{formatPrice(price)}</span>
+              <span className={styles["product-currency"]}>€</span>
+            </span>
+          </div>
           {variantId && (
             <div className="flex items-center gap-2">
               {showQuantitySelector ? (
