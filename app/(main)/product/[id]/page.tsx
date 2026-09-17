@@ -1,6 +1,8 @@
 'use client';
 
 import { ProductGallery } from '@/components/features/ProductGallery';
+import { ProductTechnicalFact } from '@/components/features/ProductTechnicalFact';
+import OriginMap from '@/components/OriginMap';
 import { Button } from '@/components/ui/button';
 import { useCartContext } from '@/context/CartContext';
 import { useSession } from '@/lib/auth.client';
@@ -63,44 +65,37 @@ function productDetails(product: Pick<ApiProduct, 'name' | 'category'>) {
   if (product.category && livingCategories.has(product.category.name)) {
     return {
       badge: 'Élevé chez Mandibula',
-      reassurance: [
-        'Garantie arrivée en vie',
-        'Expédition adaptée à la météo',
-        "Conseils d'élevage après achat",
-      ],
     };
   }
 
   if (isBoost) {
     return {
       badge: 'Créé et produit dans nos locaux',
-      reassurance: [
-        'Formule développée chez Mandibula',
-        'Produit dans nos locaux',
-        "Conseils d'utilisation inclus",
-      ],
     };
   }
 
   if (isSubstrate) {
     return {
       badge: 'Recette développée et testée dans nos locaux',
-      reassurance: [
-        'Recette développée chez Mandibula',
-        'Testé dans nos élevages',
-        'Conseils de mise en place inclus',
-      ],
     };
   }
 
   return {
     badge: 'Sélectionné par Mandibula',
-    reassurance: [
-      'Produit contrôlé avant expédition',
-      'Emballage adapté et soigné',
-      "Conseils d'utilisation après achat",
-    ],
   };
+}
+
+function tutorialFor(product: Pick<ApiProduct, 'category'> & { id: string }) {
+  if (product.category?.name === 'Myriapodes') {
+    return { href: '/guides/debuter-myriapodes', label: 'Guide pour débuter avec les myriapodes' };
+  }
+  if (product.category?.name === 'Collemboles') {
+    return { href: '/guides/collemboles-culture-entretien', label: 'Guide d’entretien des collemboles' };
+  }
+  if (product.category && livingCategories.has(product.category.name)) {
+    return { href: '/guides/demarrer-elevage-isopodes', label: 'Tutoriel d’installation pas à pas' };
+  }
+  return { href: '/guides', label: 'Voir les tutoriels Mandibula' };
 }
 
 function descriptionValue(description: string | null, labels: string[]) {
@@ -111,6 +106,23 @@ function descriptionValue(description: string | null, labels: string[]) {
 
 function firstText(...values: unknown[]) {
   return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0) ?? null;
+}
+
+function originCoordinates(origin: string): [number, number] {
+  const normalizedOrigin = origin.toLocaleLowerCase('fr');
+  const points: Array<[string, [number, number]]> = [
+    ['vietnam', [108.2772, 14.0583]],
+    ['espagne', [-3.7038, 40.4168]],
+    ['caraïbes', [-74.7813, 17.4818]],
+    ['caribbean', [-74.7813, 17.4818]],
+    ['amérique du sud', [-58.3816, -15.7942]],
+    ['brésil', [-51.9253, -14.235]],
+    ['afrique', [17.8739, 0.4515]],
+    ['indonésie', [113.9213, -0.7893]],
+    ['asie', [100.6197, 34.0479]],
+  ];
+  const match = points.find(([country]) => normalizedOrigin.includes(country));
+  return match ? match[1] : [0, 20];
 }
 
 // ── Page principale ──────────────────────────────────────────────────────────
@@ -220,6 +232,7 @@ export default function ProductDetailPage() {
   const originalPrice = selectedVariant?.originalPrice ? toPrice(selectedVariant.originalPrice, 0) : undefined;
   const stock = selectedVariant?.availableStock ?? product.availableStock ?? 0;
   const details = productDetails(product);
+  const tutorial = tutorialFor(product);
   const overview = firstText(
     attrs?.presentation,
     descriptionValue(product.description, ['présentation']),
@@ -231,6 +244,8 @@ export default function ProductDetailPage() {
     ['HUMIDITÉ', firstText(attrs?.humidite, descriptionValue(product.description, ['humidité', 'hygrométrie']))],
     ['NIVEAU', firstText(attrs?.niveau, descriptionValue(product.description, ['niveau de difficulté', 'niveau']))],
   ].filter((fact): fact is [string, string] => Boolean(fact[1]));
+  const origin = technicalFacts.find(([label]) => label === 'ORIGINE')?.[1];
+  const originMarker = origin ? originCoordinates(origin) : null;
   const carePanels = [
     ['ALIMENTATION', firstText(attrs?.alimentation, descriptionValue(product.description, ['alimentation', 'alimentations']))],
     ['COMPLÉMENTS', firstText(attrs?.complements, descriptionValue(product.description, ['compléments']))],
@@ -391,14 +406,55 @@ export default function ProductDetailPage() {
                 <span className="font-mono font-black text-primary">{(price * quantity).toFixed(2)}€</span>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-2.5 pt-2 text-[9px] uppercase tracking-[0.06em] text-[#9aa59e] sm:grid-cols-3">
-              {details.reassurance.map((item) => (
-                <span key={item} className="leading-4">
-                  <span className="mr-1.5 text-primary">✓</span>
-                  {item}
+            {overview && (
+              <p className="mt-1 max-w-180 text-sm leading-[1.65] text-[#cbd8cf]">
+                {overview}
+              </p>
+            )}
+            <aside
+              className="mt-5 border border-primary/30 bg-[linear-gradient(145deg,rgba(7,27,13,.92),rgba(2,10,6,.9))] p-4.5 shadow-[inset_0_0_35px_rgba(71,255,131,.035)]"
+              aria-label="Informations essentielles avant achat"
+            >
+              <div className="flex items-center justify-between gap-4.5 border-b border-primary/15 pb-3.5 max-sm:flex-col max-sm:items-start">
+                <span className={`inline-flex items-center gap-2 font-mono text-[10px] font-extrabold uppercase leading-[1.2] tracking-[0.08em] ${stock > 0 ? 'text-[#baffcd]' : 'text-[#ffd4a8]'}`}>
+                  <i className={`h-1.75 w-1.75 rounded-full ${stock > 0 ? 'bg-primary shadow-[0_0_12px_#47ff83]' : 'bg-[#ff9e45] shadow-[0_0_12px_#ff9e45]'}`} />
+                  {stock > 0 ? 'Disponible à la commande' : 'Indisponible actuellement'}
                 </span>
-              ))}
-            </div>
+                <small className="text-right text-[10px] text-[#87988d] max-sm:text-left">Une question ? Contacte Mandibula</small>
+              </div>
+
+              <ul className="my-3.5 grid gap-2.5 p-0">
+                <li className="grid grid-cols-[28px_1fr] items-start gap-2.5">
+                  <span className="grid h-6.5 w-6.5 place-items-center border border-primary/25 font-mono text-[11px] font-extrabold text-primary">⌁</span>
+                  <div className="grid gap-0.75">
+                    <strong className="text-xs text-[#effaf2]">Expédition adaptée au vivant</strong>
+                    <small className="text-[10px] leading-normal text-[#94a49a]">Départ adapté à la météo et aux besoins de l’espèce.</small>
+                  </div>
+                </li>
+                <li className="grid grid-cols-[28px_1fr] items-start gap-2.5">
+                  <span className="grid h-6.5 w-6.5 place-items-center border border-primary/25 font-mono text-[11px] font-extrabold text-primary">✓</span>
+                  <div className="grid gap-0.75">
+                    <strong className="text-xs text-[#effaf2]">Garantie arrivée en vie</strong>
+                    <small className="text-[10px] leading-normal text-[#94a49a]">Consulter les conditions de garantie</small>
+                  </div>
+                </li>
+                <li className="grid grid-cols-[28px_1fr] items-start gap-2.5">
+                  <span className="grid h-6.5 w-6.5 place-items-center border border-primary/25 font-mono text-[11px] font-extrabold text-primary">?</span>
+                  <div className="grid gap-0.75">
+                    <strong className="text-xs text-[#effaf2]">Installation accompagnée</strong>
+                    <small className="text-[10px] leading-normal text-[#94a49a]">Les conseils pratiques sont disponibles dans nos tutoriels.</small>
+                  </div>
+                </li>
+              </ul>
+
+              <Link
+                href={tutorial.href}
+                className="flex items-center justify-between border border-primary/30 px-3.5 py-3 font-mono text-[10px] font-extrabold uppercase tracking-[0.08em] text-primary transition hover:bg-primary hover:text-[#021006]"
+              >
+                {tutorial.label}
+                <span aria-hidden="true">↗</span>
+              </Link>
+            </aside>
           </div>
         </div>
 
@@ -423,10 +479,10 @@ export default function ProductDetailPage() {
             </span>
           </header>
 
-          <div className="grid gap-3 xl:grid-cols-[1.15fr_1fr]">
-            <article className="relative flex min-h-82.5 flex-col justify-between overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-7 md:p-14">
+          <div className="grid gap-3 xl:h-106.25 xl:grid-cols-[1.15fr_1fr]">
+            <article className="relative flex h-90 min-h-0 flex-col overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-7 md:h-100 md:p-14 xl:h-full">
               <span className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-primary">00 / PRÉSENTATION</span>
-              <p className="relative z-10 mt-14 max-w-190 font-serif text-[clamp(19px,2.2vw,29px)] leading-[1.55] text-[#d7e2da]">
+              <p className="relative z-10 mt-10 min-h-0 w-full flex-1 overflow-y-auto pr-3 font-serif text-[clamp(19px,2.2vw,29px)] leading-[1.55] text-[#d7e2da] [scrollbar-color:rgba(71,255,131,.45)_rgba(71,255,131,.06)] [scrollbar-width:thin] md:mt-14">
                 {overview }
               </p>
               <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background:repeating-linear-gradient(0deg,transparent_0_5px,rgba(71,255,131,.25)_6px)]" />
@@ -434,12 +490,19 @@ export default function ProductDetailPage() {
             </article>
 
             {technicalFacts.length > 0 && (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-rows-[1.38fr_1fr]">
                 {technicalFacts.map(([label, value], index) => (
-                  <article key={label} className="flex min-h-39.75 flex-col justify-between overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-6">
-                    <span className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-primary">0{index + 1} / {label}</span>
-                    <strong className="text-[clamp(15px,1.5vw,21px)] leading-[1.35] text-[#e5eee8]">{value}</strong>
-                  </article>
+                  label === 'ORIGINE' && originMarker ? (
+                    <OriginMap key={label} country={value} coordinates={originMarker} />
+                  ) : (
+                    <ProductTechnicalFact
+                      key={label}
+                      index={index}
+                      label={label}
+                      value={value}
+                      difficultyScore={attrs?.niveauScore}
+                    />
+                  )
                 ))}
               </div>
             )}
