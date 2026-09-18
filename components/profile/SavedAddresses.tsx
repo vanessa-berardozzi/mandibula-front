@@ -2,13 +2,66 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AsYouType, isValidPhoneNumber } from "libphonenumber-js";
 import { AlertCircle, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
+// Codes ISO 3166-1 alpha-2. Le format attendu du téléphone et du code postal
+// dépend du pays sélectionné (validé côté back également).
+const COUNTRIES = [
+  { code: "FR", label: "France" },
+  { code: "BE", label: "Belgique" },
+  { code: "CH", label: "Suisse" },
+  { code: "LU", label: "Luxembourg" },
+  { code: "MC", label: "Monaco" },
+  { code: "DE", label: "Allemagne" },
+  { code: "AT", label: "Autriche" },
+  { code: "ES", label: "Espagne" },
+  { code: "IT", label: "Italie" },
+  { code: "NL", label: "Pays-Bas" },
+  { code: "PT", label: "Portugal" },
+  { code: "GB", label: "Royaume-Uni" },
+  { code: "IE", label: "Irlande" },
+  { code: "DK", label: "Danemark" },
+  { code: "SE", label: "Suède" },
+  { code: "NO", label: "Norvège" },
+  { code: "FI", label: "Finlande" },
+  { code: "PL", label: "Pologne" },
+  { code: "CZ", label: "République tchèque" },
+  { code: "SK", label: "Slovaquie" },
+  { code: "HU", label: "Hongrie" },
+  { code: "RO", label: "Roumanie" },
+  { code: "BG", label: "Bulgarie" },
+  { code: "HR", label: "Croatie" },
+  { code: "SI", label: "Slovénie" },
+  { code: "GR", label: "Grèce" },
+  { code: "CY", label: "Chypre" },
+  { code: "MT", label: "Malte" },
+  { code: "EE", label: "Estonie" },
+  { code: "LV", label: "Lettonie" },
+  { code: "LT", label: "Lituanie" },
+  { code: "CA", label: "Canada" },
+  { code: "US", label: "États-Unis" },
+  { code: "AU", label: "Australie" },
+  { code: "JP", label: "Japon" },
+] as const;
+
+type CountryCode = (typeof COUNTRIES)[number]["code"];
+
+const ADDRESS_TYPES = [
+  { value: "BOTH", label: "Livraison + Facturation" },
+  { value: "SHIPPING", label: "Livraison uniquement" },
+  { value: "BILLING", label: "Facturation uniquement" },
+] as const;
+
+type AddressTypeValue = (typeof ADDRESS_TYPES)[number]["value"];
 
 interface Address {
   id: string;
   name?: string;
   fullName?: string;
+  phone?: string;
+  type?: AddressTypeValue;
   street: string;
   city: string;
   postalCode: string;
@@ -19,26 +72,31 @@ interface FormData {
   name: string;
   firstName: string;
   lastName: string;
+  phone: string;
+  type: AddressTypeValue;
   street: string;
   city: string;
   postalCode: string;
-  country: string;
+  country: CountryCode;
 }
 
 export function SavedAddresses() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: "",
     firstName: "",
     lastName: "",
+    phone: "",
+    type: "BOTH",
     street: "",
     city: "",
     postalCode: "",
-    country: "",
+    country: "FR",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,11 +131,14 @@ export function SavedAddresses() {
       name: "",
       firstName: "",
       lastName: "",
+      phone: "",
+      type: "BOTH",
       street: "",
       city: "",
       postalCode: "",
-      country: "",
+      country: "FR",
     });
+    setPhoneError(null);
     setEditingId(null);
     setShowForm(false);
   };
@@ -87,16 +148,20 @@ export function SavedAddresses() {
     const parts = fullName.trim().split(/\s+/);
     const firstName = parts[0] || "";
     const lastName = parts.slice(1).join(" ") || "";
-    
+    const country = (COUNTRIES.find((c) => c.code === address.country.toUpperCase())?.code ?? "FR") as CountryCode;
+
     setFormData({
       name: address.name || "",
       firstName: firstName,
       lastName: lastName,
+      phone: address.phone || "",
+      type: address.type ?? "BOTH",
       street: address.street,
       city: address.city,
       postalCode: address.postalCode,
-      country: address.country,
+      country,
     });
+    setPhoneError(null);
     setEditingId(address.id);
     setShowForm(true);
   };
@@ -108,9 +173,15 @@ export function SavedAddresses() {
       return;
     }
 
+    if (formData.phone && !isValidPhoneNumber(formData.phone, formData.country)) {
+      setPhoneError(`Numéro de téléphone invalide pour ${formData.country}`);
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError(null);
+      setPhoneError(null);
 
       const url = editingId ? `/api/addresses/${editingId}` : "/api/addresses";
       const method = editingId ? "PUT" : "POST";
@@ -123,6 +194,8 @@ export function SavedAddresses() {
         body: JSON.stringify({
           name: formData.name,
           fullName: fullName,
+          phone: formData.phone || undefined,
+          type: formData.type,
           street: formData.street,
           city: formData.city,
           postalCode: formData.postalCode,
@@ -230,6 +303,9 @@ export function SavedAddresses() {
 
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-primary text-sm">{address.name || "Adresse"}</h4>
+                        <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary/80 border border-primary/30">
+                          {ADDRESS_TYPES.find((t) => t.value === (address.type ?? "BOTH"))?.label}
+                        </span>
                       </div>
                       {address.fullName && (
                         <p className="text-sm text-foreground font-medium mb-2">{address.fullName}</p>
@@ -238,6 +314,9 @@ export function SavedAddresses() {
                       <p className="text-xs text-muted-foreground mb-3">
                         {address.postalCode} {address.city}, {address.country}
                       </p>
+                      {address.phone && (
+                        <p className="text-xs text-muted-foreground mb-3">📞 {address.phone}</p>
+                      )}
 
                       <div className="flex gap-2 pt-3 border-t border-primary/10">
                         <Button
@@ -298,6 +377,17 @@ export function SavedAddresses() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="col-span-2 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
               />
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as AddressTypeValue })}
+                className="col-span-2 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground focus:outline-none focus:border-primary/50"
+              >
+                {ADDRESS_TYPES.map((t) => (
+                  <option key={t.value} value={t.value} className="bg-background">
+                    {t.label}
+                  </option>
+                ))}
+              </select>
               <input
                 type="text"
                 placeholder="Prénom"
@@ -336,20 +426,51 @@ export function SavedAddresses() {
                 required
                 className="col-span-1 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
               />
-              <input
-                type="text"
-                placeholder="Pays *"
+              <select
                 value={formData.country}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                onChange={(e) => {
+                  const country = e.target.value as CountryCode;
+                  setFormData({ ...formData, country });
+                  setPhoneError(
+                    formData.phone && !isValidPhoneNumber(formData.phone, country)
+                      ? `Numéro de téléphone invalide pour ${country}`
+                      : null
+                  );
+                }}
                 required
-                className="col-span-1 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
+                className="col-span-1 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground focus:outline-none focus:border-primary/50"
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code} className="bg-background">
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                placeholder="Téléphone"
+                value={formData.phone}
+                onChange={(e) => {
+                  const formatted = new AsYouType(formData.country).input(e.target.value);
+                  setFormData({ ...formData, phone: formatted });
+                  setPhoneError(null);
+                }}
+                onBlur={() => {
+                  if (formData.phone && !isValidPhoneNumber(formData.phone, formData.country)) {
+                    setPhoneError(`Numéro de téléphone invalide pour ${formData.country}`);
+                  }
+                }}
+                className="col-span-2 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
               />
+              {phoneError && (
+                <p className="col-span-2 text-xs text-red-300 -mt-2">{phoneError}</p>
+              )}
             </div>
 
             <div className="flex gap-2 pt-2">
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || Boolean(phoneError)}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs h-8"
               >
                 {submitting ? (

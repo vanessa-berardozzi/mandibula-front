@@ -2,6 +2,7 @@
 
 import { useCartContext } from "@/context/CartContext";
 import { useSession } from "@/lib/auth.client";
+import { AsYouType, isValidPhoneNumber } from "libphonenumber-js";
 import { AlertTriangle, CreditCard, Loader2, Lock, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -20,8 +21,15 @@ interface ShippingAddress {
   countryCode: string;
 }
 
+type BillingAddress = Omit<ShippingAddress, 'email' | 'phone'>;
+
+type AddressTypeValue = 'SHIPPING' | 'BILLING' | 'BOTH';
+
 interface SavedAddress {
   id: string;
+  fullName?: string;
+  phone?: string;
+  type?: AddressTypeValue;
   street: string;
   city: string;
   state: string;
@@ -98,6 +106,41 @@ function getCountryLabel(code: string) {
   return getCountryOption(code)?.label ?? code;
 }
 
+function buildShippingFromSavedAddress(addr: SavedAddress): Omit<ShippingAddress, 'email'> {
+  const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
+  const nameParts = (addr.fullName ?? '').trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: nameParts[0] ?? '',
+    lastName: nameParts.slice(1).join(' '),
+    phone: addr.phone ?? '',
+    street: addr.street,
+    city: addr.city,
+    postalCode: addr.postalCode,
+    country: country.label,
+    countryCode: country.code,
+  };
+}
+
+function buildBillingFromSavedAddress(addr: SavedAddress): BillingAddress {
+  const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
+  const nameParts = (addr.fullName ?? '').trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: nameParts[0] ?? '',
+    lastName: nameParts.slice(1).join(' '),
+    street: addr.street,
+    city: addr.city,
+    postalCode: addr.postalCode,
+    country: country.label,
+    countryCode: country.code,
+  };
+}
+
+// Une adresse enregistrée est éligible à un usage si son type le couvre (BOTH par défaut)
+function isEligibleFor(addr: SavedAddress, usage: 'SHIPPING' | 'BILLING') {
+  const type = addr.type ?? 'BOTH';
+  return type === 'BOTH' || type === usage;
+}
+
 function CheckoutContent() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -109,6 +152,9 @@ function CheckoutContent() {
   const [error, setError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  const [selectedBillingAddressId, setSelectedBillingAddressId] = useState<string | null>(null);
   const [checkoutVariants, setCheckoutVariants] = useState<Record<string, CheckoutVariantData>>({});
   const [vatAmount, setVatAmount] = useState(0);
   const [isVatLoading, setIsVatLoading] = useState(false);
@@ -131,6 +177,19 @@ function CheckoutContent() {
     country: 'France',
     countryCode: 'FR',
   });
+
+  const [billing, setBilling] = useState<BillingAddress>({
+    firstName: defaultFirstName,
+    lastName: defaultLastName,
+    street: '',
+    city: '',
+    postalCode: '',
+    country: 'France',
+    countryCode: 'FR',
+  });
+
+  const shippingAddresses = savedAddresses.filter(addr => isEligibleFor(addr, 'SHIPPING'));
+  const billingAddresses = savedAddresses.filter(addr => isEligibleFor(addr, 'BILLING'));
 
   const SHIPPING_COST = 5.99;
   const discountedSubtotal = subtotal - discount;
@@ -247,18 +306,16 @@ function CheckoutContent() {
       .then(r => r.json())
       .then(({ addresses }: { addresses: SavedAddress[] }) => {
         setSavedAddresses(addresses ?? []);
-        // Pré-remplir avec la première adresse si disponible
-        if (addresses?.length > 0) {
-          const first = addresses[0];
-          const country = getCountryOption(first.country) ?? getCountryOption('FR')!;
-          setSelectedAddressId(first.id);
+        // Pré-remplir avec la première adresse éligible (nom, tel inclus)
+        const firstShipping = (addresses ?? []).find(addr => isEligibleFor(addr, 'SHIPPING'));
+        if (firstShipping) {
+          const fromAddress = buildShippingFromSavedAddress(firstShipping);
+          setSelectedAddressId(firstShipping.id);
           setShipping(prev => ({
             ...prev,
-            street: first.street,
-            city: first.city,
-            postalCode: first.postalCode,
-            country: country.label,
-            countryCode: country.code,
+            ...fromAddress,
+            firstName: fromAddress.firstName || prev.firstName,
+            lastName: fromAddress.lastName || prev.lastName,
           }));
         }
       })
@@ -266,16 +323,30 @@ function CheckoutContent() {
   }, [session?.user]);
 
   const handleSelectSavedAddress = (addr: SavedAddress) => {
-    const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
     setSelectedAddressId(addr.id);
-    setShipping(prev => ({
-      ...prev,
-      street: addr.street,
-      city: addr.city,
-      postalCode: addr.postalCode,
-      country: country.label,
-      countryCode: country.code,
-    }));
+    setPhoneError(null);
+    setShipping(prev => {
+      const fromAddress = buildShippingFromSavedAddress(addr);
+      return {
+        ...prev,
+        ...fromAddress,
+        firstName: fromAddress.firstName || prev.firstName,
+        lastName: fromAddress.lastName || prev.lastName,
+      };
+    });
+  };
+
+  const handleSelectSavedBillingAddress = (addr: SavedAddress) => {
+    setSelectedBillingAddressId(addr.id);
+    setBilling(prev => {
+      const fromAddress = buildBillingFromSavedAddress(addr);
+      return {
+        ...prev,
+        ...fromAddress,
+        firstName: fromAddress.firstName || prev.firstName,
+        lastName: fromAddress.lastName || prev.lastName,
+      };
+    });
   };
 
   const shippingField = (
@@ -293,7 +364,42 @@ function CheckoutContent() {
         id={`shipping-${field}`}
         type={type}
         value={shipping[field]}
-        onChange={e => setShipping(prev => ({ ...prev, [field]: e.target.value }))}
+        onChange={e => {
+          const value = field === 'phone' ? new AsYouType(shipping.countryCode as never).input(e.target.value) : e.target.value;
+          setShipping(prev => ({ ...prev, [field]: value }));
+          if (field === 'phone') setPhoneError(null);
+        }}
+        onBlur={() => {
+          if (field === 'phone' && shipping.phone && !isValidPhoneNumber(shipping.phone, shipping.countryCode as never)) {
+            setPhoneError(`Numéro de téléphone invalide pour ${shipping.countryCode}`);
+          }
+        }}
+        placeholder={placeholder}
+        required={required}
+        className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-primary/70 transition-colors"
+        style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+      />
+      {field === 'phone' && phoneError && (
+        <p className="font-mono text-xs text-red-400">{phoneError}</p>
+      )}
+    </div>
+  );
+
+  const billingField = (
+    field: keyof BillingAddress,
+    label: string,
+    placeholder: string,
+    required = true
+  ) => (
+    <div className="space-y-1">
+      <label htmlFor={`billing-${field}`} className="font-mono text-xs text-primary/60 uppercase tracking-widest">
+        {label}{required && ' *'}
+      </label>
+      <input
+        id={`billing-${field}`}
+        type="text"
+        value={billing[field]}
+        onChange={e => setBilling(prev => ({ ...prev, [field]: e.target.value }))}
         placeholder={placeholder}
         required={required}
         className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-primary/70 transition-colors"
@@ -303,7 +409,14 @@ function CheckoutContent() {
   );
 
   const isShippingComplete = Boolean(shipping.firstName && shipping.lastName && shipping.email
-    && shipping.street && shipping.city && shipping.postalCode && shipping.countryCode);
+    && shipping.street && shipping.city && shipping.postalCode && shipping.countryCode
+    && (!shipping.phone || isValidPhoneNumber(shipping.phone, shipping.countryCode as never)));
+
+  const isBillingComplete = billingSameAsShipping || Boolean(billing.firstName && billing.lastName
+    && billing.street && billing.city && billing.postalCode && billing.countryCode);
+
+  const formatAddressBlock = (a: { firstName: string; lastName: string; street: string; postalCode: string; city: string; countryCode: string }) =>
+    `${a.firstName} ${a.lastName}\n${a.street}\n${a.postalCode} ${a.city}\n${getCountryLabel(a.countryCode)}`;
 
   const handlePayment = async () => {
     if (!session?.user) {
@@ -317,7 +430,16 @@ function CheckoutContent() {
     }
 
     if (!isShippingComplete) {
-      setError("Veuillez remplir tous les champs de livraison obligatoires");
+      setError(
+        shipping.phone && !isValidPhoneNumber(shipping.phone, shipping.countryCode as never)
+          ? `Numéro de téléphone invalide pour ${shipping.countryCode}`
+          : "Veuillez remplir tous les champs de livraison obligatoires"
+      );
+      return;
+    }
+
+    if (!isBillingComplete) {
+      setError("Veuillez remplir tous les champs de facturation obligatoires");
       return;
     }
 
@@ -325,7 +447,7 @@ function CheckoutContent() {
     setError(null);
 
     try {
-      // 1. Créer la commande avec l'adresse de livraison
+      // 1. Créer la commande avec l'adresse de livraison et de facturation
       const orderResponse = await fetch('/api/orders', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -333,8 +455,9 @@ function CheckoutContent() {
         body: JSON.stringify({
           items: items.map(item => ({ variantId: item.variantId, quantity: item.quantity })),
           paymentMethod,
-          shippingAddress: `${shipping.firstName} ${shipping.lastName}\n${shipping.street}\n${shipping.postalCode} ${shipping.city}\n${getCountryLabel(shipping.countryCode)}`,
+          shippingAddress: formatAddressBlock(shipping),
           shippingCountryCode: shipping.countryCode,
+          billingAddress: billingSameAsShipping ? formatAddressBlock(shipping) : formatAddressBlock(billing),
           customerEmail: shipping.email,
           customerPhone: shipping.phone,
           promoCode: promoResult?.code,
@@ -505,11 +628,11 @@ function CheckoutContent() {
             </h2>
 
             {/* Adresses sauvegardées */}
-            {savedAddresses.length > 0 && (
+            {shippingAddresses.length > 0 && (
               <div className="space-y-2">
                 <p className="font-mono text-xs text-primary/50 uppercase tracking-widest">Adresses enregistrées</p>
                 <div className="space-y-2">
-                  {savedAddresses.map(addr => (
+                  {shippingAddresses.map(addr => (
                     <button
                       key={addr.id}
                       type="button"
@@ -528,7 +651,8 @@ function CheckoutContent() {
                     type="button"
                     onClick={() => {
                       setSelectedAddressId(null);
-                      setShipping(prev => ({ ...prev, street: '', city: '', postalCode: '', country: 'France', countryCode: 'FR' }));
+                      setPhoneError(null);
+                      setShipping(prev => ({ ...prev, phone: '', street: '', city: '', postalCode: '', country: 'France', countryCode: 'FR' }));
                     }}
                     className={`w-full text-left px-3 py-2 border font-mono text-sm transition-all ${
                       selectedAddressId === null
@@ -584,6 +708,101 @@ function CheckoutContent() {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div
+          className="relative border border-primary/30 bg-black/80 backdrop-blur-md overflow-hidden"
+          style={{ clipPath: 'polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px)' }}
+        >
+          <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(146,204,10,1) 0px, rgba(146,204,10,1) 1px, transparent 1px, transparent 4px)' }}
+          />
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-primary/5">
+            <CreditCard className="w-4 h-4 text-primary" />
+            <span className="ml-2 font-mono text-xs text-primary/60 tracking-widest uppercase">
+              BILLING :: INVOICE_ADDRESS
+            </span>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <h2 className="text-lg font-black uppercase tracking-wider text-primary/90">
+              Adresse de facturation
+            </h2>
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={billingSameAsShipping}
+                onChange={e => setBillingSameAsShipping(e.target.checked)}
+                className="w-4 h-4 accent-primary"
+              />
+              <span className="font-mono text-sm text-foreground/80">
+                Identique à l&apos;adresse de livraison
+              </span>
+            </label>
+
+            {!billingSameAsShipping && (
+              <>
+                {billingAddresses.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-mono text-xs text-primary/50 uppercase tracking-widest">Adresses enregistrées</p>
+                    <div className="space-y-2">
+                      {billingAddresses.map(addr => (
+                        <button
+                          key={addr.id}
+                          type="button"
+                          onClick={() => handleSelectSavedBillingAddress(addr)}
+                          className={`w-full text-left px-3 py-2 border font-mono text-sm transition-all ${
+                            selectedBillingAddressId === addr.id
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-primary/20 text-foreground/70 hover:border-primary/50'
+                          }`}
+                          style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
+                        >
+                          {addr.street}, {addr.postalCode} {addr.city}, {addr.country}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {billingField('firstName', 'Prénom', 'Jean')}
+                  {billingField('lastName', 'Nom', 'Dupont')}
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {billingField('street', 'Adresse', '12 rue des Invertébrés')}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {billingField('postalCode', 'Code postal', '75001')}
+                  {billingField('city', 'Ville', 'Paris')}
+                  <div className="space-y-1">
+                    <label htmlFor="billing-country" className="font-mono text-xs text-primary/60 uppercase tracking-widest">
+                      Pays *
+                    </label>
+                    <select
+                      id="billing-country"
+                      value={billing.countryCode}
+                      onChange={e => {
+                        const country = getCountryOption(e.target.value);
+                        if (!country) return;
+                        setBilling(prev => ({ ...prev, country: country.label, countryCode: country.code }));
+                      }}
+                      required
+                      className="w-full px-3 py-2 bg-black/60 border border-primary/30 font-mono text-sm text-foreground focus:outline-none focus:border-primary/70 transition-colors appearance-none cursor-pointer"
+                      style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                    >
+                      {COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code} disabled={c.disabled}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
