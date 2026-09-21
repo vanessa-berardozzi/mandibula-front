@@ -45,20 +45,15 @@ export function MobileNavbar() {
 
         {/* Logo centré */}
         <div className="absolute left-1/2 -translate-x-1/2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center">
-              <Image
-                src="/mandibula-logo.png"
-                alt="Mandibula Logo"
-                width={36}
-                height={36}
-                style={{ width: '36px', height: 'auto' }}
-                priority
-              />
-            </div>
-            <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-primary">
-              Mandibula
-            </span>
+          <Link href="/" aria-label="Mandibula, accueil">
+            <Image
+              src="/mandibula-logo.png"
+              alt="Mandibula"
+              width={140}
+              height={40}
+              style={{ height: '32px', width: 'auto' }}
+              priority
+            />
           </Link>
         </div>
 

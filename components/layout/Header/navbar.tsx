@@ -130,19 +130,8 @@ export function Navbar() {
     <nav aria-label="Navigation principale" className="w-full">
       <div className="site-header">
         <Link href="/" className="brand" aria-label="Mandibula, accueil">
-          <Image
-            src="/mandibula-logo.png"
-            alt=""
-            aria-hidden="true"
-            width={48}
-            height={48}
-            className="h-10 w-auto object-contain"
-            priority
-          />
-          <span className="grid leading-none">
-            <strong>MANDIBULA</strong>
-            <small>SYSTEM V.02.6</small>
-          </span>
+          <Image src="/mandibula-logo.png" alt="Mandibula" width={80} height={80} className="h-15 w-auto object-contain" priority />
+          <strong>BUILT FOR INSECTS · DESIGNED FOR YOU</strong>
         </Link>
 
         <div className="desktop-nav">

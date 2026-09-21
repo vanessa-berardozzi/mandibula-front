@@ -2015,8 +2015,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: clamp(16px, 2vw, 32px);
-  height: 74px;
-  padding-inline: clamp(20px, 3vw, 40px);
+  min-height: 76px;
+  padding: 10px clamp(20px, 4vw, 40px);
   border-bottom: 1px solid var(--system-line);
   background: rgba(5, 9, 7, 0.95);
   backdrop-filter: blur(14px);
@@ -2024,40 +2024,26 @@ body {
 
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 1px;
   width: fit-content;
-}
-
-.brand img {
-  height: 42px;
-  width: auto;
-  object-fit: contain;
 }
 
 .brand strong {
   display: block;
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.brand small {
-  display: block;
-  margin-top: 4px;
   color: var(--muted-foreground);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .desktop-nav {
   display: flex;
   align-items: center;
-  gap: clamp(18px, 2vw, 34px);
+  gap: clamp(18px, 2vw, 40px);
 }
 
 .desktop-nav > a,

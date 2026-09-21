@@ -3,6 +3,7 @@
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useSession } from "@/lib/auth.client";
 import { LucideIcon, Package, User } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { MobileAnimalsTree } from '../MobileAnimalsTree';
 import { NAV_LINKS, SECONDARY_LINKS } from '../navLinks';
@@ -62,8 +63,8 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
       <div className="scan-lines absolute inset-0 pointer-events-none opacity-10" />
 
       <SheetHeader className="border-b border-primary/30 pb-4 pt-6 px-6 relative">
-        <SheetTitle className="text-2xl font-bold text-primary tracking-wider glitch-text">
-          MANDIBULA
+        <SheetTitle asChild>
+          <Image src="/mandibula-logo.png" alt="Mandibula" width={140} height={40} style={{ height: '32px', width: 'auto' }} priority />
         </SheetTitle>
         <p className="text-xs text-primary/70 tracking-widest font-mono mt-1">
           SYSTEM V.02.6
