@@ -3,12 +3,18 @@
 import { SimpleProductCard } from "@/components/features/SimpleProductCard";
 import { SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useFavorites } from "@/hooks/useFavorites";
 import { signOut, useSession } from "@/lib/auth.client";
 import { toPrice } from "@/lib/priceUtils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const MOCK_USER = {
   userName: "MandibulaDemo",
@@ -23,10 +29,27 @@ export default function ProfilePage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const { items: favorites, isLoading: favLoading } = useFavorites();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await signOut();
     router.replace("/");
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(null);
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/me", { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error("Échec de la suppression");
+      await signOut();
+      router.replace("/");
+    } catch {
+      setDeleteError("La suppression du compte a échoué. Veuillez réessayer.");
+      setIsDeleting(false);
+    }
   };
 
   useEffect(() => {
@@ -139,12 +162,47 @@ export default function ProfilePage() {
               <h3 className="font-semibold text-red-300 mb-1">Zone Danger 🚨</h3>
               <p className="text-xs text-red-200/70">Supprimer définitivement votre compte et toutes vos données</p>
             </div>
-            <button className="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/50 rounded-sm text-sm font-semibold transition-colors whitespace-nowrap">
-              Supprimer le compte
+            <button
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/50 rounded-sm text-sm font-semibold transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDeleting ? "Suppression..." : "Supprimer le compte"}
             </button>
           </div>
         </div>
       </div>
+
+      <Dialog open={showDeleteDialog} onOpenChange={(open) => !isDeleting && setShowDeleteDialog(open)}>
+        <DialogContent className="border-2 border-red-500/40 bg-card/95 backdrop-blur">
+          <DialogTitle className="text-red-300">Supprimer votre compte ? 🚨</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Cette action est <span className="font-semibold text-red-300">irréversible</span>.
+            Toutes vos données personnelles (profil, favoris, adresses) seront définitivement supprimées.
+          </DialogDescription>
+
+          {deleteError && (
+            <p className="text-sm text-red-400">{deleteError}</p>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/50 rounded-sm text-sm font-semibold transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? "Suppression..." : "Oui, supprimer définitivement"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
