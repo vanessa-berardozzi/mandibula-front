@@ -3,6 +3,7 @@
 import { OrderHistory } from "@/components/profile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/lib/auth.client";
+import type { AdminOrderStatus } from "@/types/admin";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,19 +16,11 @@ interface ApiOrderItem {
 
 interface ApiOrder {
   id: string;
-  status: string;
+  status: AdminOrderStatus;
   paymentStatus: string;
   total: string | number;
   createdAt: string;
   orderItems: ApiOrderItem[];
-}
-
-function mapStatus(order: ApiOrder): "Livré" | "En cours" | "Annulé" | "En préparation" | "Paiement en attente" {
-  if (order.paymentStatus === "PAID") return "Livré";
-  if (order.status === "CANCELLED" || order.paymentStatus === "FAILED") return "Annulé";
-  if (order.paymentStatus === "PENDING") return "Paiement en attente";
-  if (order.status === "CONFIRMED") return "En cours";
-  return "En préparation";
 }
 
 interface OrderItem {
@@ -35,7 +28,7 @@ interface OrderItem {
   date: string;
   orderNumber: string;
   total: number;
-  status: "Livré" | "En cours" | "Annulé" | "En préparation" | "Paiement en attente";
+  status: AdminOrderStatus;
   items: number;
   trackingUrl?: string;
   canRetry?: boolean;
@@ -111,7 +104,7 @@ export default function OrdersPage() {
     date: o.createdAt,
     orderNumber: `#${o.id.slice(0, 8).toUpperCase()}`,
     total: Number(o.total),
-    status: mapStatus(o),
+    status: o.status,
     items: o.orderItems.reduce((sum, item) => sum + item.quantity, 0),
     canRetry: o.paymentStatus === "PENDING",
   }));

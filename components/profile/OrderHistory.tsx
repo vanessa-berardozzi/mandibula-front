@@ -3,6 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ORDER_STATUS_LABELS } from "@/lib/admin/adminOrderLabels";
+import type { AdminOrderStatus } from "@/types/admin";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { OrderDetailModal } from "./OrderDetailModal";
@@ -12,7 +14,7 @@ interface OrderItem {
   date: string;
   orderNumber: string;
   total: number;
-  status: "Livré" | "En cours" | "Annulé" | "En préparation" | "Paiement en attente";
+  status: AdminOrderStatus;
   items: number;
   trackingUrl?: string;
   canRetry?: boolean;
@@ -23,17 +25,21 @@ interface OrderHistoryProps {
   onDeleteOrder?: (orderId: string) => Promise<void>;
 }
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status: AdminOrderStatus) => {
   switch (status) {
-    case "Livré":
+    case "DELIVERED":
       return "bg-green-500/20 text-green-300 border-green-500/50";
-    case "En cours":
+    case "CONFIRMED":
+    case "READY":
+    case "SHIPPED":
       return "bg-blue-500/20 text-blue-300 border-blue-500/50";
-    case "En préparation":
+    case "PENDING":
+    case "TO_PREPARE":
+    case "PREPARING":
       return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50";
-    case "Paiement en attente":
+    case "HELD_WEATHER":
       return "bg-orange-500/20 text-orange-300 border-orange-500/50";
-    case "Annulé":
+    case "CANCELLED":
       return "bg-red-500/20 text-red-300 border-red-500/50";
     default:
       return "bg-muted text-muted-foreground border-border";
@@ -148,7 +154,7 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
                       <p className="text-sm font-bold text-primary font-mono">{order.orderNumber}</p>
                     </div>
                     <Badge className={`${getStatusColor(order.status)} border shrink-0`}>
-                      {order.status}
+                      {ORDER_STATUS_LABELS[order.status]}
                     </Badge>
                   </div>
 
@@ -215,7 +221,7 @@ export function OrderHistory({ orders, onDeleteOrder }: OrderHistoryProps) {
 
                   <div className="md:col-span-2">
                     <Badge className={`${getStatusColor(order.status)} border`}>
-                      {order.status}
+                      {ORDER_STATUS_LABELS[order.status]}
                     </Badge>
                   </div>
 

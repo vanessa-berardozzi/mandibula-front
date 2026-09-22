@@ -5,7 +5,7 @@ import {
   AdminPaymentStatusBadge,
   isCancelledOrder,
 } from "@/components/features/admin/orders/AdminOrderBadges";
-import { OrderDetailModal } from "@/components/profile/OrderDetailModal";
+import { AdminOrderDetailModal } from "@/components/features/admin/orders/AdminOrderDetailModal";
 import {
   formatEuro,
   formatOrderDate,
@@ -182,13 +182,11 @@ export function AdminOrdersTable({ orders }: { orders: AdminOrderListItem[] }) {
         })}
       </div>
 
-      {detailId && (
-        <OrderDetailModal
-          orderId={detailId}
-          isOpen={detailId !== null}
-          onClose={() => setDetailId(null)}
-        />
-      )}
+      <AdminOrderDetailModal
+        orderId={detailId ?? ""}
+        isOpen={detailId !== null}
+        onClose={() => setDetailId(null)}
+      />
     </>
   );
 }

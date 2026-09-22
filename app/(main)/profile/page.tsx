@@ -97,10 +97,25 @@ export default function ProfilePage() {
         {/* Statistiques utilisateur */}
         <UserStats stats={stats} />
 
-        {/* Section adresses et paramètres - Grille responsive */}
+        {/* Section adresses et commandes - Grille responsive */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <SavedAddresses />
-         {/* <AccountSettings settings={MOCK_SETTINGS} /> */}
+
+          {/* Accès à l'historique et au suivi des commandes */}
+          <Card className="border-primary/30 bg-card/30 backdrop-blur">
+            <CardHeader className="flex flex-row items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-primary">Mes Commandes</CardTitle>
+                <CardDescription>Suivez vos commandes et consultez le détail de chacune</CardDescription>
+              </div>
+              <Link
+                href="/orders"
+                className="shrink-0 px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-sm font-semibold transition-colors"
+              >
+                Voir mes commandes
+              </Link>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* Section favoris */}
