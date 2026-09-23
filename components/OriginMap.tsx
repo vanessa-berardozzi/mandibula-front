@@ -16,7 +16,6 @@ export default function OriginMap({
   label = '01 / ORIGINE',
   country,
   coordinates,
-  legend = 'GÉOLOCALISATION · 1 POINT',
   className = '',
 }: OriginMapProps) {
   return (
@@ -24,7 +23,7 @@ export default function OriginMap({
       className={`relative h-full min-h-39.75 w-full overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] ${className}`}
       style={{ aspectRatio: '13 / 7' }}
     >
-      <div className="absolute inset-x-2 bottom-9 top-10 overflow-hidden border-t border-primary/10 bg-[#020604]">
+      <div className="absolute inset-x-2 bottom-9 top-7 overflow-hidden border-t border-primary/10 bg-[#020604]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -41,9 +40,9 @@ export default function OriginMap({
         />
         <ComposableMap
           projection="geoEqualEarth"
-          projectionConfig={{ scale: 190 }}
+          projectionConfig={{ scale: 195 }}
           width={800}
-          height={420}
+          height={425}
           className="relative z-10 h-full w-full px-[2%]"
         >
           <Geographies geography={GEO_URL}>
@@ -67,14 +66,13 @@ export default function OriginMap({
         </ComposableMap>
       </div>
 
-      <div className="absolute left-6 top-6 font-mono text-[8px] font-extrabold tracking-[0.2em] text-emerald-400/80">
+      <div className="absolute left-6 top-3 font-mono text-[8px] font-extrabold tracking-[0.2em] text-emerald-400/80">
         {label}
       </div>
-      <div className="absolute bottom-3 right-5 flex items-center gap-2 font-mono text-[6px] font-extrabold tracking-[0.12em] text-emerald-400/70">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.7)]" />
-        {legend}
+      <div className="absolute bottom-1 right-2 flex items-center gap-2 font-mono text-[8px] font-extrabold tracking-[0.12em] text-emerald-400/70">
+        
       </div>
-      <div className="absolute bottom-2 left-6 text-xl font-bold leading-none text-white sm:text-2xl">
+      <div className="absolute bottom-3 left-5 font-semibold leading-none text-white text-s">
         {country}.
       </div>
 

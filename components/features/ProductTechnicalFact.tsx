@@ -1,10 +1,16 @@
 import { Droplet } from 'lucide-react';
 
+export type PanelSize = 'small' | 'medium' | 'large' | 'wide';
+export type PanelDisplay = 'text' | 'technical';
+
 interface ProductTechnicalFactProps {
   index: number;
   label: string;
   value: string;
   difficultyScore?: number;
+  size?: PanelSize;
+  display?: PanelDisplay;
+  variant?: 'default' | 'origin';
 }
 
 function numericValues(value: string) {
@@ -48,14 +54,34 @@ function RangeBar({ position, start }: { position: number; start?: number }) {
   );
 }
 
-export function ProductTechnicalFact({ index, label, value, difficultyScore }: ProductTechnicalFactProps) {
+const sizeClasses: Record<PanelSize, string> = {
+  small: 'h-full min-h-39.75',
+  medium: 'h-full min-h-52',
+  large: 'h-full min-h-64',
+  wide: 'h-full sm:col-span-2 min-h-52',
+};
+
+export function ProductTechnicalFact({ index, label, value, difficultyScore, size = 'small', display = 'technical' }: ProductTechnicalFactProps) {
   const values = numericValues(value);
   const heading = (
     <span className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-primary">
       0{index + 1} / {label}
     </span>
   );
-  const panelClass = 'flex min-h-39.75 flex-col overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-6 xl:min-h-0';
+  const panelClass = `flex flex-col overflow-hidden border border-primary/25 bg-[linear-gradient(135deg,rgba(71,255,131,.075),rgba(7,13,9,.82)_52%)] p-3 xl:min-h-0 ${sizeClasses[size]}`;
+
+  if (display === 'text') {
+    return (
+      <article className={panelClass}>
+        {heading}
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <p className="max-h-full overflow-y-auto pr-2 text-center font-roboto text-[clamp(17px,1.7vw,24px)] leading-normal text-[#d7e2da]">
+            {value}
+          </p>
+        </div>
+      </article>
+    );
+  }
 
   if (label === 'TEMPÉRATURE') {
     const minimum = values[0] ?? 22;
@@ -66,9 +92,11 @@ export function ProductTechnicalFact({ index, label, value, difficultyScore }: P
     return (
       <article className={panelClass}>
         {heading}
-        <strong className="mt-auto text-[clamp(17px,1.5vw,22px)] leading-tight text-[#edf4ef]">{value}</strong>
-        <div className="mb-3 mt-6">
-          <RangeBar start={startPosition} position={endPosition} />
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-6">
+          <strong className="text-center text-[clamp(17px,1.5vw,22px)] leading-tight text-[#edf4ef]">{value}</strong>
+          <div>
+            <RangeBar start={startPosition} position={endPosition} />
+          </div>
         </div>
       </article>
     );
@@ -80,7 +108,7 @@ export function ProductTechnicalFact({ index, label, value, difficultyScore }: P
     return (
       <article className={panelClass}>
         {heading}
-        <div className="mt-auto flex items-center gap-4 pt-4">
+        <div className="flex min-h-0 flex-1 items-center justify-center gap-4 pt-4">
           <div
             className="relative grid h-21 w-21 shrink-0 place-items-center rounded-full shadow-[0_0_18px_rgba(71,255,131,.12)]"
             style={{ background: `conic-gradient(#47ff83 ${humidity}%, rgba(71,255,131,.12) ${humidity}% 100%)` }}
@@ -106,14 +134,14 @@ export function ProductTechnicalFact({ index, label, value, difficultyScore }: P
   return (
     <article className={panelClass}>
       {heading}
-      <strong className="mt-auto text-[clamp(17px,1.5vw,22px)] leading-tight text-[#edf4ef]">{value}</strong>
-      <div className="my-6">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-5">
+        <strong className="text-center text-[clamp(17px,1.5vw,22px)] leading-tight text-[#edf4ef]">{value}</strong>
         <RangeBar position={position} />
-      </div>
-      <div className="flex justify-between font-mono text-[6px] font-bold uppercase tracking-widest text-[#829187]">
-        <span>Débutant</span>
-        <span className="text-primary">Intermédiaire</span>
-        <span>Expert</span>
+        <div className="flex justify-between font-mono text-[9px] font-bold uppercase tracking-widest text-[#829187]">
+          <span>Débutant</span>
+          <span className="text-primary">Intermédiaire</span>
+          <span>Expert</span>
+        </div>
       </div>
     </article>
   );

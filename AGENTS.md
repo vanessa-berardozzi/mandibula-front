@@ -36,22 +36,13 @@ Repository: mandibula-front (Next.js App Router, TypeScript, Tailwind, shadcn/ui
 - Dev scripts rely on `NODE_OPTIONS=--max-http-header-size=131072`; keep this if you touch scripts.
 - If you add environment-dependent behavior, verify `.env.staging` compatibility because `dev:staging` is used.
 
-## Documentation To Link (Do Not Duplicate)
-- Front docs index: [DocPerso/README.md](DocPerso/README.md)
-- Styles and token usage: [DocPerso/GUIDE-STYLES.md](DocPerso/GUIDE-STYLES.md)
-- Integration checklist: [DocPerso/INTEGRATION-CHECKLIST.md](DocPerso/INTEGRATION-CHECKLIST.md)
-- Profile specifics: [DocPerso/PROFILE-GUIDE.md](DocPerso/PROFILE-GUIDE.md)
-- PWA config: [DocPerso/PWA-CONFIG-GUIDE.md](DocPerso/PWA-CONFIG-GUIDE.md)
-- SEO footer notes: [DocPerso/FOOTER-SEO-GUIDE.md](DocPerso/FOOTER-SEO-GUIDE.md)
 
 ## Change Hygiene
 - Make small, focused diffs.
-- Run lint for touched areas before finalizing.
+- Keep commit messages clear and descriptive in English.
 - Do not refactor unrelated files in the same change.
--Do not run server by our own, it's already running in the dev environment.
+- Do not run server by our own, it's already running in the dev environment, same for linting, building.
+- No duplicate effort; always check existing components, hooks, and utilities before creating new ones.
+-Use as few tokens as possible to save my Copilot's resources. 
 
-## Graphical goals:
 
--We want to recreate visually the same interface as the client's maquet ( https://mandibula.darkmalekith94.chatgpt.site/) but with my architecture and components. The goal is to have a clean, maintainable codebase that matches the client's design while leveraging our existing UI primitives and architecture.
-I want clean code, with a clear separation of concerns, and to avoid unnecessary complexity. The focus should be on reusability and consistency across the application.
--Don't launch linting on the codebase , I'll do it myself, you can focus on the code itself.
