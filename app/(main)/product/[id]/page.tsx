@@ -56,6 +56,7 @@ type ProductAttributes = {
 	conseils?: string[];
 	compatible?: string;
 	utilisation?: string;
+	wc?: boolean;
 
 	[key: string]: unknown;
     
@@ -198,7 +199,7 @@ interface ProductPanel {
 	display?: PanelDisplay;
 	variant?: PanelVariant;
 	layout?: PanelLayout;
-  position?: PanelPosition;
+  position?: PanelPosition
 }
 
 interface ProductPresentation {
@@ -480,7 +481,6 @@ export default function ProductDetailPage() {
 	const details = productDetails(product, attrs);
 	const tutorial = tutorialFor(product, attrs);
 	const presentation = buildProductPresentation(product, attrs);
-  const overview = presentation.overview;
 	const panels = presentation.panels;
 	const origin = panels.find((panel) => panel.variant === 'origin')?.value;
   const originMarker = origin ? originCoordinates(origin) : null;
@@ -715,11 +715,7 @@ export default function ProductDetailPage() {
 								</span>
 							</div>
 						</div>
-						{overview && (
-							<p className='mt-1 max-w-180 text-sm leading-[1.65] text-[#cbd8cf]'>
-								{overview}
-							</p>
-						)}
+						
 						<aside
 							className='mt-5 border border-primary/30 bg-[linear-gradient(145deg,rgba(7,27,13,.92),rgba(2,10,6,.9))] p-4.5 shadow-[inset_0_0_35px_rgba(71,255,131,.035)]'
 							aria-label='Informations essentielles avant achat'
