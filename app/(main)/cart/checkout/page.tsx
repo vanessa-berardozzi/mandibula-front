@@ -27,7 +27,8 @@ type AddressTypeValue = 'SHIPPING' | 'BILLING' | 'BOTH';
 
 interface SavedAddress {
   id: string;
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   type?: AddressTypeValue;
   street: string;
@@ -108,10 +109,11 @@ function getCountryLabel(code: string) {
 
 function buildShippingFromSavedAddress(addr: SavedAddress): Omit<ShippingAddress, 'email'> {
   const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
-  const nameParts = (addr.fullName ?? '').trim().split(/\s+/).filter(Boolean);
+  const firstName = addr.firstName ?? '';
+  const lastName = addr.lastName ?? '';
   return {
-    firstName: nameParts[0] ?? '',
-    lastName: nameParts.slice(1).join(' '),
+    firstName,
+    lastName,
     phone: addr.phone ?? '',
     street: addr.street,
     city: addr.city,
@@ -123,10 +125,11 @@ function buildShippingFromSavedAddress(addr: SavedAddress): Omit<ShippingAddress
 
 function buildBillingFromSavedAddress(addr: SavedAddress): BillingAddress {
   const country = getCountryOption(addr.country) ?? getCountryOption('FR')!;
-  const nameParts = (addr.fullName ?? '').trim().split(/\s+/).filter(Boolean);
+  const firstName = addr.firstName ?? '';
+  const lastName = addr.lastName ?? '';
   return {
-    firstName: nameParts[0] ?? '',
-    lastName: nameParts.slice(1).join(' '),
+    firstName,
+    lastName,
     street: addr.street,
     city: addr.city,
     postalCode: addr.postalCode,

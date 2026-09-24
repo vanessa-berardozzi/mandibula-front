@@ -59,7 +59,8 @@ type AddressTypeValue = (typeof ADDRESS_TYPES)[number]["value"];
 interface Address {
   id: string;
   name?: string;
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   type?: AddressTypeValue;
   street: string;
@@ -144,10 +145,8 @@ export function SavedAddresses() {
   };
 
   const startEdit = (address: Address) => {
-    const fullName = address.fullName || "";
-    const parts = fullName.trim().split(/\s+/);
-    const firstName = parts[0] || "";
-    const lastName = parts.slice(1).join(" ") || "";
+    const firstName = address.firstName || "";
+    const lastName = address.lastName || "";
     const country = (COUNTRIES.find((c) => c.code === address.country.toUpperCase())?.code ?? "FR") as CountryCode;
 
     setFormData({
@@ -186,14 +185,15 @@ export function SavedAddresses() {
       const url = editingId ? `/api/addresses/${editingId}` : "/api/addresses";
       const method = editingId ? "PUT" : "POST";
 
-      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      
       const res = await fetch(url, {
         method,
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
-          fullName: fullName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           phone: formData.phone || undefined,
           type: formData.type,
           street: formData.street,
@@ -307,8 +307,10 @@ export function SavedAddresses() {
                           {ADDRESS_TYPES.find((t) => t.value === (address.type ?? "BOTH"))?.label}
                         </span>
                       </div>
-                      {address.fullName && (
-                        <p className="text-sm text-foreground font-medium mb-2">{address.fullName}</p>
+                      {(address.firstName || address.lastName) && (
+                        <p className="text-sm text-foreground font-medium mb-2">
+                          {`${address.firstName ?? ""} ${address.lastName ?? ""}`.trim()}
+                        </p>
                       )}
                       <p className="text-xs text-muted-foreground mb-1">{address.street}</p>
                       <p className="text-xs text-muted-foreground mb-3">
