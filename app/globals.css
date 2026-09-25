@@ -1727,6 +1727,79 @@ body {
 }
 
 /* ============================================
+   PHONE INPUT — aligné sur la DA des champs adresse
+   (bg-accent/30 + border-primary/20 utilisés dans SavedAddresses.tsx)
+   ============================================ */
+.phone-input-custom {
+  display: flex;
+  width: 100%;
+}
+
+.phone-input-custom .PhoneInputCountry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 0;
+  padding: 0 10px;
+  background: rgba(15, 42, 25, 0.3);
+  border: 1px solid rgba(112, 241, 139, 0.2);
+  border-right: none;
+  border-radius: 2px 0 0 2px;
+}
+
+/* Drapeau du pays sélectionné : agrandi + bordure pour rester lisible sur fond sombre */
+.phone-input-custom .PhoneInputCountryIcon {
+  width: 1.75em;
+  height: 1.25em;
+  box-shadow: 0 0 0 1px rgba(220, 255, 229, 0.25);
+}
+
+.phone-input-custom .PhoneInputCountryIcon--border {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Flèche du select natif, recolorée en vert primary */
+.phone-input-custom .PhoneInputCountrySelectArrow {
+  --PhoneInputCountrySelectArrow-color: var(--primary);
+  --PhoneInputCountrySelectArrow-color--focus: var(--primary);
+  --PhoneInputCountrySelectArrow-opacity: 0.75;
+  margin-left: 6px;
+}
+
+.phone-input-custom .PhoneInputCountrySelect {
+  background: transparent;
+  border: none;
+  color: var(--foreground);
+}
+
+/* Liste déroulante native du select pays : reprend le fond/texte du site */
+.phone-input-custom .PhoneInputCountrySelect option {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.phone-input-custom .PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  background: rgba(15, 42, 25, 0.3);
+  border: 1px solid rgba(112, 241, 139, 0.2);
+  border-radius: 0 2px 2px 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.phone-input-custom .PhoneInputInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.phone-input-custom .PhoneInputInput:focus {
+  outline: none;
+  border-color: rgba(112, 241, 139, 0.5);
+}
+
+/* ============================================
    CUSTOM SCROLLBAR — Gaming Style
    ============================================ */
 .custom-scrollbar::-webkit-scrollbar {

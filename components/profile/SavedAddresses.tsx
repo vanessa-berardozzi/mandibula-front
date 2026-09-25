@@ -2,9 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AsYouType, isValidPhoneNumber } from "libphonenumber-js";
 import { AlertCircle, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import PhoneInput from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
+import "react-phone-number-input/style.css";
+
 
 // Codes ISO 3166-1 alpha-2. Le format attendu du téléphone et du code postal
 // dépend du pays sélectionné (validé côté back également).
@@ -88,6 +92,7 @@ export function SavedAddresses() {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("FR");
   const [formData, setFormData] = useState<FormData>({
     name: "",
     firstName: "",
@@ -139,6 +144,7 @@ export function SavedAddresses() {
       postalCode: "",
       country: "FR",
     });
+    setPhoneCountry("FR");
     setPhoneError(null);
     setEditingId(null);
     setShowForm(false);
@@ -160,6 +166,7 @@ export function SavedAddresses() {
       postalCode: address.postalCode,
       country,
     });
+    setPhoneCountry(country);
     setPhoneError(null);
     setEditingId(address.id);
     setShowForm(true);
@@ -172,8 +179,8 @@ export function SavedAddresses() {
       return;
     }
 
-    if (formData.phone && !isValidPhoneNumber(formData.phone, formData.country)) {
-      setPhoneError(`Numéro de téléphone invalide pour ${formData.country}`);
+     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      setPhoneError("Numéro de téléphone invalide");
       return;
     }
 
@@ -433,11 +440,7 @@ export function SavedAddresses() {
                 onChange={(e) => {
                   const country = e.target.value as CountryCode;
                   setFormData({ ...formData, country });
-                  setPhoneError(
-                    formData.phone && !isValidPhoneNumber(formData.phone, country)
-                      ? `Numéro de téléphone invalide pour ${country}`
-                      : null
-                  );
+                  setPhoneCountry(country);
                 }}
                 required
                 className="col-span-1 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground focus:outline-none focus:border-primary/50"
@@ -448,25 +451,30 @@ export function SavedAddresses() {
                   </option>
                 ))}
               </select>
-              <input
-                type="tel"
-                placeholder="Téléphone"
-                value={formData.phone}
-                onChange={(e) => {
-                  const formatted = new AsYouType(formData.country).input(e.target.value);
-                  setFormData({ ...formData, phone: formatted });
-                  setPhoneError(null);
-                }}
-                onBlur={() => {
-                  if (formData.phone && !isValidPhoneNumber(formData.phone, formData.country)) {
-                    setPhoneError(`Numéro de téléphone invalide pour ${formData.country}`);
-                  }
-                }}
-                className="col-span-2 px-3 py-2 bg-accent/30 border border-primary/20 rounded-sm text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
-              />
-              {phoneError && (
-                <p className="col-span-2 text-xs text-red-300 -mt-2">{phoneError}</p>
-              )}
+                            <div className="col-span-2">
+                <PhoneInput
+                  international
+                  flags={flags}
+                  country={phoneCountry}
+                  onCountryChange={(country) => country && setPhoneCountry(country as CountryCode)}
+                  countryCallingCodeEditable={false}
+                  value={formData.phone}
+                  onChange={(value) => {
+                    setFormData({ ...formData, phone: value || "" });
+                    setPhoneError(null);
+                  }}
+                  onBlur={() => {
+                    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+                      setPhoneError("Numéro de téléphone invalide");
+                    }
+                  }}
+                  className="phone-input-custom"
+                  placeholder="Téléphone"
+                />
+                {phoneError && (
+                  <p className="text-xs text-red-300 mt-1">{phoneError}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2">
