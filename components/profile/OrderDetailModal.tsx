@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/admin/adminOrderLabels";
 import type { AdminOrderStatus, AdminPaymentStatus } from "@/types/admin";
 import { Loader2, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
 interface OrderItemDetail {
   id: string;
@@ -54,10 +54,33 @@ const formatShippingAddress = (address: OrderDetail["shippingAddress"]) => {
     .join(", ");
 };
 
+const jungleModalStyle: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(90deg, rgba(2,7,5,0.97) 0%, rgba(2,8,6,0.92) 58%, rgba(2,8,6,0.82) 100%), linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px), url("/mandibula-jungle.png")',
+  backgroundPosition: "center, 0 0, 0 0, center",
+  backgroundSize: "cover, 48px 48px, 48px 48px, cover",
+};
+
+const surfaceClass = "relative overflow-hidden border border-[var(--line)] bg-[rgba(7,15,10,0.72)] shadow-[inset_0_0_28px_rgba(112,241,139,0.025)] rounded-none";
+const labelClass = "text-[10px] font-black tracking-[0.18em] text-muted-foreground uppercase";
+
+function ScanCorners({ className = "" }: { className?: string }) {
+  const cornerClass = "absolute h-4 w-4 border-primary/45";
+
+  return (
+    <div className={`pointer-events-none absolute inset-0 z-10 ${className}`} aria-hidden="true">
+      <span className={`${cornerClass} left-0 top-0 border-l border-t`} />
+      <span className={`${cornerClass} right-0 top-0 border-r border-t`} />
+      <span className={`${cornerClass} bottom-0 left-0 border-b border-l`} />
+      <span className={`${cornerClass} bottom-0 right-0 border-b border-r`} />
+    </div>
+  );
+}
+
 function OrderProgressTracker({ status }: { status: AdminOrderStatus }) {
   if (status === "CANCELLED") {
     return (
-      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-sm text-red-300 font-semibold">
+      <div className="border border-red-500/40 bg-red-500/10 p-3 text-sm font-semibold text-red-300 rounded-none">
         Commande annulée
       </div>
     );
@@ -65,7 +88,7 @@ function OrderProgressTracker({ status }: { status: AdminOrderStatus }) {
 
   if (status === "HELD_WEATHER") {
     return (
-      <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-sm text-sm text-yellow-300 font-semibold">
+      <div className="border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm font-semibold text-yellow-300 rounded-none">
         Expédition suspendue temporairement pour raison météo
       </div>
     );
@@ -75,28 +98,28 @@ function OrderProgressTracker({ status }: { status: AdminOrderStatus }) {
   const currentIndex = status === "PENDING" ? -1 : PROGRESS_STEPS.findIndex((step) => step.key === status);
 
   return (
-    <div className="flex items-center">
+    <div className="flex min-w-155 items-start md:min-w-0 md:items-center">
       {PROGRESS_STEPS.map((step, index) => {
         const isDone = index <= currentIndex;
         const isCurrent = index === currentIndex;
         return (
           <div key={step.key} className="flex items-center flex-1 last:flex-none">
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-2">
               <div
-                className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-bold ${
+                className={`w-7 h-7 border flex items-center justify-center font-mono text-[10px] font-bold rounded-none ${
                   isDone
-                    ? "bg-primary text-black border-primary"
-                    : "bg-transparent text-muted-foreground border-primary/30"
-                } ${isCurrent ? "shadow-[0_0_10px_rgba(216,249,153,0.6)]" : ""}`}
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-[rgba(7,15,10,0.7)] text-muted-foreground border-line"
+                } ${isCurrent ? "shadow-[0_0_18px_rgba(112,241,139,0.38)]" : ""}`}
               >
                 {isDone ? "✓" : index + 1}
               </div>
-              <p className={`text-[10px] uppercase text-center whitespace-nowrap ${isDone ? "text-primary" : "text-muted-foreground"}`}>
+              <p className={`font-mono text-[9px] uppercase text-center whitespace-nowrap ${isDone ? "text-primary" : "text-muted-foreground"}`}>
                 {step.label}
               </p>
             </div>
             {index < PROGRESS_STEPS.length - 1 && (
-              <div className={`flex-1 h-px mx-1 mb-4 ${index < currentIndex ? "bg-primary" : "bg-primary/20"}`} />
+              <div className={`flex-1 h-px mx-1 mb-7 ${index < currentIndex ? "bg-primary" : "bg-line"}`} />
             )}
           </div>
         );
@@ -133,27 +156,38 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-9999 flex items-center justify-center p-4">
-      <div className="bg-black border border-primary/30 rounded-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-x-0 bottom-0 top-19 z-60 flex items-center justify-center overflow-y-auto bg-black/70 p-3 backdrop-blur-sm sm:top-23.5 sm:p-5 lg:top-24">
+      <div
+        className="relative isolate w-full max-w-2xl max-h-[min(90vh,calc(100dvh-8rem))] overflow-hidden border border-primary/35 bg-background text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.62),inset_0_0_70px_rgba(112,241,139,0.035)] rounded-none sm:max-h-[calc(100dvh-8.5rem)] lg:max-h-[calc(100dvh-9rem)]"
+        style={jungleModalStyle}
+      >
+        <div className="pointer-events-none absolute inset-3.5 border border-line opacity-70" aria-hidden="true" />
+        <ScanCorners className="m-3.5 opacity-80" />
+        <div className="relative z-10 max-h-[inherit] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 flex items-center justify-between p-6 border-b border-primary/20 bg-black">
-          <div>
-            <h2 className="text-lg font-bold text-primary">DÉTAIL COMMANDE</h2>
+        <div className="sticky top-0 z-20 flex items-start justify-between gap-5 border-b border-line bg-[rgba(3,8,5,0.9)] p-5 backdrop-blur-sm sm:p-6">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-primary">Compte client · suivi</p>
+            <h2 className="mt-2 text-2xl font-black uppercase leading-none tracking-tight text-foreground">Détail commande</h2>
             {order && (
-              <p className="text-sm font-semibold text-foreground mt-1">
+              <p className="mt-3 inline-flex border border-primary/35 bg-primary/10 px-3 py-1 font-mono text-xs font-black text-primary">
                 #{order.id.slice(0, 8).toUpperCase()}
               </p>
             )}
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="grid h-10 w-10 shrink-0 place-items-center border border-line bg-black/25 text-muted-foreground transition-colors hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
+            aria-label="Fermer la modale"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="space-y-4 p-5 sm:p-6">
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-sm">
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-none">
               <p className="text-xs text-red-300">{error}</p>
             </div>
           )}
@@ -165,23 +199,29 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
           ) : order ? (
             <>
               {/* Suivi de l'avancée */}
-              <section className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                <p className="text-xs font-semibold text-primary uppercase mb-4">Suivi de la commande</p>
-                <OrderProgressTracker status={order.status} />
+              <section className={`${surfaceClass} p-4`}>
+                <ScanCorners className="opacity-70" />
+                <p className="mb-4 font-mono text-[10px] font-black uppercase tracking-[0.18em] text-primary">Suivi de la commande</p>
+                <div className="overflow-x-auto pb-1">
+                  <OrderProgressTracker status={order.status} />
+                </div>
               </section>
 
               {/* Infos générales */}
-              <section className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Statut</p>
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                <div className={`${surfaceClass} p-4`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className={`${labelClass} mb-2`}>Statut</p>
                   <p className="text-sm font-semibold text-foreground">{ORDER_STATUS_LABELS[order.status]}</p>
                 </div>
-                <div className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Total</p>
-                  <p className="text-lg font-bold text-primary">{Number(order.total).toFixed(2)}€</p>
+                <div className={`${surfaceClass} p-4`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className={`${labelClass} mb-2`}>Total</p>
+                  <p className="font-mono text-2xl font-black text-primary">{Number(order.total).toFixed(2)}€</p>
                 </div>
-                <div className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Date</p>
+                <div className={`${surfaceClass} p-4 sm:col-span-2 md:col-span-1`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className={`${labelClass} mb-2`}>Date</p>
                   <p className="text-sm text-foreground">
                     {new Date(order.createdAt).toLocaleDateString("fr-FR")}
                   </p>
@@ -190,16 +230,17 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
 
               {/* Articles */}
               {order.orderItems && order.orderItems.length > 0 && (
-                <section className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs font-semibold text-primary uppercase mb-3">Articles</p>
-                  <div className="space-y-2">
+                <section className={`${surfaceClass} p-4`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className="mb-3 font-mono text-[10px] font-black uppercase tracking-[0.18em] text-primary">Articles</p>
+                  <div className="divide-y divide-line">
                     {order.orderItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center text-xs">
+                      <div key={item.id} className="flex items-center justify-between gap-4 py-3 text-xs first:pt-0 last:pb-0">
                         <div>
                           <p className="text-foreground font-medium">{item.variant.product.name}</p>
                           <p className="text-muted-foreground">{item.variantName}</p>
                         </div>
-                        <p className="text-foreground">×{item.quantity}</p>
+                        <p className="font-mono text-primary">×{item.quantity}</p>
                       </div>
                     ))}
                   </div>
@@ -207,20 +248,23 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
               )}
 
               {/* Paiement */}
-              <section className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs text-muted-foreground uppercase mb-2">Statut paiement</p>
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className={`${surfaceClass} p-4`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className={`${labelClass} mb-2`}>Statut paiement</p>
                   <p className="text-sm text-foreground font-semibold">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</p>
                 </div>
-                <div className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                  <p className="text-xs text-muted-foreground uppercase mb-2">Moyen de paiement</p>
+                <div className={`${surfaceClass} p-4`}>
+                  <ScanCorners className="opacity-45" />
+                  <p className={`${labelClass} mb-2`}>Moyen de paiement</p>
                   <p className="text-sm text-foreground font-semibold">{order.paymentMethod || "-"}</p>
                 </div>
               </section>
 
               {/* Livraison */}
-              <section className="p-3 bg-accent/10 border border-primary/20 rounded-sm">
-                <p className="text-xs text-muted-foreground uppercase mb-2">Adresse de livraison</p>
+              <section className={`${surfaceClass} p-4`}>
+                <ScanCorners className="opacity-45" />
+                <p className={`${labelClass} mb-2`}>Adresse de livraison</p>
                 <p className="text-sm text-foreground">{formatShippingAddress(order.shippingAddress)}</p>
               </section>
             </>
@@ -228,14 +272,15 @@ export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalP
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 p-6 border-t border-primary/20 bg-black">
+        <div className="sticky bottom-0 border-t border-line bg-[rgba(3,8,5,0.9)] p-5 backdrop-blur-sm sm:p-6">
           <Button
             onClick={onClose}
             variant="outline"
-            className="w-full border-primary/50 text-primary hover:bg-primary/10 rounded-sm text-xs h-9"
+            className="h-10 w-full rounded-none border-line bg-transparent text-xs font-black uppercase tracking-[0.12em] text-primary hover:border-primary/70 hover:bg-primary/10"
           >
             Fermer
           </Button>
+        </div>
         </div>
       </div>
     </div>
