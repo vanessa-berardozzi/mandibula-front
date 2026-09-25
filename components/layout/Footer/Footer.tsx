@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const legalBase = "https://mandibula.sumupstore.com";
-
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -15,14 +13,13 @@ export function Footer() {
           <Link className="footer-logo" href="/" aria-label="Mandibula, accueil">
             <Image
               src="/mandibula-logo.png"
-              alt=""
+              alt="Mandibula Logo"
               aria-hidden="true"
-              width={58}
-              height={58}
+              width={100}
+              height={100}
               className="object-contain"
             />
             <span>
-              <strong>MANDIBULA</strong>
               <small>BUILT FOR INSECTS · DESIGNED FOR YOU</small>
             </span>
           </Link>
@@ -50,17 +47,10 @@ export function Footer() {
 
         <nav className="footer-column" aria-label="Informations et aide">
           <p>INFORMATIONS</p>
-          <Link href="/notre-demarche">Pourquoi Mandibula existe</Link>
-          <a href={`${legalBase}/page/conditions-generales#livraison`} target="_blank" rel="noreferrer">
-            Livraison du vivant
-          </a>
-          <a
-            href={`${legalBase}/page/conditions-generales#politique-de-retour`}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <Link href="/conditions-generales#livraison">Livraison du vivant</Link>
+          <Link href="/conditions-generales#politique-de-retour">
             Retours &amp; garantie
-          </a>
+          </Link>
           <Link href="/profile">Mon compte</Link>
           <a href="mailto:contact@mandibula.lu">Contact &amp; SAV</a>
         </nav>
@@ -73,12 +63,12 @@ export function Footer() {
           </a>
           <a
             className="footer-contact-link"
-            href="https://www.instagram.com/mandibula_official/"
+            href="https://www.instagram.com/mandibula_lux/"
             target="_blank"
             rel="noreferrer"
           >
             <small>INSTAGRAM</small>
-            <strong>@mandibula_official</strong>
+            <strong>@mandibula_lux</strong>
           </a>
           <div className="footer-contact-link">
             <small>BASE D&apos;ÉLEVAGE</small>
@@ -94,15 +84,9 @@ export function Footer() {
       <div className="footer-bottom">
         <span>© {currentYear} MANDIBULA</span>
         <nav aria-label="Informations légales">
-          <a href={`${legalBase}/page/conditions-generales`} target="_blank" rel="noreferrer">
-            Conditions générales
-          </a>
-          <a href={`${legalBase}/page/politique-de-confidentialite`} target="_blank" rel="noreferrer">
-            Confidentialité
-          </a>
-          <a href={`${legalBase}/politique-cookies`} target="_blank" rel="noreferrer">
-            Cookies
-          </a>
+          <Link href="/conditions-generales">Conditions générales</Link>
+          <Link href="/confidentialite">Confidentialité</Link>
+          <Link href="/cookies">Cookies</Link>
         </nav>
         <span className="footer-status">
           <i aria-hidden="true" />

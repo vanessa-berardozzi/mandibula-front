@@ -131,7 +131,6 @@ export function Navbar() {
       <div className="site-header">
         <Link href="/" className="brand" aria-label="Mandibula, accueil">
           <Image src="/mandibula-logo.png" alt="Mandibula" width={80} height={80} className="h-15 w-auto object-contain" priority />
-          <strong>BUILT FOR INSECTS · DESIGNED FOR YOU</strong>
         </Link>
 
         <div className="desktop-nav">

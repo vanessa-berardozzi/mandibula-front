@@ -10,7 +10,7 @@ interface UserProfileHeaderProps {
   email: string;
   memberSince: string;
   level: number;
-  loyaltyPoints: number;
+
   onSignOut?: () => void;
 }
 
@@ -18,7 +18,6 @@ export function UserProfileHeader({
   userName,
   email,
   memberSince,
-  loyaltyPoints,
   onSignOut,
 }: UserProfileHeaderProps) {
   return (
