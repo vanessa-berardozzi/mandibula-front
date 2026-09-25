@@ -8,6 +8,7 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
 import "react-phone-number-input/style.css";
+import styles from "./Profile.module.css";
 
 
 // Codes ISO 3166-1 alpha-2. Le format attendu du téléphone et du code postal
@@ -255,10 +256,10 @@ export function SavedAddresses() {
 
   if (loading) {
     return (
-      <Card className="border-primary/30 bg-card/30 backdrop-blur">
-        <CardHeader>
-          <CardTitle className="text-primary">Adresses de Livraison</CardTitle>
-          <CardDescription>Gérez vos adresses de livraison</CardDescription>
+      <Card className={styles.panel}>
+        <CardHeader className={styles.panelHeader}>
+          <CardTitle className={styles.panelTitle}>Adresses de livraison</CardTitle>
+          <CardDescription className={styles.panelDescription}>Gérez vos adresses de livraison</CardDescription>
         </CardHeader>
         <div className="px-6 pb-6 flex items-center justify-center py-8">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -268,10 +269,10 @@ export function SavedAddresses() {
   }
 
   return (
-    <Card className="border-primary/30 bg-card/30 backdrop-blur">
-      <CardHeader>
-        <CardTitle className="text-primary">Adresses de Livraison</CardTitle>
-        <CardDescription>Gérez vos adresses de livraison</CardDescription>
+    <Card className={styles.panel}>
+      <CardHeader className={styles.panelHeader}>
+        <CardTitle className={styles.panelTitle}>Adresses de livraison</CardTitle>
+        <CardDescription className={styles.panelDescription}>Gérez vos adresses de livraison</CardDescription>
       </CardHeader>
 
       <div className="px-6 pb-6">

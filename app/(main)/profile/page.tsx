@@ -1,7 +1,8 @@
 "use client";
 
 import { SimpleProductCard } from "@/components/features/SimpleProductCard";
-import { SavedAddresses, UserProfileHeader, UserStats } from "@/components/profile";
+import { SavedAddresses, UserProfileHeader } from "@/components/profile";
+import styles from "@/components/profile/Profile.module.css";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -25,10 +26,24 @@ const MOCK_USER = {
   loyaltyPoints: 2450,
 };
 
+interface ProfileOrder {
+  id: string;
+  status: string;
+  paymentStatus: string;
+  total: string | number;
+}
+
+const euroFormatter = new Intl.NumberFormat("fr-LU", {
+  style: "currency",
+  currency: "EUR",
+});
+
 export default function ProfilePage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const { items: favorites, isLoading: favLoading } = useFavorites();
+  const [orders, setOrders] = useState<ProfileOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -58,6 +73,30 @@ export default function ProfilePage() {
     }
   }, [isPending, session, router]);
 
+  useEffect(() => {
+    if (!session?.user) return;
+
+    let cancelled = false;
+    fetch("/api/orders", { credentials: "include" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Commandes indisponibles");
+        return response.json();
+      })
+      .then((data) => {
+        if (!cancelled) setOrders(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setOrders([]);
+      })
+      .finally(() => {
+        if (!cancelled) setOrdersLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user]);
+
   if (isPending || !session?.user) {
     return (
       <main className="min-h-screen pb-12">
@@ -68,12 +107,7 @@ export default function ProfilePage() {
     );
   }
 
-  const stats = [
-    { label: "Commandes", value: "...", icon: "📦", color: "primary" as const },
-    { label: "Dépense totale", value: "...", icon: "💰", color: "secondary" as const },
-    { label: "Niveau", value: String(MOCK_USER.level), icon: "⭐", color: "accent" as const },
-    { label: "Points de fidélité", value: String(MOCK_USER.loyaltyPoints), icon: "🎟️", color: "primary" as const },
-  ];
+  
 
   const memberSince = session.user.createdAt
     ? new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(
@@ -87,42 +121,64 @@ export default function ProfilePage() {
     email: session.user.email,
     memberSince,
   };
+  const paidOrders = orders.filter((order) => order.paymentStatus === "PAID");
+  const totalSpent = paidOrders.reduce((sum, order) => sum + Number(order.total), 0);
+  const activeStatuses = ["PENDING", "CONFIRMED", "TO_PREPARE", "PREPARING", "HELD_WEATHER", "READY", "SHIPPED"];
+  const activeOrders = orders.filter((order) => activeStatuses.includes(order.status)).length;
 
   return (
-    <main className="min-h-screen pb-12">
-      <div className="w-full px-4 md:px-8">
+    <main className={styles.page}>
+      <div className={styles.content}>
+        <div className={styles.index} aria-hidden="true">
+          <span>Compte membre / profil</span>
+          <span>Mandibula biosystem · accès sécurisé</span>
+        </div>
         {/* En-tête du profil */}
         <UserProfileHeader {...profileHeaderData} onSignOut={handleSignOut} />
 
-        {/* Statistiques utilisateur */}
-        <UserStats stats={stats} />
-
         {/* Section adresses et commandes - Grille responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className={styles.layout}>
           <SavedAddresses />
 
           {/* Accès à l'historique et au suivi des commandes */}
-          <Card className="border-primary/30 bg-card/30 backdrop-blur">
-            <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <Card className={`${styles.panel} ${styles.orders}`}>
+            <CardHeader className={`${styles.panelHeader} ${styles.ordersHeader}`}>
               <div>
-                <CardTitle className="text-primary">Mes Commandes</CardTitle>
-                <CardDescription>Suivez vos commandes et consultez le détail de chacune</CardDescription>
+                <CardTitle className={styles.panelTitle}>Mes commandes</CardTitle>
+                <CardDescription className={styles.panelDescription}>Suivez vos commandes et consultez le détail de chacune</CardDescription>
               </div>
+            </CardHeader>
+            <div className={styles.orderStats} aria-busy={ordersLoading}>
+              <div className={styles.orderStat}>
+                <span>Commandes</span>
+                <strong>{ordersLoading ? "—" : orders.length}</strong>
+              </div>
+              <div className={styles.orderStat}>
+                <span>Total dépensé</span>
+                <strong>{ordersLoading ? "—" : euroFormatter.format(totalSpent)}</strong>
+              </div>
+              <div className={styles.orderStat}>
+                <span>En cours</span>
+                <strong>{ordersLoading ? "—" : activeOrders}</strong>
+              </div>
+            </div>
+            <div className={styles.ordersBody}>
+              <p className={styles.ordersNote}>Le montant cumulé inclut uniquement les commandes payées.</p>
               <Link
                 href="/orders"
-                className="shrink-0 px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-sm font-semibold transition-colors"
+                className={styles.action}
               >
                 Voir mes commandes
               </Link>
-            </CardHeader>
+            </div>
           </Card>
         </div>
 
         {/* Section favoris */}
-        <Card className="border-primary/30 bg-card/30 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="text-primary">Liste de Souhait</CardTitle>
-            <CardDescription>Vos articles favoris à suivre 🎯</CardDescription>
+        <Card className={`${styles.panel} ${styles.wishlist}`}>
+          <CardHeader className={styles.panelHeader}>
+            <CardTitle className={styles.panelTitle}>Liste de souhaits</CardTitle>
+            <CardDescription className={styles.panelDescription}>Vos espèces et équipements favoris</CardDescription>
           </CardHeader>
 
           <div className="px-6 pb-6">
@@ -133,7 +189,7 @@ export default function ProfilePage() {
                 <p className="mb-4">Aucun article dans votre liste de souhait</p>
                 <Link
                   href="/"
-                  className="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 rounded-sm text-sm font-semibold transition-colors"
+                  className={styles.action}
                 >
                   Explorer les produits
                 </Link>
@@ -165,10 +221,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* Zone danger - Suppression de compte */}
-        <div className="mt-8 relative p-4 bg-red-500/10 backdrop-blur border-2 border-red-500/30 rounded-sm" 
-          style={{
-            clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)"
-          }}>
+        <div className={styles.danger}>
           <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-red-500/50" />
           <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-red-500/50" />
           

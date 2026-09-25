@@ -9,11 +9,7 @@ export interface AnimalCategoryGroup {
 }
 
 // TODO(categories-dynamiques): ces groupes sont mockés en dur pour coller au rendu de la
-// maquette (Mandibula-maquette/app/components/CatalogNavigation.tsx). À terme, remplacer par
-// un fetch vers GET /api/products/categories/all (Mandibula-back, voir src/routes/products.ts)
-// qui renvoie l'arborescence réelle `{ id, name, slug, children: [{ id, name, slug }] }`.
-// Idéalement via un hook (ex: useAnimalCategories()) appelé côté serveur dans Header.tsx ou
-// via SWR/React Query côté client, afin de garder Navbar/MobileMenu purement présentationnels.
+
 export const ANIMAL_CATEGORY_GROUPS: AnimalCategoryGroup[] = [
   {
     title: '01 / Isopodes',
